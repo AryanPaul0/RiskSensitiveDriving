@@ -1,390 +1,740 @@
+<!-- The doctype tells the browser to interpret this document as modern HTML. -->
 <!doctype html>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <html lang="en">
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <head>
+<!-- meta supplies document settings, such as character encoding or the mobile viewport. -->
 <meta charset="utf-8">
+<!-- meta supplies document settings, such as character encoding or the mobile viewport. -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <title>Inside the driving agent</title>
+<!-- The style tag begins CSS rules that control how the page looks. -->
 <style>
 /* Layout only: none of these rules change an agent's decision. */
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 * { box-sizing: border-box; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 body { margin: 0; background: #f2f5fa; color: #172a40; font: 16px/1.6 system-ui; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 main { max-width: 1280px; margin: auto; padding: 32px 24px 64px; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.1; margin: 12px 0; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 h2 { font-size: 23px; margin-top: 0; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 h3 { font-size: 17px; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 a { color: #165bb5; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 section, article { padding: 22px; background: white; border: 1px solid #dce4ef; border-radius: 14px; margin: 20px 0; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 .cards, .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 .cards article { margin: 0; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 .big { font-size: 30px; font-weight: 750; color: #164a79; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 .controls { display: flex; flex-wrap: wrap; gap: 16px; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 label { display: block; font-size: 14px; font-weight: 600; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 select, button { font: inherit; padding: 8px 12px; border-radius: 7px; border: 1px solid #a8b8cb; background: white; color: #172a40; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 button { cursor: pointer; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 input[type=range] { width: 100%; accent-color: #166c92; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 .drive { width: 100%; aspect-ratio: 900/240; background: #111; object-fit: contain; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 canvas { width: 100%; height: 310px; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 .scroll { overflow: auto; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 th, td { padding: 9px; border-bottom: 1px solid #dce4ef; text-align: right; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 th:first-child, td:first-child { text-align: left; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 .actual { background: #e0f4eb; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 .preview { outline: 2px solid #4d84bf; outline-offset: -2px; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 .note { color: #52667c; font-size: 14px; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 .notice { padding: 12px 16px; border-left: 4px solid #e9a543; background: #fff8e9; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 #time-label { font-variant-numeric: tabular-nums; }
+/* The selector before { chooses elements; property: value pairs inside set their appearance. */
 @media(max-width: 750px) { .pair, .cards { grid-template-columns: 1fr; } main { padding: 24px 12px; } }
+<!-- The slash closes the named HTML container opened earlier. -->
 </style>
+<!-- The slash closes the named HTML container opened earlier. -->
 </head>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <body>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <main>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p>DISTRIBUTIONAL REINFORCEMENT LEARNING / DECISION VIEWER</p>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <h1>What did the agent see—and choose?</h1>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p>Explore recorded development examples from the same trained models used in the study. Inspect the inputs, proposed actions, speed overrides, and predicted future rewards.</p>
+<!-- An a tag creates a link; href names the page or saved data to open. -->
 <p><a href="../long_training-report/index.html">Full 40K-versus-100K study</a> · <a href="../decision_viewer/design.json">Recording design</a> · <a href="../long_training_evaluation/summary.json">Evaluation data</a> · <a href="../prediction_audit/index.html">40K/100K prediction audit</a></p>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <div class="cards">
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <article><p>Normal traffic, 100K models</p><div class="big" id="normal-result"></div><p class="note">Cautious QR versus governed DQN. The primary collision criterion was not met; this does not prove equivalence.</p></article>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <article><p>Density 2, cautious QR</p><div class="big" id="dense-result"></div><p class="note">40K → 100K on matching fresh scenarios. A secondary budget comparison, not a replacement primary test.</p></article>
+<!-- The slash closes the named HTML container opened earlier. -->
 </div>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <section>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <h2>Choose a recorded comparison</h2>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <div class="controls">
+<!-- A select contains option choices; its id lets JavaScript read the current selection. -->
 <label>Training budget<select id="budget"><option value="100000">100K steps</option><option value="40000">40K steps</option></select></label>
+<!-- A select contains option choices; its id lets JavaScript read the current selection. -->
 <label>Training seed<select id="model"><option>0</option><option>1</option><option>2</option></select></label>
+<!-- A select contains option choices; its id lets JavaScript read the current selection. -->
 <label>Traffic density<select id="density"><option value="1">1.0</option><option value="2">2.0</option><option value="2.5">2.5</option></select></label>
+<!-- A select contains option choices; its id lets JavaScript read the current selection. -->
 <label>Development scenario<select id="scenario"><option>18000</option><option>18001</option></select></label>
+<!-- A select contains option choices; its id lets JavaScript read the current selection. -->
 <label>Left policy<select id="left-policy"></select></label>
+<!-- A select contains option choices; its id lets JavaScript read the current selection. -->
 <label>Right policy<select id="right-policy"></select></label>
+<!-- The slash closes the named HTML container opened earlier. -->
 </div>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p class="notice">These are illustrative development recordings, chosen before their outcomes. They are not new confirmation tests. Both policies start in matching traffic; their states can diverge after the first action.</p>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <div class="pair">
+<!-- An img displays a saved frame; JavaScript sets its src, and alt supplies a text description. -->
 <article><h3 id="left-name"></h3><img class="drive" id="left-frame" alt="Left policy recorded driving frame"><p id="left-state"></p><p class="note" id="left-outcome"></p></article>
+<!-- An img displays a saved frame; JavaScript sets its src, and alt supplies a text description. -->
 <article><h3 id="right-name"></h3><img class="drive" id="right-frame" alt="Right policy recorded driving frame"><p id="right-state"></p><p class="note" id="right-outcome"></p></article>
+<!-- The slash closes the named HTML container opened earlier. -->
 </div>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <button id="play" type="button">Play</button> <strong id="time-label"></strong>
+<!-- The range input creates a slider; min, max and step set its allowed values. -->
 <label>Recorded time<input id="time" type="range" min="0" max="30" step="1" value="0"></label>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p class="note">One decision is one simulated second. If one episode ends earlier, its last frame stays visible and is marked ended. The time slider does not create new actions.</p>
+<!-- The slash closes the named HTML container opened earlier. -->
 </section>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <section>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <h2>Inspect the left policy's decision</h2>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p id="decision-status"></p>
+<!-- A select contains option choices; its id lets JavaScript read the current selection. -->
 <label>Hypothetical lower-tail fraction<select id="alpha"><option value="1">All predictions: mean</option><option value="0.5">Lowest half</option><option value="0.25" selected>Lowest quarter</option><option value="0.125">Lowest eighth</option></select></label>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p class="notice">This control only recalculates scores in the left recording's current state. It does not change playback or show the future outcome of a different action.</p>
+<!-- table groups rows; tr makes a row, th labels a heading, and tbody receives data rows. -->
 <div class="scroll"><table><thead><tr><th>Action</th><th>Mean return</th><th>Explored score</th><th>Recorded choice</th></tr></thead><tbody id="scores"></tbody></table></div>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p class="note">Green = action actually applied. Blue outline = highest hypothetical score. A governor can override the network's proposal. Scores are discounted future reward estimates—not collision probabilities.</p>
+<!-- canvas gives JavaScript a drawing surface; width and height set its internal pixel dimensions. -->
 <canvas id="quantiles" width="1100" height="310" aria-label="Raw return quantile predictions for the left policy"></canvas>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p class="note" id="curve-note"></p>
+<!-- The slash closes the named HTML container opened earlier. -->
 </section>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <section>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <h2>The 40 numbers the left network received</h2>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p class="note">These are normalized inputs, not meters or meters per second. Row 0 is the ego car; other rows are current nearby-vehicle slots. Slots are not persistent vehicle IDs. Missing rows use presence 0. The network does not receive every vehicle or internal driver setting.</p>
+<!-- table groups rows; tr makes a row, th labels a heading, and tbody receives data rows. -->
 <div class="scroll"><table><thead><tr><th>Slot</th><th>Presence</th><th>x</th><th>y</th><th>vx</th><th>vy</th></tr></thead><tbody id="observation"></tbody></table></div>
+<!-- The slash closes the named HTML container opened earlier. -->
 </section>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <section>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <h2>How to read the curves</h2>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p>QR-DQN predicts 32 return quantiles for each action. The mean selector averages them all. The cautious selector sorts the predictions and averages the lowest quarter. The graph shows raw output-head order so prediction crossings remain visible. Training uses mean-based next-action selection; deploying a different selector changes the continuation policy.</p>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p>DQN predicts one expected-return estimate per action. A scalar mean is not a return distribution, so the viewer does not draw it as a quantile curve. A low predicted return can describe several bad outcomes; it is not a calibrated probability of a crash.</p>
+<!-- Angle-bracket tags identify page elements; attributes such as id and class name them for JavaScript and CSS. -->
 <p>Gap and speed readouts come from simulator measurements for explanation. Those extra measurements are not passed to the learned network. A nearby vehicle or recent lane change does not by itself establish the cause of a collision.</p>
+<!-- The slash closes the named HTML container opened earlier. -->
 </section>
+<!-- The slash closes the named HTML container opened earlier. -->
 </main>
+<!-- The script tag begins the JavaScript that responds to page controls. -->
 <script>
 // Python fills these two placeholders with saved data. No training runs here.
+// const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
 const recordings = __RECORDINGS__;
+// const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
 const evidence = __EVIDENCE__;
+// const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
 const names = {
+    // Inside this object, the colon pairs a property name with its value; the comma separates properties.
     qr_tail: 'QR lower quarter',
+    // Inside this object, the colon pairs a property name with its value; the comma separates properties.
     qr_mean: 'QR mean',
+    // Inside this object, the colon pairs a property name with its value; the comma separates properties.
     qr_governed: 'QR mean + governor',
+    // Inside this object, the colon pairs a property name with its value; the comma separates properties.
     dqn_governed: 'DQN + governor'
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 };
+// const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
 const actions = ['Lane left', 'Maintain target speed', 'Lane right', 'Faster target', 'Slower target'];
+// const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
 const colors = ['#2474bb', '#9170b6', '#16836f', '#d36b21', '#c53b48'];
+// const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
 let timer = null;
 
 // A small shortcut for finding a page control by its ID. The IDs match the HTML above.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function element(id) {
+    // return sends this result back to the caller and ends this function; the semicolon ends the statement.
     return document.getElementById(id);
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // The ordinary classroom mean: add the values, then divide by how many there are.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function average(numbers) {
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     let total = 0;
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (const value of numbers) {
+        // This continues the surrounding expression; commas separate its values and closing brackets finish their group.
         total += value;
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // return sends this result back to the caller and ends this function; the semicolon ends the statement.
     return total / numbers.length;
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // alpha tells us what fraction to average: .25 uses the lowest 8 of 32 QR outputs.
 // This explores one recorded state; it does not predict a new driving video.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function actionScores(predictions, alpha) {
     // Copy before sorting: exploring a score must not alter the saved outputs.
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const scores = [];
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (const outputs of predictions) {
         // Sort a copy numerically. JavaScript's default text sorting would be wrong here.
+        // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
         const ordered = outputs.slice().sort(function(a, b) {
+            // return sends this result back to the caller and ends this function; the semicolon ends the statement.
             return a - b;
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         });
+        // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
         const count = Math.max(1, Math.ceil(alpha * ordered.length));
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         scores.push(average(ordered.slice(0, count)));
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // return sends this result back to the caller and ends this function; the semicolon ends the statement.
     return scores;
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // Keep the index of the largest score. Ties keep the first action, matching the learner.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function bestAction(scores) {
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     let best = 0;
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (let action = 1; action < scores.length; action += 1) {
+        // if tests the condition in parentheses; the following block runs only when that condition is true.
         if (scores[action] > scores[best]) {
+            // = updates the value on its left after evaluating the expression on its right; dots access object properties.
             best = action;
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         }
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // return sends this result back to the caller and ends this function; the semicolon ends the statement.
     return best;
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // Build one table row, one cell at a time. textContent displays values as text, not HTML.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function addRow(body, values) {
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const row = document.createElement('tr');
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (const value of values) {
+        // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
         const cell = document.createElement('td');
+        // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
         cell.textContent = value;
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         row.appendChild(cell);
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     body.appendChild(row);
+    // return sends this result back to the caller and ends this function; the semicolon ends the statement.
     return row;
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function chosenRecording(policy) {
     // Read the controls once, then look for the matching saved recording.
     // These controls choose saved data; they never launch training.
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const budget = Number(element('budget').value);
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const modelSeed = Number(element('model').value);
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const density = Number(element('density').value);
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const scenario = Number(element('scenario').value);
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (const record of recordings) {
+        // if tests the condition in parentheses; the following block runs only when that condition is true.
         if (record.budget === budget && record.training_seed === modelSeed &&
+            // Triple equals compares both type and value without conversion; !== means they differ.
             record.density === density && record.scenario === scenario && record.policy === policy) {
+            // return sends this result back to the caller and ends this function; the semicolon ends the statement.
             return record;
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         }
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function findDensityResult(rows, density) {
     // A summary has one row per density. Find that row with an ordinary loop.
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (const row of rows) {
+        // if tests the condition in parentheses; the following block runs only when that condition is true.
         if (row.density === density) {
+            // return sends this result back to the caller and ends this function; the semicolon ends the statement.
             return row;
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         }
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // One policy may finish earlier. Hold its last frame instead of inventing later states.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function frameAt(record, time) {
     // Hold the terminal frame if this recording ends before its comparison.
+    // return sends this result back to the caller and ends this function; the semicolon ends the statement.
     return record.states[Math.min(time, record.states.length - 1)];
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // Show the picture and measurements from this policy's own saved trajectory.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function showRecording(side, record, time) {
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const state = frameAt(record, time);
+    // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
     element(side + '-name').textContent = names[record.policy];
+    // = updates the value on its left after evaluating the expression on its right; dots access object properties.
     element(side + '-frame').src = '../decision_viewer/' + state.frame;
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     let message = 't=' + state.time + ' s · speed ' + state.speed_m_s.toFixed(2) + ' m/s · lane ' + state.lane;
+    // if tests the condition in parentheses; the following block runs only when that condition is true.
     if (state.action === null) {
+        // This continues the surrounding expression; commas separate its values and closing brackets finish their group.
         message += ' · ended';
+    // else provides the alternative block when the preceding condition was false.
     } else {
+        // This continues the surrounding expression; commas separate its values and closing brackets finish their group.
         message += ' · ' + actions[state.action];
+        // if tests the condition in parentheses; the following block runs only when that condition is true.
         if (state.gap_m === null) {
+            // This continues the surrounding expression; commas separate its values and closing brackets finish their group.
             message += ' · no car directly ahead';
+        // else provides the alternative block when the preceding condition was false.
         } else {
+            // Parentheses pass inputs to a function or method; a dot selects that method from its object.
             message += ' · approximate front gap ' + state.gap_m.toFixed(1) + ' m';
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         }
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
     element(side + '-state').textContent = message;
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const duration = record.states.length - 1;
+    // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
     element(side + '-outcome').textContent = 'Recorded outcome: ' + (record.crashed ? 'collision' : 'time cutoff, no collision recorded') + ' after ' + duration + ' s. This is one example.';
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // Draw one colored line per action. The vertical values are predicted returns, not crash chances.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function drawQuantiles(predictions) {
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const canvas = element('quantiles');
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const context = canvas.getContext('2d');
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     context.clearRect(0, 0, canvas.width, canvas.height);
+    // = updates the value on its left after evaluating the expression on its right; dots access object properties.
     canvas.style.display = predictions && predictions[0].length > 1 ? 'block' : 'none';
+    // if tests the condition in parentheses; the following block runs only when that condition is true.
     if (!predictions || predictions[0].length === 1) {
+        // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
         element('curve-note').textContent = predictions ? 'DQN supplies scalar means. See the action scores above; no quantile distribution is implied.' : 'There is no issued decision at the terminal frame.';
+        // This continues the surrounding expression; commas separate its values and closing brackets finish their group.
         return;
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
     element('curve-note').textContent = 'Raw QR output heads; assigned quantile fraction on the horizontal axis and predicted discounted return on the vertical axis. Lower-tail scoring sorts these values; this graph does not hide crossings.';
     // Find the graph's value range one action at a time. Starting with an
     // actual prediction works even when every return estimate is negative.
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     let low = predictions[0][0];
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     let high = predictions[0][0];
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (const actionPredictions of predictions) {
+        // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
         for (const value of actionPredictions) {
+            // = updates the value on its left after evaluating the expression on its right; dots access object properties.
             low = Math.min(low, value);
+            // = updates the value on its left after evaluating the expression on its right; dots access object properties.
             high = Math.max(high, value);
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         }
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // if tests the condition in parentheses; the following block runs only when that condition is true.
     if (high - low < 0.01) {
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         high = low + 0.01;
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const left = 65,
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         right = 20,
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         top = 40,
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         bottom = 45;
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const width = canvas.width - left - right;
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const height = canvas.height - top - bottom;
+    // = updates the value on its left after evaluating the expression on its right; dots access object properties.
     context.font = '14px system-ui';
+    // = updates the value on its left after evaluating the expression on its right; dots access object properties.
     context.fillStyle = '#52667c';
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (let tick = 0; tick <= 4; tick += 1) {
+        // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
         const y = top + height * tick / 4;
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         context.strokeStyle = '#dce4ef';
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         context.beginPath();
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         context.moveTo(left, y);
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         context.lineTo(left + width, y);
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         context.stroke();
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         context.fillText((high - (high - low) * tick / 4).toFixed(2), 5, y + 5);
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         context.fillText((tick / 4).toFixed(2), left + width * tick / 4 - 10, top + height + 23);
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (let action = 0; action < predictions.length; action += 1) {
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         context.strokeStyle = colors[action];
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         context.lineWidth = 2;
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         context.beginPath();
+        // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
         const outputs = predictions[action];
+        // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
         for (let i = 0; i < outputs.length; i += 1) {
+            // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
             const x = left + width * (i + 0.5) / outputs.length;
+            // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
             const y = top + height * (high - outputs[i]) / (high - low);
+            // if tests the condition in parentheses; the following block runs only when that condition is true.
             if (i === 0) {
+                // Parentheses pass inputs to a function or method; a dot selects that method from its object.
                 context.moveTo(x, y);
+            // else provides the alternative block when the preceding condition was false.
             } else {
+                // Parentheses pass inputs to a function or method; a dot selects that method from its object.
                 context.lineTo(x, y);
+            // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
             }
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         }
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         context.stroke();
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         context.fillStyle = colors[action];
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         context.fillText(actions[action], left + action * 195, 20);
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // Read-only explanation of one saved decision: green is actual, blue is hypothetical.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function showDecision(record, time) {
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const state = frameAt(record, time);
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const body = element('scores');
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     body.replaceChildren();
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const observation = element('observation');
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     observation.replaceChildren();
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const scalar = record.policy === 'dqn_governed';
+    // = updates the value on its left after evaluating the expression on its right; dots access object properties.
     element('alpha').disabled = scalar || !state.predictions;
+    // if tests the condition in parentheses; the following block runs only when that condition is true.
     if (!state.predictions) {
+        // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
         element('decision-status').textContent = 'Episode ended: no action was issued from this frame; its observation table is not retained.';
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         drawQuantiles(null);
+        // This continues the surrounding expression; commas separate its values and closing brackets finish their group.
         return;
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     let message = 'Network proposed: ' + actions[state.proposed_action] + '. Applied: ' + actions[state.action] + '.';
+    // if tests the condition in parentheses; the following block runs only when that condition is true.
     if (state.governor_override) {
+        // This continues the surrounding expression; commas separate its values and closing brackets finish their group.
         message += ' The speed governor overrode the proposal.';
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     message += ' Immediate reward after this action: ' + state.reward_after_action.toFixed(3) + '.';
+    // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
     element('decision-status').textContent = message;
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     let alpha = 1;
+    // if tests the condition in parentheses; the following block runs only when that condition is true.
     if (!scalar) {
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         alpha = Number(element('alpha').value);
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const means = actionScores(state.predictions, 1);
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const scores = actionScores(state.predictions, alpha);
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const preview = bestAction(scores);
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (let action = 0; action < actions.length; action += 1) {
+        // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
         const row = addRow(body, [actions[action], means[action].toFixed(3), scores[action].toFixed(3), action === state.action ? 'Applied' : '']);
+        // if tests the condition in parentheses; the following block runs only when that condition is true.
         if (action === state.action) {
+            // Parentheses pass inputs to a function or method; a dot selects that method from its object.
             row.classList.add('actual');
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         }
+        // if tests the condition in parentheses; the following block runs only when that condition is true.
         if (action === preview) {
+            // Parentheses pass inputs to a function or method; a dot selects that method from its object.
             row.classList.add('preview');
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         }
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (let slot = 0; slot < state.observation.length; slot += 1) {
         // The first cell identifies the slot; the next five are its inputs.
+        // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
         const cells = [slot];
+        // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
         for (const value of state.observation[slot]) {
+            // Parentheses pass inputs to a function or method; a dot selects that method from its object.
             cells.push(value.toFixed(3));
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         }
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         addRow(observation, cells);
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     drawQuantiles(state.predictions);
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // Refresh the pictures and numbers together so controls cannot show mismatched recordings.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function update() {
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const left = chosenRecording(element('left-policy').value);
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const right = chosenRecording(element('right-policy').value);
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const last = Math.max(left.states.length, right.states.length) - 1;
+    // = updates the value on its left after evaluating the expression on its right; dots access object properties.
     element('time').max = last;
+    // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
     const time = Math.min(Number(element('time').value), last);
+    // = updates the value on its left after evaluating the expression on its right; dots access object properties.
     element('time').value = time;
+    // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
     element('time-label').textContent = time + ' / ' + last + ' simulated seconds';
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     showRecording('left', left, time);
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     showRecording('right', right, time);
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     showDecision(left, time);
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // Cancel the playback timer while we inspect a decision or change recordings.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function stop() {
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     clearInterval(timer);
+    // = updates the value on its left after evaluating the expression on its right; dots access object properties.
     timer = null;
+    // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
     element('play').textContent = 'Play';
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // Playing moves through saved pictures once per second. It does not rerun the simulator.
+// function defines a reusable helper; parentheses list inputs, and { starts its body.
 function startOrStop() {
+    // if tests the condition in parentheses; the following block runs only when that condition is true.
     if (timer !== null) {
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         stop();
+        // This continues the surrounding expression; commas separate its values and closing brackets finish their group.
         return;
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // if tests the condition in parentheses; the following block runs only when that condition is true.
     if (Number(element('time').value) >= Number(element('time').max)) {
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         element('time').value = 0;
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     update();
+    // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
     element('play').textContent = 'Pause';
+    // = updates the value on its left after evaluating the expression on its right; dots access object properties.
     timer = setInterval(function() {
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         element('time').value = Number(element('time').value) + 1;
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         update();
+        // if tests the condition in parentheses; the following block runs only when that condition is true.
         if (Number(element('time').value) >= Number(element('time').max)) {
+            // Parentheses pass inputs to a function or method; a dot selects that method from its object.
             stop();
+        // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
         }
+    // This continues the surrounding expression; commas separate its values and closing brackets finish their group.
     }, 1000);
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
 
 // Populate policy choices using textContent, then connect ordinary page controls.
+// for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
 for (const id of ['left-policy', 'right-policy']) {
+    // for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
     for (const policy of Object.keys(names)) {
+        // const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
         const option = document.createElement('option');
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         option.value = policy;
+        // The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
         option.textContent = names[policy];
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         element(id).appendChild(option);
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     }
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
+// = updates the value on its left after evaluating the expression on its right; dots access object properties.
 element('left-policy').value = 'qr_tail';
+// = updates the value on its left after evaluating the expression on its right; dots access object properties.
 element('right-policy').value = 'dqn_governed';
+// for repeats the block; of visits array items, while semicolon-separated parts control a counting loop.
 for (const id of ['budget', 'model', 'density', 'scenario', 'left-policy', 'right-policy']) {
+    // addEventListener connects an event to a function; the browser calls that function when the event happens.
     element(id).addEventListener('change', function() {
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         stop();
+        // = updates the value on its left after evaluating the expression on its right; dots access object properties.
         element('time').value = 0;
+        // Parentheses pass inputs to a function or method; a dot selects that method from its object.
         update();
+    // The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
     });
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 }
+// addEventListener connects an event to a function; the browser calls that function when the event happens.
 element('alpha').addEventListener('change', update);
+// addEventListener connects an event to a function; the browser calls that function when the event happens.
 element('time').addEventListener('input', function() {
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     stop();
+    // Parentheses pass inputs to a function or method; a dot selects that method from its object.
     update();
+// The closing brace ends a block or object; a following ) ends its surrounding call, and ; ends the statement.
 });
+// addEventListener connects an event to a function; the browser calls that function when the event happens.
 element('play').addEventListener('click', startOrStop);
+// const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
 const normal = evidence.groups['100000'];
+// The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
 element('normal-result').textContent = (100 * normal.qr_tail[0].crash_rate).toFixed(1) + '% vs ' + (100 * normal.dqn_governed[0].crash_rate).toFixed(1) + '% collisions';
+// const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
 const oldDense = findDensityResult(evidence.groups['40000'].qr_tail, 2);
+// const creates a binding we will not reassign; let permits reassignment. = supplies the initial value.
 const newDense = findDensityResult(normal.qr_tail, 2);
+// The dot selects textContent; = replaces the element's displayed text without interpreting it as HTML.
 element('dense-result').textContent = (100 * oldDense.crash_rate).toFixed(1) + '% → ' + (100 * newDense.crash_rate).toFixed(1) + '% collisions';
+// Parentheses pass inputs to a function or method; a dot selects that method from its object.
 update();
+<!-- The slash closes the named HTML container opened earlier. -->
 </script>
+<!-- The slash closes the named HTML container opened earlier. -->
 </body>
+<!-- The slash closes the named HTML container opened earlier. -->
 </html>
