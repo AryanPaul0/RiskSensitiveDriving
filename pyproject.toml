@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "risk-aware-driving"
+version = "0.1.0"
+description = "Readable DQN and QR-DQN experiments on simulated highway driving"
+requires-python = ">=3.11,<3.14"
+dependencies = ["torch", "numpy", "gymnasium", "highway-env", "matplotlib", "imageio", "pillow"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+driving-rl = "driving_rl.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["driving_rl*"]
+
+[tool.setuptools.package-data]
+driving_rl = ["*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
