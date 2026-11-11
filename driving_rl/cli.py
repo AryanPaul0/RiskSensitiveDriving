@@ -32,6 +32,8 @@ def main():
     training.add_argument("--exploration-fraction", type=float, default=0.6)
     training.add_argument("--final-epsilon", type=float, default=0.05)
     training.add_argument("--checkpoint-interval", type=int, default=5000)
+    training.add_argument("--training-densities", nargs="+", type=float,
+                          help="Sample uniformly from these densities at each episode reset.")
     training.set_defaults(func=train)
     evaluation = sub.add_parser("evaluate")
     evaluation.add_argument("--policy", choices=["random", "heuristic", "learned"], default="learned")
@@ -66,6 +68,11 @@ def main():
     if hasattr(args, "speed_cap") and args.speed_cap is not None:
         if not math.isfinite(args.speed_cap) or args.speed_cap <= 0 or args.policy != "learned":
             parser.error("--speed-cap requires a learned policy and a finite positive cap")
+    if getattr(args, "training_densities", None) is not None:
+        if any(not math.isfinite(d) or d <= 0 for d in args.training_densities):
+            parser.error("--training-densities must be finite and positive")
+        if len(set(args.training_densities)) != len(args.training_densities):
+            parser.error("--training-densities must be distinct")
     args.func(args)
 
 

@@ -111,3 +111,14 @@ def heuristic_action(env):
     if vehicle.speed < 25:
         return actions["FASTER"]
     return actions["IDLE"]
+
+
+def reset_training_episode(env, density_rng, densities=(1.,), seed=None):
+    """Sample density at reset, with randomness separate from exploration/replay."""
+    if not densities or any(not np.isfinite(d) or d <= 0 for d in densities):
+        raise ValueError("Training densities must be finite and positive")
+    density = float(densities[0] if len(densities) == 1 else density_rng.choice(densities))
+    if env.unwrapped.config["vehicles_density"] != density:
+        env.unwrapped.configure({"vehicles_density": density})
+    observation, info = env.reset(seed=seed)
+    return observation, info, density

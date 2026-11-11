@@ -1,0 +1,50 @@
+{
+  "training_steps": 40000,
+  "training_seeds": [
+    0,
+    1,
+    2
+  ],
+  "training_densities": [
+    1.0,
+    1.5,
+    2.0
+  ],
+  "density_sampling": "Uniform per episode, independent RNG; equal episodes do not imply equal transitions.",
+  "comparison": "Existing fixed-density 40k QR-DQN, same architecture/reward/optimizer/exploration.",
+  "epsilon_decay_steps": 12000,
+  "primary_evaluation": {
+    "densities": [
+      1.0,
+      1.5,
+      2.0
+    ],
+    "seed_start": 10000,
+    "episodes": 30
+  },
+  "transfer_evaluation": {
+    "densities": [
+      1.25,
+      2.5
+    ],
+    "seed_start": 16000,
+    "episodes": 30
+  },
+  "calibration": {
+    "densities": [
+      1.0,
+      1.5,
+      2.0
+    ],
+    "seed_start": 12000,
+    "episodes": 60
+  },
+  "decision_rules": {
+    "mean": 1.0,
+    "tail25": 0.25,
+    "governor_cap_m_s": 25.0
+  },
+  "primary_contrast": "Mixed minus fixed cautious collision fraction at density 2; also report speed/distance and all seeds.",
+  "limitations": "Development comparisons, three matched seed IDs; no tuned selector, safety claim or global CVaR guarantee. Density 1.5/2 are within mixture support; 2.5 is beyond both training supports. Test mixture changes hidden episode dynamics.",
+  "confirmation_scenarios_used": false
+}

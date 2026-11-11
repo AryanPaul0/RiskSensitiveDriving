@@ -1,0 +1,5142 @@
+{
+  "design": {
+    "training_steps": 40000,
+    "training_seeds": [
+      0,
+      1,
+      2
+    ],
+    "training_densities": [
+      1.0,
+      1.5,
+      2.0
+    ],
+    "density_sampling": "Uniform per episode, independent RNG; equal episodes do not imply equal transitions.",
+    "comparison": "Existing fixed-density 40k QR-DQN, same architecture/reward/optimizer/exploration.",
+    "epsilon_decay_steps": 12000,
+    "primary_evaluation": {
+      "densities": [
+        1.0,
+        1.5,
+        2.0
+      ],
+      "seed_start": 10000,
+      "episodes": 30
+    },
+    "transfer_evaluation": {
+      "densities": [
+        1.25,
+        2.5
+      ],
+      "seed_start": 16000,
+      "episodes": 30
+    },
+    "calibration": {
+      "densities": [
+        1.0,
+        1.5,
+        2.0
+      ],
+      "seed_start": 12000,
+      "episodes": 60
+    },
+    "decision_rules": {
+      "mean": 1.0,
+      "tail25": 0.25,
+      "governor_cap_m_s": 25.0
+    },
+    "primary_contrast": "Mixed minus fixed cautious collision fraction at density 2; also report speed/distance and all seeds.",
+    "limitations": "Development comparisons, three matched seed IDs; no tuned selector, safety claim or global CVaR guarantee. Density 1.5/2 are within mixture support; 2.5 is beyond both training supports. Test mixture changes hidden episode dynamics.",
+    "confirmation_scenarios_used": false
+  },
+  "groups": {
+    "main": {
+      "fixed": {
+        "mean": [
+          {
+            "density": 1.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.4666666666666667,
+                "mean_speed_m_s": 26.6878030690827,
+                "mean_return": 4.772252082762821,
+                "worst_10_percent_mean_return": -0.011340499858782124,
+                "mean_distance_m": 580.369002593922,
+                "mean_duration_s": 21.833333333333332,
+                "collisions_per_1000m": 0.8040861324104663
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.3333333333333333,
+                "mean_speed_m_s": 26.457821029016895,
+                "mean_return": 5.851858006151458,
+                "worst_10_percent_mean_return": 0.6646272237637593,
+                "mean_distance_m": 666.8809736667921,
+                "mean_duration_s": 25.2,
+                "collisions_per_1000m": 0.49983932140172843
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.7,
+                "mean_speed_m_s": 28.369919392584798,
+                "mean_return": 4.686031684253047,
+                "worst_10_percent_mean_return": 0.022528912514855632,
+                "mean_distance_m": 503.99380805729174,
+                "mean_duration_s": 17.533333333333335,
+                "collisions_per_1000m": 1.3889059524327074
+              }
+            ],
+            "crash_rate": 0.5,
+            "crash_rate_seed_range": [
+              0.3333333333333333,
+              0.7
+            ],
+            "mean_speed_m_s": 27.17184783022813,
+            "mean_speed_m_s_seed_range": [
+              26.457821029016895,
+              28.369919392584798
+            ],
+            "mean_return": 5.1033805910557755,
+            "mean_return_seed_range": [
+              4.686031684253047,
+              5.851858006151458
+            ],
+            "worst_10_percent_mean_return": 0.22527187880661093,
+            "worst_10_percent_mean_return_seed_range": [
+              -0.011340499858782124,
+              0.6646272237637593
+            ],
+            "mean_distance_m": 583.747928106002,
+            "mean_distance_m_seed_range": [
+              503.99380805729174,
+              666.8809736667921
+            ],
+            "mean_duration_s": 21.522222222222222,
+            "mean_duration_s_seed_range": [
+              17.533333333333335,
+              25.2
+            ]
+          },
+          {
+            "density": 1.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.9,
+                "mean_speed_m_s": 25.136383487439048,
+                "mean_return": 0.6698215744015741,
+                "worst_10_percent_mean_return": -1.237724412917957,
+                "mean_distance_m": 272.73870019033876,
+                "mean_duration_s": 10.533333333333333,
+                "collisions_per_1000m": 3.2998617334903644
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.9333333333333333,
+                "mean_speed_m_s": 25.015734098117317,
+                "mean_return": 0.20475132482423267,
+                "worst_10_percent_mean_return": -1.4366534522885843,
+                "mean_distance_m": 240.1243450093451,
+                "mean_duration_s": 9.4,
+                "collisions_per_1000m": 3.8868750825619545
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.9666666666666667,
+                "mean_speed_m_s": 26.83424082640419,
+                "mean_return": 0.11798196248332192,
+                "worst_10_percent_mean_return": -1.0328302419433193,
+                "mean_distance_m": 190.0238492856486,
+                "mean_duration_s": 6.833333333333333,
+                "collisions_per_1000m": 5.087080754866455
+              }
+            ],
+            "crash_rate": 0.9333333333333335,
+            "crash_rate_seed_range": [
+              0.9,
+              0.9666666666666667
+            ],
+            "mean_speed_m_s": 25.662119470653522,
+            "mean_speed_m_s_seed_range": [
+              25.015734098117317,
+              26.83424082640419
+            ],
+            "mean_return": 0.33085162056970957,
+            "mean_return_seed_range": [
+              0.11798196248332192,
+              0.6698215744015741
+            ],
+            "worst_10_percent_mean_return": -1.2357360357166203,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.4366534522885843,
+              -1.0328302419433193
+            ],
+            "mean_distance_m": 234.2956314951108,
+            "mean_distance_m_seed_range": [
+              190.0238492856486,
+              272.73870019033876
+            ],
+            "mean_duration_s": 8.922222222222222,
+            "mean_duration_s_seed_range": [
+              6.833333333333333,
+              10.533333333333333
+            ]
+          },
+          {
+            "density": 2.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.9333333333333333,
+                "mean_speed_m_s": 23.683245979759995,
+                "mean_return": -0.5885085110242192,
+                "worst_10_percent_mean_return": -1.734599319166793,
+                "mean_distance_m": 181.93007134943795,
+                "mean_duration_s": 7.433333333333334,
+                "collisions_per_1000m": 5.130176261738804
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.9,
+                "mean_speed_m_s": 23.451685003202574,
+                "mean_return": -0.2491331833458659,
+                "worst_10_percent_mean_return": -1.7914412340095327,
+                "mean_distance_m": 219.39234319893495,
+                "mean_duration_s": 8.966666666666667,
+                "collisions_per_1000m": 4.102239790492237
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 1.0,
+                "mean_speed_m_s": 25.671403933253014,
+                "mean_return": -0.7772153124737458,
+                "worst_10_percent_mean_return": -1.7908461992106044,
+                "mean_distance_m": 125.34152719312101,
+                "mean_duration_s": 4.666666666666667,
+                "collisions_per_1000m": 7.978201817018247
+              }
+            ],
+            "crash_rate": 0.9444444444444445,
+            "crash_rate_seed_range": [
+              0.9,
+              1.0
+            ],
+            "mean_speed_m_s": 24.268778305405196,
+            "mean_speed_m_s_seed_range": [
+              23.451685003202574,
+              25.671403933253014
+            ],
+            "mean_return": -0.5382856689479436,
+            "mean_return_seed_range": [
+              -0.7772153124737458,
+              -0.2491331833458659
+            ],
+            "worst_10_percent_mean_return": -1.7722955841289767,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.7914412340095327,
+              -1.734599319166793
+            ],
+            "mean_distance_m": 175.55464724716464,
+            "mean_distance_m_seed_range": [
+              125.34152719312101,
+              219.39234319893495
+            ],
+            "mean_duration_s": 7.022222222222222,
+            "mean_duration_s_seed_range": [
+              4.666666666666667,
+              8.966666666666667
+            ]
+          }
+        ],
+        "tail25": [
+          {
+            "density": 1.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.13333333333333333,
+                "mean_speed_m_s": 24.163543695954527,
+                "mean_return": 4.1006000310983755,
+                "worst_10_percent_mean_return": -0.08326948206407536,
+                "mean_distance_m": 657.7179705038656,
+                "mean_duration_s": 27.366666666666667,
+                "collisions_per_1000m": 0.20272113476113346
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.06666666666666667,
+                "mean_speed_m_s": 23.47790339527238,
+                "mean_return": 3.6869602791048006,
+                "worst_10_percent_mean_return": 0.8829097954607096,
+                "mean_distance_m": 669.5037030310665,
+                "mean_duration_s": 28.633333333333333,
+                "collisions_per_1000m": 0.09957624784574669
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.2,
+                "mean_speed_m_s": 24.236439294141665,
+                "mean_return": 3.6030028655395805,
+                "worst_10_percent_mean_return": -0.2692193287172439,
+                "mean_distance_m": 615.5053924095955,
+                "mean_duration_s": 25.7,
+                "collisions_per_1000m": 0.3249362271499119
+              }
+            ],
+            "crash_rate": 0.13333333333333333,
+            "crash_rate_seed_range": [
+              0.06666666666666667,
+              0.2
+            ],
+            "mean_speed_m_s": 23.959295461789523,
+            "mean_speed_m_s_seed_range": [
+              23.47790339527238,
+              24.236439294141665
+            ],
+            "mean_return": 3.796854391914252,
+            "mean_return_seed_range": [
+              3.6030028655395805,
+              4.1006000310983755
+            ],
+            "worst_10_percent_mean_return": 0.17680699489313012,
+            "worst_10_percent_mean_return_seed_range": [
+              -0.2692193287172439,
+              0.8829097954607096
+            ],
+            "mean_distance_m": 647.5756886481759,
+            "mean_distance_m_seed_range": [
+              615.5053924095955,
+              669.5037030310665
+            ],
+            "mean_duration_s": 27.233333333333334,
+            "mean_duration_s_seed_range": [
+              25.7,
+              28.633333333333333
+            ]
+          },
+          {
+            "density": 1.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.6,
+                "mean_speed_m_s": 23.486444577129543,
+                "mean_return": 1.0855445986694938,
+                "worst_10_percent_mean_return": -1.3713792490519048,
+                "mean_distance_m": 411.5420355605372,
+                "mean_duration_s": 17.7,
+                "collisions_per_1000m": 1.457931263771817
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.5666666666666667,
+                "mean_speed_m_s": 22.980775420162296,
+                "mean_return": 0.8611346925460595,
+                "worst_10_percent_mean_return": -1.6473804047918688,
+                "mean_distance_m": 423.48423505923864,
+                "mean_duration_s": 18.633333333333333,
+                "collisions_per_1000m": 1.3381056949791748
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.6,
+                "mean_speed_m_s": 22.63380667973855,
+                "mean_return": 0.21837747213803055,
+                "worst_10_percent_mean_return": -1.6369618474439538,
+                "mean_distance_m": 384.0093957167291,
+                "mean_duration_s": 17.366666666666667,
+                "collisions_per_1000m": 1.5624617696661776
+              }
+            ],
+            "crash_rate": 0.5888888888888889,
+            "crash_rate_seed_range": [
+              0.5666666666666667,
+              0.6
+            ],
+            "mean_speed_m_s": 23.03367555901013,
+            "mean_speed_m_s_seed_range": [
+              22.63380667973855,
+              23.486444577129543
+            ],
+            "mean_return": 0.721685587784528,
+            "mean_return_seed_range": [
+              0.21837747213803055,
+              1.0855445986694938
+            ],
+            "worst_10_percent_mean_return": -1.5519071670959093,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.6473804047918688,
+              -1.3713792490519048
+            ],
+            "mean_distance_m": 406.34522211216836,
+            "mean_distance_m_seed_range": [
+              384.0093957167291,
+              423.48423505923864
+            ],
+            "mean_duration_s": 17.9,
+            "mean_duration_s_seed_range": [
+              17.366666666666667,
+              18.633333333333333
+            ]
+          },
+          {
+            "density": 2.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.8666666666666667,
+                "mean_speed_m_s": 22.32031449076654,
+                "mean_return": -0.6594404841602531,
+                "worst_10_percent_mean_return": -1.8571784308738775,
+                "mean_distance_m": 237.2344372293385,
+                "mean_duration_s": 10.466666666666667,
+                "collisions_per_1000m": 3.6532076741828403
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.8,
+                "mean_speed_m_s": 21.611426289813046,
+                "mean_return": -0.6585965125518489,
+                "worst_10_percent_mean_return": -1.97027092993938,
+                "mean_distance_m": 257.42304204813337,
+                "mean_duration_s": 11.666666666666666,
+                "collisions_per_1000m": 3.107724909297027
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.7333333333333333,
+                "mean_speed_m_s": 21.796282371937817,
+                "mean_return": -0.5826113159396689,
+                "worst_10_percent_mean_return": -1.9698463180430934,
+                "mean_distance_m": 258.32380172482937,
+                "mean_duration_s": 11.766666666666667,
+                "collisions_per_1000m": 2.8388144198748346
+              }
+            ],
+            "crash_rate": 0.7999999999999999,
+            "crash_rate_seed_range": [
+              0.7333333333333333,
+              0.8666666666666667
+            ],
+            "mean_speed_m_s": 21.909341050839135,
+            "mean_speed_m_s_seed_range": [
+              21.611426289813046,
+              22.32031449076654
+            ],
+            "mean_return": -0.6335494375505902,
+            "mean_return_seed_range": [
+              -0.6594404841602531,
+              -0.5826113159396689
+            ],
+            "worst_10_percent_mean_return": -1.932431892952117,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.97027092993938,
+              -1.8571784308738775
+            ],
+            "mean_distance_m": 250.99376033410044,
+            "mean_distance_m_seed_range": [
+              237.2344372293385,
+              258.32380172482937
+            ],
+            "mean_duration_s": 11.299999999999999,
+            "mean_duration_s_seed_range": [
+              10.466666666666667,
+              11.766666666666667
+            ]
+          }
+        ],
+        "governed": [
+          {
+            "density": 1.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.0,
+                "mean_speed_m_s": 23.267367888493265,
+                "mean_return": 3.9181480423504422,
+                "worst_10_percent_mean_return": 1.2873053617076275,
+                "mean_distance_m": 698.8907342065766,
+                "mean_duration_s": 30.0,
+                "collisions_per_1000m": 0.0
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.03333333333333333,
+                "mean_speed_m_s": 23.410373495553838,
+                "mean_return": 3.95134759798538,
+                "worst_10_percent_mean_return": 0.8827643479656264,
+                "mean_distance_m": 686.8638416517609,
+                "mean_duration_s": 29.3,
+                "collisions_per_1000m": 0.04852975409678544
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.3333333333333333,
+                "mean_speed_m_s": 23.747135056816752,
+                "mean_return": 3.162860040930991,
+                "worst_10_percent_mean_return": -0.18251646762729798,
+                "mean_distance_m": 599.5333603382136,
+                "mean_duration_s": 25.166666666666668,
+                "collisions_per_1000m": 0.5559879656159428
+              }
+            ],
+            "crash_rate": 0.12222222222222222,
+            "crash_rate_seed_range": [
+              0.0,
+              0.3333333333333333
+            ],
+            "mean_speed_m_s": 23.474958813621285,
+            "mean_speed_m_s_seed_range": [
+              23.267367888493265,
+              23.747135056816752
+            ],
+            "mean_return": 3.677451893755604,
+            "mean_return_seed_range": [
+              3.162860040930991,
+              3.95134759798538
+            ],
+            "worst_10_percent_mean_return": 0.6625177473486521,
+            "worst_10_percent_mean_return_seed_range": [
+              -0.18251646762729798,
+              1.2873053617076275
+            ],
+            "mean_distance_m": 661.7626453988504,
+            "mean_distance_m_seed_range": [
+              599.5333603382136,
+              698.8907342065766
+            ],
+            "mean_duration_s": 28.155555555555555,
+            "mean_duration_s_seed_range": [
+              25.166666666666668,
+              30.0
+            ]
+          },
+          {
+            "density": 1.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.6,
+                "mean_speed_m_s": 22.531293551055818,
+                "mean_return": 1.0112657483824106,
+                "worst_10_percent_mean_return": -1.6567603586143032,
+                "mean_distance_m": 430.30641829696555,
+                "mean_duration_s": 18.733333333333334,
+                "collisions_per_1000m": 1.3943552187174781
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.6333333333333333,
+                "mean_speed_m_s": 22.268346044768013,
+                "mean_return": 0.5874996393012734,
+                "worst_10_percent_mean_return": -1.7145321337377968,
+                "mean_distance_m": 387.64032542503594,
+                "mean_duration_s": 17.033333333333335,
+                "collisions_per_1000m": 1.6338169478082614
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.8666666666666667,
+                "mean_speed_m_s": 23.32439032829178,
+                "mean_return": 0.12961083620122693,
+                "worst_10_percent_mean_return": -1.2670947831265529,
+                "mean_distance_m": 305.1827249515531,
+                "mean_duration_s": 12.9,
+                "collisions_per_1000m": 2.8398287183661775
+              }
+            ],
+            "crash_rate": 0.7000000000000001,
+            "crash_rate_seed_range": [
+              0.6,
+              0.8666666666666667
+            ],
+            "mean_speed_m_s": 22.708009974705206,
+            "mean_speed_m_s_seed_range": [
+              22.268346044768013,
+              23.32439032829178
+            ],
+            "mean_return": 0.576125407961637,
+            "mean_return_seed_range": [
+              0.12961083620122693,
+              1.0112657483824106
+            ],
+            "worst_10_percent_mean_return": -1.5461290918262176,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.7145321337377968,
+              -1.2670947831265529
+            ],
+            "mean_distance_m": 374.3764895578515,
+            "mean_distance_m_seed_range": [
+              305.1827249515531,
+              430.30641829696555
+            ],
+            "mean_duration_s": 16.22222222222222,
+            "mean_duration_s_seed_range": [
+              12.9,
+              18.733333333333334
+            ]
+          },
+          {
+            "density": 2.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.8333333333333334,
+                "mean_speed_m_s": 21.517023234525418,
+                "mean_return": -0.5916240072003232,
+                "worst_10_percent_mean_return": -1.791268051039293,
+                "mean_distance_m": 241.59221955631844,
+                "mean_duration_s": 10.733333333333333,
+                "collisions_per_1000m": 3.4493384549541424
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.8666666666666667,
+                "mean_speed_m_s": 21.315554137676095,
+                "mean_return": -0.6541188275454636,
+                "worst_10_percent_mean_return": -1.7914412340095327,
+                "mean_distance_m": 258.3950534541357,
+                "mean_duration_s": 11.533333333333333,
+                "collisions_per_1000m": 3.3540373744828567
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.9333333333333333,
+                "mean_speed_m_s": 22.016173399375095,
+                "mean_return": -0.8838068344497939,
+                "worst_10_percent_mean_return": -1.7908461992106044,
+                "mean_distance_m": 188.8610608145442,
+                "mean_duration_s": 8.2,
+                "collisions_per_1000m": 4.941904537165753
+              }
+            ],
+            "crash_rate": 0.8777777777777779,
+            "crash_rate_seed_range": [
+              0.8333333333333334,
+              0.9333333333333333
+            ],
+            "mean_speed_m_s": 21.616250257192203,
+            "mean_speed_m_s_seed_range": [
+              21.315554137676095,
+              22.016173399375095
+            ],
+            "mean_return": -0.7098498897318603,
+            "mean_return_seed_range": [
+              -0.8838068344497939,
+              -0.5916240072003232
+            ],
+            "worst_10_percent_mean_return": -1.7911851614198102,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.7914412340095327,
+              -1.7908461992106044
+            ],
+            "mean_distance_m": 229.61611127499944,
+            "mean_distance_m_seed_range": [
+              188.8610608145442,
+              258.3950534541357
+            ],
+            "mean_duration_s": 10.155555555555555,
+            "mean_duration_s_seed_range": [
+              8.2,
+              11.533333333333333
+            ]
+          }
+        ]
+      },
+      "mixed": {
+        "mean": [
+          {
+            "density": 1.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.8,
+                "mean_speed_m_s": 27.973112929546787,
+                "mean_return": 3.650480826795721,
+                "worst_10_percent_mean_return": -0.29761263741115057,
+                "mean_distance_m": 451.3867335993038,
+                "mean_duration_s": 15.966666666666667,
+                "collisions_per_1000m": 1.772316154754695
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.4,
+                "mean_speed_m_s": 26.60168497119304,
+                "mean_return": 4.810310259547878,
+                "worst_10_percent_mean_return": 0.041413820691931225,
+                "mean_distance_m": 586.8365539198887,
+                "mean_duration_s": 22.266666666666666,
+                "collisions_per_1000m": 0.6816207976959212
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.3,
+                "mean_speed_m_s": 24.64299658197225,
+                "mean_return": 4.094435734710832,
+                "worst_10_percent_mean_return": -0.20144053639062864,
+                "mean_distance_m": 630.1049319510896,
+                "mean_duration_s": 25.6,
+                "collisions_per_1000m": 0.4761111757545913
+              }
+            ],
+            "crash_rate": 0.5000000000000001,
+            "crash_rate_seed_range": [
+              0.3,
+              0.8
+            ],
+            "mean_speed_m_s": 26.405931494237354,
+            "mean_speed_m_s_seed_range": [
+              24.64299658197225,
+              27.973112929546787
+            ],
+            "mean_return": 4.1850756070181445,
+            "mean_return_seed_range": [
+              3.650480826795721,
+              4.810310259547878
+            ],
+            "worst_10_percent_mean_return": -0.152546451036616,
+            "worst_10_percent_mean_return_seed_range": [
+              -0.29761263741115057,
+              0.041413820691931225
+            ],
+            "mean_distance_m": 556.1094064900941,
+            "mean_distance_m_seed_range": [
+              451.3867335993038,
+              630.1049319510896
+            ],
+            "mean_duration_s": 21.27777777777778,
+            "mean_duration_s_seed_range": [
+              15.966666666666667,
+              25.6
+            ]
+          },
+          {
+            "density": 1.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.9666666666666667,
+                "mean_speed_m_s": 25.271020670879135,
+                "mean_return": -0.20448554691091209,
+                "worst_10_percent_mean_return": -1.6467829491280785,
+                "mean_distance_m": 205.09727279060905,
+                "mean_duration_s": 8.033333333333333,
+                "collisions_per_1000m": 4.713210729299021
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.6,
+                "mean_speed_m_s": 23.562388128450802,
+                "mean_return": 0.9903189715065833,
+                "worst_10_percent_mean_return": -1.7804045537370676,
+                "mean_distance_m": 402.96349467451535,
+                "mean_duration_s": 17.366666666666667,
+                "collisions_per_1000m": 1.4889686235340907
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.6,
+                "mean_speed_m_s": 23.375853824680444,
+                "mean_return": 0.8075881308029501,
+                "worst_10_percent_mean_return": -1.7807132604259033,
+                "mean_distance_m": 371.36591536368843,
+                "mean_duration_s": 16.033333333333335,
+                "collisions_per_1000m": 1.615657159630291
+              }
+            ],
+            "crash_rate": 0.7222222222222222,
+            "crash_rate_seed_range": [
+              0.6,
+              0.9666666666666667
+            ],
+            "mean_speed_m_s": 24.06975420800346,
+            "mean_speed_m_s_seed_range": [
+              23.375853824680444,
+              25.271020670879135
+            ],
+            "mean_return": 0.5311405184662071,
+            "mean_return_seed_range": [
+              -0.20448554691091209,
+              0.9903189715065833
+            ],
+            "worst_10_percent_mean_return": -1.7359669210970166,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.7807132604259033,
+              -1.6467829491280785
+            ],
+            "mean_distance_m": 326.4755609429376,
+            "mean_distance_m_seed_range": [
+              205.09727279060905,
+              402.96349467451535
+            ],
+            "mean_duration_s": 13.811111111111112,
+            "mean_duration_s_seed_range": [
+              8.033333333333333,
+              17.366666666666667
+            ]
+          },
+          {
+            "density": 2.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.9,
+                "mean_speed_m_s": 22.61493291676498,
+                "mean_return": -0.42486217732403,
+                "worst_10_percent_mean_return": -1.8009329224870738,
+                "mean_distance_m": 212.37734884510795,
+                "mean_duration_s": 8.866666666666667,
+                "collisions_per_1000m": 4.2377400645319865
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.8,
+                "mean_speed_m_s": 22.62717714748301,
+                "mean_return": -0.29432298223367315,
+                "worst_10_percent_mean_return": -1.857352661127616,
+                "mean_distance_m": 259.80362164357683,
+                "mean_duration_s": 11.333333333333334,
+                "collisions_per_1000m": 3.0792488377914746
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.7,
+                "mean_speed_m_s": 21.729968615376286,
+                "mean_return": -0.42836205428910407,
+                "worst_10_percent_mean_return": -1.91359816951442,
+                "mean_distance_m": 299.7721237230027,
+                "mean_duration_s": 13.733333333333333,
+                "collisions_per_1000m": 2.3351070516710832
+              }
+            ],
+            "crash_rate": 0.8000000000000002,
+            "crash_rate_seed_range": [
+              0.7,
+              0.9
+            ],
+            "mean_speed_m_s": 22.324026226541424,
+            "mean_speed_m_s_seed_range": [
+              21.729968615376286,
+              22.62717714748301
+            ],
+            "mean_return": -0.38251573794893573,
+            "mean_return_seed_range": [
+              -0.42836205428910407,
+              -0.29432298223367315
+            ],
+            "worst_10_percent_mean_return": -1.85729458437637,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.91359816951442,
+              -1.8009329224870738
+            ],
+            "mean_distance_m": 257.3176980705625,
+            "mean_distance_m_seed_range": [
+              212.37734884510795,
+              299.7721237230027
+            ],
+            "mean_duration_s": 11.311111111111112,
+            "mean_duration_s_seed_range": [
+              8.866666666666667,
+              13.733333333333333
+            ]
+          }
+        ],
+        "tail25": [
+          {
+            "density": 1.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.26666666666666666,
+                "mean_speed_m_s": 23.619135993995293,
+                "mean_return": 2.8550417269688806,
+                "worst_10_percent_mean_return": -0.32365005202380526,
+                "mean_distance_m": 597.149285035269,
+                "mean_duration_s": 25.566666666666666,
+                "collisions_per_1000m": 0.44656616586406317
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.03333333333333333,
+                "mean_speed_m_s": 22.825309410275217,
+                "mean_return": 3.0294545138298017,
+                "worst_10_percent_mean_return": 0.8182455641151711,
+                "mean_distance_m": 663.1000872673117,
+                "mean_duration_s": 29.2,
+                "collisions_per_1000m": 0.050268932207055896
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.03333333333333333,
+                "mean_speed_m_s": 21.863892598826066,
+                "mean_return": 1.9030444898734042,
+                "worst_10_percent_mean_return": -0.11461476504286827,
+                "mean_distance_m": 634.2320617708449,
+                "mean_duration_s": 29.166666666666668,
+                "collisions_per_1000m": 0.0525569982070333
+              }
+            ],
+            "crash_rate": 0.1111111111111111,
+            "crash_rate_seed_range": [
+              0.03333333333333333,
+              0.26666666666666666
+            ],
+            "mean_speed_m_s": 22.769446001032193,
+            "mean_speed_m_s_seed_range": [
+              21.863892598826066,
+              23.619135993995293
+            ],
+            "mean_return": 2.595846910224029,
+            "mean_return_seed_range": [
+              1.9030444898734042,
+              3.0294545138298017
+            ],
+            "worst_10_percent_mean_return": 0.12666024901616588,
+            "worst_10_percent_mean_return_seed_range": [
+              -0.32365005202380526,
+              0.8182455641151711
+            ],
+            "mean_distance_m": 631.4938113578086,
+            "mean_distance_m_seed_range": [
+              597.149285035269,
+              663.1000872673117
+            ],
+            "mean_duration_s": 27.977777777777778,
+            "mean_duration_s_seed_range": [
+              25.566666666666666,
+              29.2
+            ]
+          },
+          {
+            "density": 1.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.4666666666666667,
+                "mean_speed_m_s": 21.70236111262584,
+                "mean_return": 0.22428643825123734,
+                "worst_10_percent_mean_return": -1.9033134314657338,
+                "mean_distance_m": 454.4972394073341,
+                "mean_duration_s": 21.2,
+                "collisions_per_1000m": 1.0267755801447804
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.23333333333333334,
+                "mean_speed_m_s": 21.160923658271802,
+                "mean_return": 0.5578715359975812,
+                "worst_10_percent_mean_return": -1.7699800464904936,
+                "mean_distance_m": 539.6085155033012,
+                "mean_duration_s": 25.633333333333333,
+                "collisions_per_1000m": 0.4324122519002498
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.23333333333333334,
+                "mean_speed_m_s": 20.848180912119638,
+                "mean_return": 0.31490117008964125,
+                "worst_10_percent_mean_return": -1.9033133856421074,
+                "mean_distance_m": 531.790196031948,
+                "mean_duration_s": 25.533333333333335,
+                "collisions_per_1000m": 0.43876952804770314
+              }
+            ],
+            "crash_rate": 0.3111111111111111,
+            "crash_rate_seed_range": [
+              0.23333333333333334,
+              0.4666666666666667
+            ],
+            "mean_speed_m_s": 21.237155227672428,
+            "mean_speed_m_s_seed_range": [
+              20.848180912119638,
+              21.70236111262584
+            ],
+            "mean_return": 0.36568638144615323,
+            "mean_return_seed_range": [
+              0.22428643825123734,
+              0.5578715359975812
+            ],
+            "worst_10_percent_mean_return": -1.8588689545327783,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.9033134314657338,
+              -1.7699800464904936
+            ],
+            "mean_distance_m": 508.63198364752776,
+            "mean_distance_m_seed_range": [
+              454.4972394073341,
+              539.6085155033012
+            ],
+            "mean_duration_s": 24.12222222222222,
+            "mean_duration_s_seed_range": [
+              21.2,
+              25.633333333333333
+            ]
+          },
+          {
+            "density": 2.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.7333333333333333,
+                "mean_speed_m_s": 20.27410810759162,
+                "mean_return": -0.9413046413712078,
+                "worst_10_percent_mean_return": -1.9701162890222228,
+                "mean_distance_m": 286.53219261866144,
+                "mean_duration_s": 13.633333333333333,
+                "collisions_per_1000m": 2.5593401098539337
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.6333333333333333,
+                "mean_speed_m_s": 20.600841955329106,
+                "mean_return": -0.7273416632863248,
+                "worst_10_percent_mean_return": -1.96999730374091,
+                "mean_distance_m": 315.31322513865695,
+                "mean_duration_s": 15.033333333333333,
+                "collisions_per_1000m": 2.008584743170316
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.6333333333333333,
+                "mean_speed_m_s": 20.021261748041198,
+                "mean_return": -0.9734735166743848,
+                "worst_10_percent_mean_return": -1.9698489581849625,
+                "mean_distance_m": 317.4657062926746,
+                "mean_duration_s": 15.466666666666667,
+                "collisions_per_1000m": 1.994966135805098
+              }
+            ],
+            "crash_rate": 0.6666666666666666,
+            "crash_rate_seed_range": [
+              0.6333333333333333,
+              0.7333333333333333
+            ],
+            "mean_speed_m_s": 20.29873727032064,
+            "mean_speed_m_s_seed_range": [
+              20.021261748041198,
+              20.600841955329106
+            ],
+            "mean_return": -0.8807066071106391,
+            "mean_return_seed_range": [
+              -0.9734735166743848,
+              -0.7273416632863248
+            ],
+            "worst_10_percent_mean_return": -1.9699875169826984,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.9701162890222228,
+              -1.9698489581849625
+            ],
+            "mean_distance_m": 306.4370413499976,
+            "mean_distance_m_seed_range": [
+              286.53219261866144,
+              317.4657062926746
+            ],
+            "mean_duration_s": 14.71111111111111,
+            "mean_duration_s_seed_range": [
+              13.633333333333333,
+              15.466666666666667
+            ]
+          }
+        ],
+        "governed": [
+          {
+            "density": 1.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.4,
+                "mean_speed_m_s": 23.744841804293895,
+                "mean_return": 2.912841889072665,
+                "worst_10_percent_mean_return": -0.533159224372864,
+                "mean_distance_m": 577.6678879219306,
+                "mean_duration_s": 24.2,
+                "collisions_per_1000m": 0.6924393901120885
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.23333333333333334,
+                "mean_speed_m_s": 23.617034315812308,
+                "mean_return": 3.342873590775425,
+                "worst_10_percent_mean_return": -0.06773841735979991,
+                "mean_distance_m": 623.8124678397027,
+                "mean_duration_s": 26.4,
+                "collisions_per_1000m": 0.3740440362491947
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.13333333333333333,
+                "mean_speed_m_s": 22.685105557966093,
+                "mean_return": 2.6226971172818017,
+                "worst_10_percent_mean_return": -0.4672843827050089,
+                "mean_distance_m": 625.016317925758,
+                "mean_duration_s": 27.566666666666666,
+                "collisions_per_1000m": 0.21332776362675895
+              }
+            ],
+            "crash_rate": 0.25555555555555554,
+            "crash_rate_seed_range": [
+              0.13333333333333333,
+              0.4
+            ],
+            "mean_speed_m_s": 23.348993892690768,
+            "mean_speed_m_s_seed_range": [
+              22.685105557966093,
+              23.744841804293895
+            ],
+            "mean_return": 2.9594708657099638,
+            "mean_return_seed_range": [
+              2.6226971172818017,
+              3.342873590775425
+            ],
+            "worst_10_percent_mean_return": -0.3560606748125576,
+            "worst_10_percent_mean_return_seed_range": [
+              -0.533159224372864,
+              -0.06773841735979991
+            ],
+            "mean_distance_m": 608.8322245624637,
+            "mean_distance_m_seed_range": [
+              577.6678879219306,
+              625.016317925758
+            ],
+            "mean_duration_s": 26.055555555555554,
+            "mean_duration_s_seed_range": [
+              24.2,
+              27.566666666666666
+            ]
+          },
+          {
+            "density": 1.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.7,
+                "mean_speed_m_s": 22.51235636267104,
+                "mean_return": 0.6462231117686533,
+                "worst_10_percent_mean_return": -1.780424693163505,
+                "mean_distance_m": 410.61626055812593,
+                "mean_duration_s": 17.933333333333334,
+                "collisions_per_1000m": 1.704754699798133
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.4666666666666667,
+                "mean_speed_m_s": 21.846416441190243,
+                "mean_return": 0.7569654877256743,
+                "worst_10_percent_mean_return": -1.7807133512422773,
+                "mean_distance_m": 455.74464024236477,
+                "mean_duration_s": 20.633333333333333,
+                "collisions_per_1000m": 1.0239652328516549
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.4,
+                "mean_speed_m_s": 21.67963227375158,
+                "mean_return": 0.8520762825562861,
+                "worst_10_percent_mean_return": -1.7810220198471012,
+                "mean_distance_m": 473.9092376584072,
+                "mean_duration_s": 21.6,
+                "collisions_per_1000m": 0.844043475447759
+              }
+            ],
+            "crash_rate": 0.5222222222222221,
+            "crash_rate_seed_range": [
+              0.4,
+              0.7
+            ],
+            "mean_speed_m_s": 22.01280169253762,
+            "mean_speed_m_s_seed_range": [
+              21.67963227375158,
+              22.51235636267104
+            ],
+            "mean_return": 0.751754960683538,
+            "mean_return_seed_range": [
+              0.6462231117686533,
+              0.8520762825562861
+            ],
+            "worst_10_percent_mean_return": -1.780720021417628,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.7810220198471012,
+              -1.780424693163505
+            ],
+            "mean_distance_m": 446.75671281963264,
+            "mean_distance_m_seed_range": [
+              410.61626055812593,
+              473.9092376584072
+            ],
+            "mean_duration_s": 20.055555555555554,
+            "mean_duration_s_seed_range": [
+              17.933333333333334,
+              21.6
+            ]
+          },
+          {
+            "density": 2.0,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.7666666666666667,
+                "mean_speed_m_s": 21.039179786191866,
+                "mean_return": -0.38427125649605415,
+                "worst_10_percent_mean_return": -1.800621948324716,
+                "mean_distance_m": 286.35365161643534,
+                "mean_duration_s": 12.9,
+                "collisions_per_1000m": 2.6773420291269776
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.7333333333333333,
+                "mean_speed_m_s": 20.926606848017244,
+                "mean_return": -0.5231956417114642,
+                "worst_10_percent_mean_return": -1.857352661127616,
+                "mean_distance_m": 297.5868954586515,
+                "mean_duration_s": 13.7,
+                "collisions_per_1000m": 2.464266217781848
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.7,
+                "mean_speed_m_s": 20.85417886117491,
+                "mean_return": -0.5441973687947433,
+                "worst_10_percent_mean_return": -1.91359816951442,
+                "mean_distance_m": 317.7087051226582,
+                "mean_duration_s": 14.8,
+                "collisions_per_1000m": 2.2032761102021112
+              }
+            ],
+            "crash_rate": 0.7333333333333334,
+            "crash_rate_seed_range": [
+              0.7,
+              0.7666666666666667
+            ],
+            "mean_speed_m_s": 20.93998849846134,
+            "mean_speed_m_s_seed_range": [
+              20.85417886117491,
+              21.039179786191866
+            ],
+            "mean_return": -0.4838880890007539,
+            "mean_return_seed_range": [
+              -0.5441973687947433,
+              -0.38427125649605415
+            ],
+            "worst_10_percent_mean_return": -1.8571909263222508,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.91359816951442,
+              -1.800621948324716
+            ],
+            "mean_distance_m": 300.5497507325817,
+            "mean_distance_m_seed_range": [
+              286.35365161643534,
+              317.7087051226582
+            ],
+            "mean_duration_s": 13.800000000000002,
+            "mean_duration_s_seed_range": [
+              12.9,
+              14.8
+            ]
+          }
+        ]
+      }
+    },
+    "transfer": {
+      "fixed": {
+        "mean": [
+          {
+            "density": 1.25,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.4666666666666667,
+                "mean_speed_m_s": 27.0897283038096,
+                "mean_return": 5.134699486735272,
+                "worst_10_percent_mean_return": 0.43003621141441034,
+                "mean_distance_m": 591.0489496941136,
+                "mean_duration_s": 21.933333333333334,
+                "collisions_per_1000m": 0.7895567142250762
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.7,
+                "mean_speed_m_s": 27.10885851898234,
+                "mean_return": 3.7791870800956064,
+                "worst_10_percent_mean_return": -0.6016048577153162,
+                "mean_distance_m": 473.8194941541981,
+                "mean_duration_s": 17.133333333333333,
+                "collisions_per_1000m": 1.4773558467651282
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.7,
+                "mean_speed_m_s": 27.923315263969698,
+                "mean_return": 3.6717214277853616,
+                "worst_10_percent_mean_return": -0.378164894725772,
+                "mean_distance_m": 446.37326573098363,
+                "mean_duration_s": 15.933333333333334,
+                "collisions_per_1000m": 1.5681942753755103
+              }
+            ],
+            "crash_rate": 0.6222222222222221,
+            "crash_rate_seed_range": [
+              0.4666666666666667,
+              0.7
+            ],
+            "mean_speed_m_s": 27.37396736225388,
+            "mean_speed_m_s_seed_range": [
+              27.0897283038096,
+              27.923315263969698
+            ],
+            "mean_return": 4.19520266487208,
+            "mean_return_seed_range": [
+              3.6717214277853616,
+              5.134699486735272
+            ],
+            "worst_10_percent_mean_return": -0.1832445136755593,
+            "worst_10_percent_mean_return_seed_range": [
+              -0.6016048577153162,
+              0.43003621141441034
+            ],
+            "mean_distance_m": 503.7472365264318,
+            "mean_distance_m_seed_range": [
+              446.37326573098363,
+              591.0489496941136
+            ],
+            "mean_duration_s": 18.333333333333332,
+            "mean_duration_s_seed_range": [
+              15.933333333333334,
+              21.933333333333334
+            ]
+          },
+          {
+            "density": 2.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.9666666666666667,
+                "mean_speed_m_s": 23.474130861737958,
+                "mean_return": -1.0316064344783138,
+                "worst_10_percent_mean_return": -1.8573350378575177,
+                "mean_distance_m": 130.02454965516714,
+                "mean_duration_s": 5.333333333333333,
+                "collisions_per_1000m": 7.434493480118365
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 1.0,
+                "mean_speed_m_s": 23.838708016409008,
+                "mean_return": -1.1696936175300436,
+                "worst_10_percent_mean_return": -1.848556657458502,
+                "mean_distance_m": 106.38325530575706,
+                "mean_duration_s": 4.233333333333333,
+                "collisions_per_1000m": 9.399975561246844
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 1.0,
+                "mean_speed_m_s": 24.950173887140856,
+                "mean_return": -1.103634037593822,
+                "worst_10_percent_mean_return": -1.857352661127616,
+                "mean_distance_m": 106.07458031685832,
+                "mean_duration_s": 4.1,
+                "collisions_per_1000m": 9.427329309367734
+              }
+            ],
+            "crash_rate": 0.9888888888888889,
+            "crash_rate_seed_range": [
+              0.9666666666666667,
+              1.0
+            ],
+            "mean_speed_m_s": 24.087670921762605,
+            "mean_speed_m_s_seed_range": [
+              23.474130861737958,
+              24.950173887140856
+            ],
+            "mean_return": -1.1016446965340598,
+            "mean_return_seed_range": [
+              -1.1696936175300436,
+              -1.0316064344783138
+            ],
+            "worst_10_percent_mean_return": -1.8544147854812119,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.857352661127616,
+              -1.848556657458502
+            ],
+            "mean_distance_m": 114.16079509259417,
+            "mean_distance_m_seed_range": [
+              106.07458031685832,
+              130.02454965516714
+            ],
+            "mean_duration_s": 4.555555555555555,
+            "mean_duration_s_seed_range": [
+              4.1,
+              5.333333333333333
+            ]
+          }
+        ],
+        "tail25": [
+          {
+            "density": 1.25,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.2,
+                "mean_speed_m_s": 23.941087816258577,
+                "mean_return": 3.659488639640605,
+                "worst_10_percent_mean_return": -0.3724549393818797,
+                "mean_distance_m": 638.3916440549667,
+                "mean_duration_s": 26.8,
+                "collisions_per_1000m": 0.3132873086020212
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.26666666666666666,
+                "mean_speed_m_s": 23.670410221506053,
+                "mean_return": 3.3170074994929255,
+                "worst_10_percent_mean_return": -1.1810457576147697,
+                "mean_distance_m": 604.3679595162632,
+                "mean_duration_s": 25.366666666666667,
+                "collisions_per_1000m": 0.44123230304946504
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.2,
+                "mean_speed_m_s": 22.922650456858523,
+                "mean_return": 2.4551766428463977,
+                "worst_10_percent_mean_return": -0.22121508902563125,
+                "mean_distance_m": 607.8857868363858,
+                "mean_duration_s": 26.766666666666666,
+                "collisions_per_1000m": 0.32900917299096283
+              }
+            ],
+            "crash_rate": 0.22222222222222224,
+            "crash_rate_seed_range": [
+              0.2,
+              0.26666666666666666
+            ],
+            "mean_speed_m_s": 23.511382831541052,
+            "mean_speed_m_s_seed_range": [
+              22.922650456858523,
+              23.941087816258577
+            ],
+            "mean_return": 3.143890927326643,
+            "mean_return_seed_range": [
+              2.4551766428463977,
+              3.659488639640605
+            ],
+            "worst_10_percent_mean_return": -0.5915719286740936,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.1810457576147697,
+              -0.22121508902563125
+            ],
+            "mean_distance_m": 616.8817968025386,
+            "mean_distance_m_seed_range": [
+              604.3679595162632,
+              638.3916440549667
+            ],
+            "mean_duration_s": 26.311111111111114,
+            "mean_duration_s_seed_range": [
+              25.366666666666667,
+              26.8
+            ]
+          },
+          {
+            "density": 2.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.9666666666666667,
+                "mean_speed_m_s": 22.292113996921277,
+                "mean_return": -1.1761423444017802,
+                "worst_10_percent_mean_return": -1.970005350333956,
+                "mean_distance_m": 132.0816139580522,
+                "mean_duration_s": 5.633333333333334,
+                "collisions_per_1000m": 7.3187072575723535
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.9,
+                "mean_speed_m_s": 22.08958806657965,
+                "mean_return": -0.9885969741695242,
+                "worst_10_percent_mean_return": -1.913583186386191,
+                "mean_distance_m": 164.01409820823397,
+                "mean_duration_s": 7.2,
+                "collisions_per_1000m": 5.487333161185637
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.9333333333333333,
+                "mean_speed_m_s": 22.526520900739083,
+                "mean_return": -1.155929399234577,
+                "worst_10_percent_mean_return": -1.9701568918685037,
+                "mean_distance_m": 142.2541886037405,
+                "mean_duration_s": 6.2,
+                "collisions_per_1000m": 6.561025320197791
+              }
+            ],
+            "crash_rate": 0.9333333333333332,
+            "crash_rate_seed_range": [
+              0.9,
+              0.9666666666666667
+            ],
+            "mean_speed_m_s": 22.302740988080004,
+            "mean_speed_m_s_seed_range": [
+              22.08958806657965,
+              22.526520900739083
+            ],
+            "mean_return": -1.1068895726019605,
+            "mean_return_seed_range": [
+              -1.1761423444017802,
+              -0.9885969741695242
+            ],
+            "worst_10_percent_mean_return": -1.951248476196217,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.9701568918685037,
+              -1.913583186386191
+            ],
+            "mean_distance_m": 146.1166335900089,
+            "mean_distance_m_seed_range": [
+              132.0816139580522,
+              164.01409820823397
+            ],
+            "mean_duration_s": 6.344444444444445,
+            "mean_duration_s_seed_range": [
+              5.633333333333334,
+              7.2
+            ]
+          }
+        ],
+        "governed": [
+          {
+            "density": 1.25,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.03333333333333333,
+                "mean_speed_m_s": 23.552387124549714,
+                "mean_return": 4.194776500420754,
+                "worst_10_percent_mean_return": 2.6739774387096076,
+                "mean_distance_m": 705.9301066888751,
+                "mean_duration_s": 29.933333333333334,
+                "collisions_per_1000m": 0.04721902780104029
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.16666666666666666,
+                "mean_speed_m_s": 23.3312375867503,
+                "mean_return": 3.4712025707236305,
+                "worst_10_percent_mean_return": -0.5154191483284617,
+                "mean_distance_m": 653.6120579572588,
+                "mean_duration_s": 27.866666666666667,
+                "collisions_per_1000m": 0.25499325576635146
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.26666666666666666,
+                "mean_speed_m_s": 23.647482453600755,
+                "mean_return": 3.43198463782471,
+                "worst_10_percent_mean_return": -0.5910961796273879,
+                "mean_distance_m": 631.9404535521838,
+                "mean_duration_s": 26.6,
+                "collisions_per_1000m": 0.4219806868949657
+              }
+            ],
+            "crash_rate": 0.15555555555555556,
+            "crash_rate_seed_range": [
+              0.03333333333333333,
+              0.26666666666666666
+            ],
+            "mean_speed_m_s": 23.510369054966926,
+            "mean_speed_m_s_seed_range": [
+              23.3312375867503,
+              23.647482453600755
+            ],
+            "mean_return": 3.6993212363230317,
+            "mean_return_seed_range": [
+              3.43198463782471,
+              4.194776500420754
+            ],
+            "worst_10_percent_mean_return": 0.5224873702512527,
+            "worst_10_percent_mean_return_seed_range": [
+              -0.5910961796273879,
+              2.6739774387096076
+            ],
+            "mean_distance_m": 663.8275393994392,
+            "mean_distance_m_seed_range": [
+              631.9404535521838,
+              705.9301066888751
+            ],
+            "mean_duration_s": 28.133333333333336,
+            "mean_duration_s_seed_range": [
+              26.6,
+              29.933333333333334
+            ]
+          },
+          {
+            "density": 2.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.9,
+                "mean_speed_m_s": 21.41433354269523,
+                "mean_return": -1.0717522142278948,
+                "worst_10_percent_mean_return": -1.8573350378575177,
+                "mean_distance_m": 161.48179095248494,
+                "mean_duration_s": 7.166666666666667,
+                "collisions_per_1000m": 5.573383814307705
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.9,
+                "mean_speed_m_s": 21.317515324788793,
+                "mean_return": -1.0369237717651503,
+                "worst_10_percent_mean_return": -1.848556657458502,
+                "mean_distance_m": 167.006026198783,
+                "mean_duration_s": 7.4,
+                "collisions_per_1000m": 5.389027093721475
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.9666666666666667,
+                "mean_speed_m_s": 22.022036789871702,
+                "mean_return": -1.1909515472915249,
+                "worst_10_percent_mean_return": -1.857352661127616,
+                "mean_distance_m": 132.36443050239902,
+                "mean_duration_s": 5.666666666666667,
+                "collisions_per_1000m": 7.303069737070688
+              }
+            ],
+            "crash_rate": 0.9222222222222222,
+            "crash_rate_seed_range": [
+              0.9,
+              0.9666666666666667
+            ],
+            "mean_speed_m_s": 21.584628552451907,
+            "mean_speed_m_s_seed_range": [
+              21.317515324788793,
+              22.022036789871702
+            ],
+            "mean_return": -1.0998758444281902,
+            "mean_return_seed_range": [
+              -1.1909515472915249,
+              -1.0369237717651503
+            ],
+            "worst_10_percent_mean_return": -1.8544147854812119,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.857352661127616,
+              -1.848556657458502
+            ],
+            "mean_distance_m": 153.61741588455564,
+            "mean_distance_m_seed_range": [
+              132.36443050239902,
+              167.006026198783
+            ],
+            "mean_duration_s": 6.7444444444444445,
+            "mean_duration_s_seed_range": [
+              5.666666666666667,
+              7.4
+            ]
+          }
+        ]
+      },
+      "mixed": {
+        "mean": [
+          {
+            "density": 1.25,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.7666666666666667,
+                "mean_speed_m_s": 26.604877565622264,
+                "mean_return": 2.2526501553518212,
+                "worst_10_percent_mean_return": -0.9108965461617391,
+                "mean_distance_m": 394.5834428853034,
+                "mean_duration_s": 14.933333333333334,
+                "collisions_per_1000m": 1.9429772852621179
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.5666666666666667,
+                "mean_speed_m_s": 25.016313368886163,
+                "mean_return": 3.0747133437530296,
+                "worst_10_percent_mean_return": -0.7911169059070765,
+                "mean_distance_m": 526.0974272565755,
+                "mean_duration_s": 21.0,
+                "collisions_per_1000m": 1.0771135483814211
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.3333333333333333,
+                "mean_speed_m_s": 24.242372462757473,
+                "mean_return": 3.1743411591987303,
+                "worst_10_percent_mean_return": -0.07925879611978896,
+                "mean_distance_m": 595.906197139328,
+                "mean_duration_s": 24.933333333333334,
+                "collisions_per_1000m": 0.5593721544322136
+              }
+            ],
+            "crash_rate": 0.5555555555555556,
+            "crash_rate_seed_range": [
+              0.3333333333333333,
+              0.7666666666666667
+            ],
+            "mean_speed_m_s": 25.2878544657553,
+            "mean_speed_m_s_seed_range": [
+              24.242372462757473,
+              26.604877565622264
+            ],
+            "mean_return": 2.8339015527678604,
+            "mean_return_seed_range": [
+              2.2526501553518212,
+              3.1743411591987303
+            ],
+            "worst_10_percent_mean_return": -0.5937574160628682,
+            "worst_10_percent_mean_return_seed_range": [
+              -0.9108965461617391,
+              -0.07925879611978896
+            ],
+            "mean_distance_m": 505.52902242706904,
+            "mean_distance_m_seed_range": [
+              394.5834428853034,
+              595.906197139328
+            ],
+            "mean_duration_s": 20.28888888888889,
+            "mean_duration_s_seed_range": [
+              14.933333333333334,
+              24.933333333333334
+            ]
+          },
+          {
+            "density": 2.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.9666666666666667,
+                "mean_speed_m_s": 22.273202013328874,
+                "mean_return": -1.1589390464052085,
+                "worst_10_percent_mean_return": -1.970450468724696,
+                "mean_distance_m": 133.62288648503375,
+                "mean_duration_s": 5.7,
+                "collisions_per_1000m": 7.234289664704534
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.9,
+                "mean_speed_m_s": 22.37477645058554,
+                "mean_return": -1.0126348176178677,
+                "worst_10_percent_mean_return": -1.8571784308738775,
+                "mean_distance_m": 156.44004104357498,
+                "mean_duration_s": 6.8,
+                "collisions_per_1000m": 5.753002837357433
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.8666666666666667,
+                "mean_speed_m_s": 22.110007953195588,
+                "mean_return": -0.898969887695258,
+                "worst_10_percent_mean_return": -1.8577773611653006,
+                "mean_distance_m": 177.04116796364295,
+                "mean_duration_s": 7.8,
+                "collisions_per_1000m": 4.895283264537911
+              }
+            ],
+            "crash_rate": 0.9111111111111111,
+            "crash_rate_seed_range": [
+              0.8666666666666667,
+              0.9666666666666667
+            ],
+            "mean_speed_m_s": 22.25266213903667,
+            "mean_speed_m_s_seed_range": [
+              22.110007953195588,
+              22.37477645058554
+            ],
+            "mean_return": -1.0235145839061113,
+            "mean_return_seed_range": [
+              -1.1589390464052085,
+              -0.898969887695258
+            ],
+            "worst_10_percent_mean_return": -1.8951354202546247,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.970450468724696,
+              -1.8571784308738775
+            ],
+            "mean_distance_m": 155.70136516408388,
+            "mean_distance_m_seed_range": [
+              133.62288648503375,
+              177.04116796364295
+            ],
+            "mean_duration_s": 6.766666666666667,
+            "mean_duration_s_seed_range": [
+              5.7,
+              7.8
+            ]
+          }
+        ],
+        "tail25": [
+          {
+            "density": 1.25,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.26666666666666666,
+                "mean_speed_m_s": 22.90537605995104,
+                "mean_return": 2.1053719173638523,
+                "worst_10_percent_mean_return": -1.3039839047291466,
+                "mean_distance_m": 574.5992198394252,
+                "mean_duration_s": 25.366666666666667,
+                "collisions_per_1000m": 0.4640915919467974
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.13333333333333333,
+                "mean_speed_m_s": 22.081901620426855,
+                "mean_return": 1.9860936997354863,
+                "worst_10_percent_mean_return": -0.7045792910330079,
+                "mean_distance_m": 609.5705689605036,
+                "mean_duration_s": 27.566666666666666,
+                "collisions_per_1000m": 0.21873321994647107
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.06666666666666667,
+                "mean_speed_m_s": 21.188000390371595,
+                "mean_return": 1.2751169757879686,
+                "worst_10_percent_mean_return": -0.10378203993656458,
+                "mean_distance_m": 627.2158776794827,
+                "mean_duration_s": 29.5,
+                "collisions_per_1000m": 0.10628982626095826
+              }
+            ],
+            "crash_rate": 0.15555555555555556,
+            "crash_rate_seed_range": [
+              0.06666666666666667,
+              0.26666666666666666
+            ],
+            "mean_speed_m_s": 22.058426023583163,
+            "mean_speed_m_s_seed_range": [
+              21.188000390371595,
+              22.90537605995104
+            ],
+            "mean_return": 1.7888608642957688,
+            "mean_return_seed_range": [
+              1.2751169757879686,
+              2.1053719173638523
+            ],
+            "worst_10_percent_mean_return": -0.7041150785662397,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.3039839047291466,
+              -0.10378203993656458
+            ],
+            "mean_distance_m": 603.7952221598039,
+            "mean_distance_m_seed_range": [
+              574.5992198394252,
+              627.2158776794827
+            ],
+            "mean_duration_s": 27.477777777777778,
+            "mean_duration_s_seed_range": [
+              25.366666666666667,
+              29.5
+            ]
+          },
+          {
+            "density": 2.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.9,
+                "mean_speed_m_s": 20.89767464383195,
+                "mean_return": -1.1688707474649394,
+                "worst_10_percent_mean_return": -1.9701759198375768,
+                "mean_distance_m": 186.58825058034958,
+                "mean_duration_s": 8.533333333333333,
+                "collisions_per_1000m": 4.823454838130001
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.8333333333333334,
+                "mean_speed_m_s": 20.550692844955186,
+                "mean_return": -1.2227690464129806,
+                "worst_10_percent_mean_return": -1.9135805462443214,
+                "mean_distance_m": 192.541089381672,
+                "mean_duration_s": 9.066666666666666,
+                "collisions_per_1000m": 4.3280804944518945
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.8,
+                "mean_speed_m_s": 20.58633055000721,
+                "mean_return": -1.2494332097633793,
+                "worst_10_percent_mean_return": -1.970291066658099,
+                "mean_distance_m": 213.99442186237653,
+                "mean_duration_s": 10.233333333333333,
+                "collisions_per_1000m": 3.738415202778013
+              }
+            ],
+            "crash_rate": 0.8444444444444444,
+            "crash_rate_seed_range": [
+              0.8,
+              0.9
+            ],
+            "mean_speed_m_s": 20.678232679598118,
+            "mean_speed_m_s_seed_range": [
+              20.550692844955186,
+              20.89767464383195
+            ],
+            "mean_return": -1.2136910012137665,
+            "mean_return_seed_range": [
+              -1.2494332097633793,
+              -1.1688707474649394
+            ],
+            "worst_10_percent_mean_return": -1.9513491775799992,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.970291066658099,
+              -1.9135805462443214
+            ],
+            "mean_distance_m": 197.7079206081327,
+            "mean_distance_m_seed_range": [
+              186.58825058034958,
+              213.99442186237653
+            ],
+            "mean_duration_s": 9.277777777777779,
+            "mean_duration_s_seed_range": [
+              8.533333333333333,
+              10.233333333333333
+            ]
+          }
+        ],
+        "governed": [
+          {
+            "density": 1.25,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.23333333333333334,
+                "mean_speed_m_s": 23.443123476005276,
+                "mean_return": 3.354688304117615,
+                "worst_10_percent_mean_return": -0.7039398717081974,
+                "mean_distance_m": 634.0260826239604,
+                "mean_duration_s": 26.9,
+                "collisions_per_1000m": 0.3680185085882703
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.2,
+                "mean_speed_m_s": 23.241103858290685,
+                "mean_return": 3.185197108373486,
+                "worst_10_percent_mean_return": -0.9146706124296601,
+                "mean_distance_m": 633.3637615744526,
+                "mean_duration_s": 27.133333333333333,
+                "collisions_per_1000m": 0.3157743024369255
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.16666666666666666,
+                "mean_speed_m_s": 22.346328871209373,
+                "mean_return": 2.3617404860989715,
+                "worst_10_percent_mean_return": -1.047403575822374,
+                "mean_distance_m": 625.003450550515,
+                "mean_duration_s": 27.833333333333332,
+                "collisions_per_1000m": 0.26666519443990827
+              }
+            ],
+            "crash_rate": 0.19999999999999998,
+            "crash_rate_seed_range": [
+              0.16666666666666666,
+              0.23333333333333334
+            ],
+            "mean_speed_m_s": 23.010185401835113,
+            "mean_speed_m_s_seed_range": [
+              22.346328871209373,
+              23.443123476005276
+            ],
+            "mean_return": 2.9672086328633576,
+            "mean_return_seed_range": [
+              2.3617404860989715,
+              3.354688304117615
+            ],
+            "worst_10_percent_mean_return": -0.8886713533200772,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.047403575822374,
+              -0.7039398717081974
+            ],
+            "mean_distance_m": 630.7977649163093,
+            "mean_distance_m_seed_range": [
+              625.003450550515,
+              634.0260826239604
+            ],
+            "mean_duration_s": 27.288888888888888,
+            "mean_duration_s_seed_range": [
+              26.9,
+              27.833333333333332
+            ]
+          },
+          {
+            "density": 2.5,
+            "training_seeds": 3,
+            "total_evaluation_episodes": 90,
+            "per_seed": [
+              {
+                "training_seed": 0,
+                "episodes": 30,
+                "crash_rate": 0.9666666666666667,
+                "mean_speed_m_s": 20.70131352340821,
+                "mean_return": -1.3995222779447032,
+                "worst_10_percent_mean_return": -1.970450468724696,
+                "mean_distance_m": 143.88609690216563,
+                "mean_duration_s": 6.533333333333333,
+                "collisions_per_1000m": 6.718277078041425
+              },
+              {
+                "training_seed": 1,
+                "episodes": 30,
+                "crash_rate": 0.8333333333333334,
+                "mean_speed_m_s": 20.752803159428602,
+                "mean_return": -1.1431204533923038,
+                "worst_10_percent_mean_return": -1.8571784308738775,
+                "mean_distance_m": 198.41657649615306,
+                "mean_duration_s": 9.266666666666667,
+                "collisions_per_1000m": 4.1999179103339195
+              },
+              {
+                "training_seed": 2,
+                "episodes": 30,
+                "crash_rate": 0.8333333333333334,
+                "mean_speed_m_s": 20.902366043292968,
+                "mean_return": -1.0572045712489129,
+                "worst_10_percent_mean_return": -1.8577773611653006,
+                "mean_distance_m": 197.41888335206204,
+                "mean_duration_s": 9.1,
+                "collisions_per_1000m": 4.221142978745498
+              }
+            ],
+            "crash_rate": 0.8777777777777778,
+            "crash_rate_seed_range": [
+              0.8333333333333334,
+              0.9666666666666667
+            ],
+            "mean_speed_m_s": 20.78549424204326,
+            "mean_speed_m_s_seed_range": [
+              20.70131352340821,
+              20.902366043292968
+            ],
+            "mean_return": -1.1999491008619732,
+            "mean_return_seed_range": [
+              -1.3995222779447032,
+              -1.0572045712489129
+            ],
+            "worst_10_percent_mean_return": -1.8951354202546247,
+            "worst_10_percent_mean_return_seed_range": [
+              -1.970450468724696,
+              -1.8571784308738775
+            ],
+            "mean_distance_m": 179.90718558346023,
+            "mean_distance_m_seed_range": [
+              143.88609690216563,
+              198.41657649615306
+            ],
+            "mean_duration_s": 8.299999999999999,
+            "mean_duration_s_seed_range": [
+              6.533333333333333,
+              9.266666666666667
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "mixed_minus_fixed": [
+    {
+      "block": "main",
+      "policy": "mean",
+      "density": 1.0,
+      "crashed": {
+        "mean_difference": 0.0,
+        "exploratory_95_percent_interval": [
+          -0.4,
+          0.35555555555555557
+        ],
+        "per_training_seed_differences": [
+          0.3333333333333333,
+          0.06666666666666667,
+          -0.4
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.7659163359907729,
+        "exploratory_95_percent_interval": [
+          -3.534695014483857,
+          1.3414582548016463
+        ],
+        "per_training_seed_differences": [
+          1.28530986046409,
+          0.14386394217614462,
+          -3.726922810612554
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": -27.63852161590792,
+        "exploratory_95_percent_interval": [
+          -172.46334197726733,
+          141.0519916924915
+        ],
+        "per_training_seed_differences": [
+          -128.9822689946183,
+          -80.04441974690344,
+          126.11112389379795
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": -0.9183049840376312,
+        "exploratory_95_percent_interval": [
+          -2.2393579574539677,
+          0.5262694019451962
+        ],
+        "per_training_seed_differences": [
+          -1.1217712559671007,
+          -1.0415477466035796,
+          -0.5915959495422131
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "policy": "mean",
+      "density": 1.5,
+      "crashed": {
+        "mean_difference": -0.2111111111111111,
+        "exploratory_95_percent_interval": [
+          -0.4666666666666667,
+          0.06666666666666667
+        ],
+        "per_training_seed_differences": [
+          0.06666666666666667,
+          -0.3333333333333333,
+          -0.36666666666666664
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -1.5923652626500606,
+        "exploratory_95_percent_interval": [
+          -3.4757015699230878,
+          0.26845208313281604
+        ],
+        "per_training_seed_differences": [
+          0.13463718344008543,
+          -1.4533459696665174,
+          -3.45838700172375
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": 92.17992944782682,
+        "exploratory_95_percent_interval": [
+          -64.4372176915242,
+          228.78048621899103
+        ],
+        "per_training_seed_differences": [
+          -67.6414273997297,
+          162.83914966517025,
+          181.3420660780399
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": 0.20028889789649754,
+        "exploratory_95_percent_interval": [
+          -0.9923763810402608,
+          1.2615424028236637
+        ],
+        "per_training_seed_differences": [
+          -0.8743071213124859,
+          0.7855676466823506,
+          0.6896061683196284
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "policy": "mean",
+      "density": 2.0,
+      "crashed": {
+        "mean_difference": -0.14444444444444443,
+        "exploratory_95_percent_interval": [
+          -0.3333333333333333,
+          0.0
+        ],
+        "per_training_seed_differences": [
+          -0.03333333333333333,
+          -0.1,
+          -0.3
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -1.9447520788637664,
+        "exploratory_95_percent_interval": [
+          -3.7708620474879893,
+          -0.39658797083846276
+        ],
+        "per_training_seed_differences": [
+          -1.0683130629950128,
+          -0.8245078557195614,
+          -3.941435317876725
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": 81.76305082339786,
+        "exploratory_95_percent_interval": [
+          -16.18938294218282,
+          184.9524124679882
+        ],
+        "per_training_seed_differences": [
+          30.447277495669976,
+          40.41127844464189,
+          174.43059652988177
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": 0.15576993099900788,
+        "exploratory_95_percent_interval": [
+          -0.44337461893297353,
+          0.7920146244761973
+        ],
+        "per_training_seed_differences": [
+          0.16364633370018938,
+          -0.045189798887807345,
+          0.34885325818464163
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "policy": "tail25",
+      "density": 1.0,
+      "crashed": {
+        "mean_difference": -0.022222222222222223,
+        "exploratory_95_percent_interval": [
+          -0.2,
+          0.16666666666666666
+        ],
+        "per_training_seed_differences": [
+          0.13333333333333333,
+          -0.03333333333333333,
+          -0.16666666666666666
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -1.18984946075733,
+        "exploratory_95_percent_interval": [
+          -2.3183343434738743,
+          -0.02267926098437174
+        ],
+        "per_training_seed_differences": [
+          -0.544407701959233,
+          -0.6525939849971624,
+          -2.3725466953155956
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": -16.08187729036733,
+        "exploratory_95_percent_interval": [
+          -88.3498435426497,
+          51.35195872537633
+        ],
+        "per_training_seed_differences": [
+          -60.56868546859664,
+          -6.403615763754802,
+          18.726669361249428
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": -1.2010074816902234,
+        "exploratory_95_percent_interval": [
+          -2.0932701258903874,
+          -0.3728636231257564
+        ],
+        "per_training_seed_differences": [
+          -1.2455583041294944,
+          -0.6575057652749993,
+          -1.6999583756661767
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "policy": "tail25",
+      "density": 1.5,
+      "crashed": {
+        "mean_difference": -0.2777777777777778,
+        "exploratory_95_percent_interval": [
+          -0.4666666666666667,
+          -0.06666666666666667
+        ],
+        "per_training_seed_differences": [
+          -0.13333333333333333,
+          -0.3333333333333333,
+          -0.36666666666666664
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -1.7965203313377012,
+        "exploratory_95_percent_interval": [
+          -2.4972879756808815,
+          -1.1629993831825332
+        ],
+        "per_training_seed_differences": [
+          -1.7840834645037025,
+          -1.8198517618904952,
+          -1.7856257676189065
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": 102.28676153535942,
+        "exploratory_95_percent_interval": [
+          7.954844949002432,
+          183.85794976343192
+        ],
+        "per_training_seed_differences": [
+          42.95520384679697,
+          116.12428044406255,
+          147.78080031521884
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": -0.3559992063383746,
+        "exploratory_95_percent_interval": [
+          -1.2309446939334787,
+          0.29452537984698085
+        ],
+        "per_training_seed_differences": [
+          -0.8612581604182565,
+          -0.30326315654847813,
+          0.09652369795161067
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "policy": "tail25",
+      "density": 2.0,
+      "crashed": {
+        "mean_difference": -0.13333333333333333,
+        "exploratory_95_percent_interval": [
+          -0.2669444444444444,
+          0.0
+        ],
+        "per_training_seed_differences": [
+          -0.13333333333333333,
+          -0.16666666666666666,
+          -0.1
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -1.6106037805184967,
+        "exploratory_95_percent_interval": [
+          -2.570053677191906,
+          -0.7845830530932768
+        ],
+        "per_training_seed_differences": [
+          -2.046206383174924,
+          -1.0105843344839385,
+          -1.775020623896627
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": 55.44328101589723,
+        "exploratory_95_percent_interval": [
+          -13.244094515217009,
+          123.01094654894783
+        ],
+        "per_training_seed_differences": [
+          49.297755389322894,
+          57.890183090523564,
+          59.141904567845245
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": -0.2471571695600488,
+        "exploratory_95_percent_interval": [
+          -0.6792195692982184,
+          0.18156650894244378
+        ],
+        "per_training_seed_differences": [
+          -0.28186415721095476,
+          -0.06874515073447568,
+          -0.3908622007347157
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "policy": "governed",
+      "density": 1.0,
+      "crashed": {
+        "mean_difference": 0.13333333333333333,
+        "exploratory_95_percent_interval": [
+          -0.17777777777777778,
+          0.43333333333333335
+        ],
+        "per_training_seed_differences": [
+          0.4,
+          0.2,
+          -0.2
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.12596492093052108,
+        "exploratory_95_percent_interval": [
+          -0.9982025952634778,
+          0.5922629082348235
+        ],
+        "per_training_seed_differences": [
+          0.4774739158006259,
+          0.20666082025847363,
+          -1.062029498850663
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": -52.9304208363866,
+        "exploratory_95_percent_interval": [
+          -138.37432296861715,
+          25.747155848002528
+        ],
+        "per_training_seed_differences": [
+          -121.222846284646,
+          -63.05137381205834,
+          25.482957587544433
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": -0.7179810280456405,
+        "exploratory_95_percent_interval": [
+          -1.3452912667227288,
+          -0.1848923918152146
+        ],
+        "per_training_seed_differences": [
+          -1.005306153277778,
+          -0.6084740072099553,
+          -0.5401629236491885
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "policy": "governed",
+      "density": 1.5,
+      "crashed": {
+        "mean_difference": -0.17777777777777778,
+        "exploratory_95_percent_interval": [
+          -0.4777777777777778,
+          0.13333333333333333
+        ],
+        "per_training_seed_differences": [
+          0.1,
+          -0.16666666666666666,
+          -0.4666666666666667
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.6952082821675848,
+        "exploratory_95_percent_interval": [
+          -1.5613749166407151,
+          0.09131943763610675
+        ],
+        "per_training_seed_differences": [
+          -0.01893718838477542,
+          -0.4219296035777708,
+          -1.644758054540208
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": 72.3802232617811,
+        "exploratory_95_percent_interval": [
+          -43.98597627194485,
+          185.03037909451322
+        ],
+        "per_training_seed_differences": [
+          -19.690157738839623,
+          68.10431481732883,
+          168.72651270685407
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": 0.17562955272190084,
+        "exploratory_95_percent_interval": [
+          -0.6879924355522159,
+          1.027879507248461
+        ],
+        "per_training_seed_differences": [
+          -0.3650426366137573,
+          0.16946584842440057,
+          0.722465446355059
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "policy": "governed",
+      "density": 2.0,
+      "crashed": {
+        "mean_difference": -0.14444444444444443,
+        "exploratory_95_percent_interval": [
+          -0.3,
+          0.022222222222222223
+        ],
+        "per_training_seed_differences": [
+          -0.06666666666666667,
+          -0.13333333333333333,
+          -0.23333333333333334
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.6762617587308635,
+        "exploratory_95_percent_interval": [
+          -1.2824821584933914,
+          -0.1353709141074049
+        ],
+        "per_training_seed_differences": [
+          -0.47784344833355186,
+          -0.388947289658852,
+          -1.1619945382001864
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": 70.93363945758226,
+        "exploratory_95_percent_interval": [
+          -19.079357460443024,
+          147.694326594807
+        ],
+        "per_training_seed_differences": [
+          44.76143206011695,
+          39.191842004515806,
+          128.847644308114
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": 0.22596180073110617,
+        "exploratory_95_percent_interval": [
+          -0.334180057042673,
+          0.7659195643178587
+        ],
+        "per_training_seed_differences": [
+          0.20735275070426898,
+          0.13092318583399912,
+          0.3396094656550503
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "transfer",
+      "policy": "mean",
+      "density": 1.25,
+      "crashed": {
+        "mean_difference": -0.06666666666666667,
+        "exploratory_95_percent_interval": [
+          -0.4,
+          0.3
+        ],
+        "per_training_seed_differences": [
+          0.3,
+          -0.13333333333333333,
+          -0.36666666666666664
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -2.0861128964985802,
+        "exploratory_95_percent_interval": [
+          -3.690379383999037,
+          -0.4689539981737931
+        ],
+        "per_training_seed_differences": [
+          -0.48485073818733054,
+          -2.0925451500961834,
+          -3.6809428012122263
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": 1.7817859006371817,
+        "exploratory_95_percent_interval": [
+          -190.47132478603126,
+          171.30154005468754
+        ],
+        "per_training_seed_differences": [
+          -196.4655068088103,
+          52.27793310237735,
+          149.53293140834447
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": -1.3613011121042196,
+        "exploratory_95_percent_interval": [
+          -3.110320132246121,
+          0.20213462730820758
+        ],
+        "per_training_seed_differences": [
+          -2.8820493313834503,
+          -0.7044737363425777,
+          -0.4973802685866311
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "transfer",
+      "policy": "mean",
+      "density": 2.5,
+      "crashed": {
+        "mean_difference": -0.07777777777777778,
+        "exploratory_95_percent_interval": [
+          -0.2,
+          0.011111111111111112
+        ],
+        "per_training_seed_differences": [
+          0.0,
+          -0.1,
+          -0.13333333333333333
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -1.8350087827259443,
+        "exploratory_95_percent_interval": [
+          -3.0640897828706795,
+          -0.7611055843961215
+        ],
+        "per_training_seed_differences": [
+          -1.2009288484090888,
+          -1.463931565823475,
+          -2.8401659339452703
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": 41.54057007148971,
+        "exploratory_95_percent_interval": [
+          0.06737167971169107,
+          102.64780197292588
+        ],
+        "per_training_seed_differences": [
+          3.598336829866609,
+          50.056785737817904,
+          70.9665876467846
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": 0.07813011262794832,
+        "exploratory_95_percent_interval": [
+          -0.20724235267575908,
+          0.4765157813647598
+        ],
+        "per_training_seed_differences": [
+          -0.127332611926895,
+          0.1570587999121759,
+          0.20466414989856402
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "transfer",
+      "policy": "tail25",
+      "density": 1.25,
+      "crashed": {
+        "mean_difference": -0.06666666666666667,
+        "exploratory_95_percent_interval": [
+          -0.2222222222222222,
+          0.1111111111111111
+        ],
+        "per_training_seed_differences": [
+          0.06666666666666667,
+          -0.13333333333333333,
+          -0.13333333333333333
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -1.4529568079578854,
+        "exploratory_95_percent_interval": [
+          -2.0688223049157854,
+          -0.6748824721333067
+        ],
+        "per_training_seed_differences": [
+          -1.0357117563075373,
+          -1.5885086010791922,
+          -1.7346500664869258
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": -13.08657464273471,
+        "exploratory_95_percent_interval": [
+          -84.03786897517627,
+          44.03544671989862
+        ],
+        "per_training_seed_differences": [
+          -63.79242421554139,
+          5.202609444240329,
+          19.330090843096944
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": -1.3550300630308738,
+        "exploratory_95_percent_interval": [
+          -2.1361234066224473,
+          -0.7040526745220257
+        ],
+        "per_training_seed_differences": [
+          -1.5541167222767525,
+          -1.3309137997574396,
+          -1.1800596670584287
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "transfer",
+      "policy": "tail25",
+      "density": 2.5,
+      "crashed": {
+        "mean_difference": -0.08888888888888889,
+        "exploratory_95_percent_interval": [
+          -0.2,
+          0.0
+        ],
+        "per_training_seed_differences": [
+          -0.06666666666666667,
+          -0.06666666666666667,
+          -0.13333333333333333
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -1.6245083084818885,
+        "exploratory_95_percent_interval": [
+          -2.6574022107813935,
+          -0.6639220026772579
+        ],
+        "per_training_seed_differences": [
+          -1.3944393530893293,
+          -1.5388952216244642,
+          -1.9401903507318734
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": 51.591287018123815,
+        "exploratory_95_percent_interval": [
+          2.2168111106035107,
+          108.20891099201033
+        ],
+        "per_training_seed_differences": [
+          54.50663662229735,
+          28.526991173438027,
+          71.74023325863604
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": -0.10680142861180623,
+        "exploratory_95_percent_interval": [
+          -0.4159690387394476,
+          0.1894511323236847
+        ],
+        "per_training_seed_differences": [
+          0.007271596936840733,
+          -0.23417207224345674,
+          -0.09350381052880277
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "transfer",
+      "policy": "governed",
+      "density": 1.25,
+      "crashed": {
+        "mean_difference": 0.044444444444444446,
+        "exploratory_95_percent_interval": [
+          -0.13333333333333333,
+          0.23333333333333334
+        ],
+        "per_training_seed_differences": [
+          0.2,
+          0.03333333333333333,
+          -0.1
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.5001836531318146,
+        "exploratory_95_percent_interval": [
+          -1.2578980260961237,
+          0.10235456100411852
+        ],
+        "per_training_seed_differences": [
+          -0.10926364854444431,
+          -0.09013372845961125,
+          -1.301153582391388
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": -33.02977448312994,
+        "exploratory_95_percent_interval": [
+          -83.11642117607019,
+          10.206764521906583
+        ],
+        "per_training_seed_differences": [
+          -71.90402406491471,
+          -20.24829638280626,
+          -6.937003001668867
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": -0.7321126034596739,
+        "exploratory_95_percent_interval": [
+          -1.3355628049283939,
+          -0.08672027109360965
+        ],
+        "per_training_seed_differences": [
+          -0.8400881963031388,
+          -0.28600546235014435,
+          -1.0702441517257386
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "transfer",
+      "policy": "governed",
+      "density": 2.5,
+      "crashed": {
+        "mean_difference": -0.044444444444444446,
+        "exploratory_95_percent_interval": [
+          -0.18888888888888888,
+          0.06666666666666667
+        ],
+        "per_training_seed_differences": [
+          0.06666666666666667,
+          -0.06666666666666667,
+          -0.13333333333333333
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.7991343104086499,
+        "exploratory_95_percent_interval": [
+          -1.390295257347199,
+          -0.1871582621320204
+        ],
+        "per_training_seed_differences": [
+          -0.7130200192870265,
+          -0.5647121653601924,
+          -1.119670746578731
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "distance_m": {
+        "mean_difference": 26.289769698904582,
+        "exploratory_95_percent_interval": [
+          -22.5756359029252,
+          90.36509391616381
+        ],
+        "per_training_seed_differences": [
+          -17.595694050319327,
+          31.41055029737004,
+          65.05445284966304
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "return": {
+        "mean_difference": -0.10007325643378334,
+        "exploratory_95_percent_interval": [
+          -0.4288539046943269,
+          0.28607581281742406
+        ],
+        "per_training_seed_differences": [
+          -0.3277700637168079,
+          -0.10619668162715372,
+          0.1337469760426118
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    }
+  ],
+  "tail_minus_governed": [
+    {
+      "block": "main",
+      "regime": "fixed",
+      "density": 1.0,
+      "crashed": {
+        "mean_difference": 0.011111111111111112,
+        "exploratory_95_percent_interval": [
+          -0.16666666666666666,
+          0.16666666666666666
+        ],
+        "per_training_seed_differences": [
+          0.13333333333333333,
+          0.03333333333333333,
+          -0.13333333333333333
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": 0.48433664816823513,
+        "exploratory_95_percent_interval": [
+          -0.1323767164834904,
+          1.1702992941432964
+        ],
+        "per_training_seed_differences": [
+          0.8961758074612545,
+          0.06752989971854693,
+          0.4893042373249043
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "regime": "fixed",
+      "density": 1.5,
+      "crashed": {
+        "mean_difference": -0.1111111111111111,
+        "exploratory_95_percent_interval": [
+          -0.3,
+          0.07777777777777778
+        ],
+        "per_training_seed_differences": [
+          0.0,
+          -0.06666666666666667,
+          -0.26666666666666666
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": 0.325665584304926,
+        "exploratory_95_percent_interval": [
+          -0.7001509778885705,
+          1.2952227479553728
+        ],
+        "per_training_seed_differences": [
+          0.955151026073732,
+          0.7124293753942795,
+          -0.6905836485532337
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "regime": "fixed",
+      "density": 2.0,
+      "crashed": {
+        "mean_difference": -0.07777777777777778,
+        "exploratory_95_percent_interval": [
+          -0.24444444444444444,
+          0.07777777777777778
+        ],
+        "per_training_seed_differences": [
+          0.03333333333333333,
+          -0.06666666666666667,
+          -0.2
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": 0.29309079364693374,
+        "exploratory_95_percent_interval": [
+          -0.533580855066869,
+          1.1832994081986214
+        ],
+        "per_training_seed_differences": [
+          0.8032912562411225,
+          0.29587215213695167,
+          -0.21989102743727298
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "regime": "mixed",
+      "density": 1.0,
+      "crashed": {
+        "mean_difference": -0.14444444444444443,
+        "exploratory_95_percent_interval": [
+          -0.28888888888888886,
+          -0.011111111111111112
+        ],
+        "per_training_seed_differences": [
+          -0.13333333333333333,
+          -0.2,
+          -0.1
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.5795478916585739,
+        "exploratory_95_percent_interval": [
+          -1.1582779143302901,
+          0.12519178392157837
+        ],
+        "per_training_seed_differences": [
+          -0.12570581029860448,
+          -0.7917249055370891,
+          -0.821212959140028
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "regime": "mixed",
+      "density": 1.5,
+      "crashed": {
+        "mean_difference": -0.2111111111111111,
+        "exploratory_95_percent_interval": [
+          -0.35555555555555557,
+          -0.06666666666666667
+        ],
+        "per_training_seed_differences": [
+          -0.23333333333333334,
+          -0.23333333333333334,
+          -0.16666666666666666
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.7756464648651904,
+        "exploratory_95_percent_interval": [
+          -1.3132154481789409,
+          -0.2223933247650477
+        ],
+        "per_training_seed_differences": [
+          -0.8099952500451948,
+          -0.6854927829184446,
+          -0.8314513616319321
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "main",
+      "regime": "mixed",
+      "density": 2.0,
+      "crashed": {
+        "mean_difference": -0.06666666666666667,
+        "exploratory_95_percent_interval": [
+          -0.18888888888888888,
+          0.06666666666666667
+        ],
+        "per_training_seed_differences": [
+          -0.03333333333333333,
+          -0.1,
+          -0.06666666666666667
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.6412512281406996,
+        "exploratory_95_percent_interval": [
+          -1.167321368137798,
+          -0.201558268451595
+        ],
+        "per_training_seed_differences": [
+          -0.7650716786002498,
+          -0.32576489268813497,
+          -0.8329171131337139
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "transfer",
+      "regime": "fixed",
+      "density": 1.25,
+      "crashed": {
+        "mean_difference": 0.06666666666666667,
+        "exploratory_95_percent_interval": [
+          -0.13333333333333333,
+          0.23333333333333334
+        ],
+        "per_training_seed_differences": [
+          0.16666666666666666,
+          0.1,
+          -0.06666666666666667
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": 0.0010137765741228735,
+        "exploratory_95_percent_interval": [
+          -0.7819242948894303,
+          0.8562216131592647
+        ],
+        "per_training_seed_differences": [
+          0.38870069170885474,
+          0.33917263475575415,
+          -0.7248319967422403
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "transfer",
+      "regime": "fixed",
+      "density": 2.5,
+      "crashed": {
+        "mean_difference": 0.011111111111111112,
+        "exploratory_95_percent_interval": [
+          -0.06666666666666667,
+          0.1
+        ],
+        "per_training_seed_differences": [
+          0.06666666666666667,
+          0.0,
+          -0.03333333333333333
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": 0.7181124356280947,
+        "exploratory_95_percent_interval": [
+          -0.15395049219060858,
+          1.5534729577390172
+        ],
+        "per_training_seed_differences": [
+          0.8777804542260484,
+          0.7720727417908575,
+          0.5044841108673782
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "transfer",
+      "regime": "mixed",
+      "density": 1.25,
+      "crashed": {
+        "mean_difference": -0.044444444444444446,
+        "exploratory_95_percent_interval": [
+          -0.18888888888888888,
+          0.1
+        ],
+        "per_training_seed_differences": [
+          0.03333333333333333,
+          -0.06666666666666667,
+          -0.1
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.9517593782519476,
+        "exploratory_95_percent_interval": [
+          -1.454606719724728,
+          -0.337844440474633
+        ],
+        "per_training_seed_differences": [
+          -0.5377474160542381,
+          -1.1592022378638267,
+          -1.158328480837778
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    {
+      "block": "transfer",
+      "regime": "mixed",
+      "density": 2.5,
+      "crashed": {
+        "mean_difference": -0.03333333333333333,
+        "exploratory_95_percent_interval": [
+          -0.12222222222222222,
+          0.05555555555555555
+        ],
+        "per_training_seed_differences": [
+          -0.06666666666666667,
+          0.0,
+          -0.03333333333333333
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      },
+      "mean_speed_m_s": {
+        "mean_difference": -0.1072615624451443,
+        "exploratory_95_percent_interval": [
+          -0.6054914664802494,
+          0.4833273171799638
+        ],
+        "per_training_seed_differences": [
+          0.1963611204237458,
+          -0.2021103144734146,
+          -0.31603549328576414
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 30,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    }
+  ],
+  "calibration": [
+    {
+      "regime": "fixed",
+      "policy": "mean",
+      "density": 1.0,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.29444444444444445,
+        0.3388888888888889,
+        0.35,
+        0.38333333333333336,
+        0.39444444444444443,
+        0.40555555555555556,
+        0.4111111111111111,
+        0.4111111111111111,
+        0.4166666666666667,
+        0.4166666666666667,
+        0.4166666666666667,
+        0.4222222222222222,
+        0.43333333333333335,
+        0.43333333333333335,
+        0.43333333333333335,
+        0.45,
+        0.45555555555555555,
+        0.45555555555555555,
+        0.46111111111111114,
+        0.4666666666666667,
+        0.4722222222222222,
+        0.4722222222222222,
+        0.4722222222222222,
+        0.48333333333333334,
+        0.4777777777777778,
+        0.4888888888888889,
+        0.5055555555555555,
+        0.5111111111111111,
+        0.5111111111111111,
+        0.5166666666666667,
+        0.5222222222222223,
+        0.5611111111111111
+      ],
+      "coverage_upper": [
+        0.32222222222222224,
+        0.3611111111111111,
+        0.37222222222222223,
+        0.4,
+        0.40555555555555556,
+        0.4166666666666667,
+        0.4222222222222222,
+        0.42777777777777776,
+        0.4388888888888889,
+        0.4388888888888889,
+        0.4388888888888889,
+        0.4444444444444444,
+        0.46111111111111114,
+        0.46111111111111114,
+        0.46111111111111114,
+        0.4722222222222222,
+        0.48333333333333334,
+        0.48333333333333334,
+        0.49444444444444446,
+        0.49444444444444446,
+        0.5,
+        0.5,
+        0.5,
+        0.5111111111111111,
+        0.5111111111111111,
+        0.5222222222222223,
+        0.5388888888888889,
+        0.55,
+        0.5611111111111111,
+        0.5777777777777777,
+        0.5777777777777777,
+        0.6333333333333333
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.18870442708333335,
+      "mean_prediction": 2.7831638986141316,
+      "mean_return_lower": 2.6288891231805582,
+      "mean_return_upper": 2.7645408296612506,
+      "mean_prediction_bias_bounds": [
+        0.018623068952881343,
+        0.15427477543357337
+      ],
+      "censored_fraction": 0.5333333333333333,
+      "quantile_crossing_fraction": 0.06111111111111111,
+      "crash_rate": 0.4666666666666667,
+      "mean_speed_m_s": 28.142777419148207,
+      "mean_duration_s": 22.694444444444443,
+      "crash_within_3_seconds_fraction": 0.005555555555555556,
+      "recent_lateral_request_given_crash": 0.8809523809523809,
+      "recent_lane_transition_given_crash": 0.8214285714285714
+    },
+    {
+      "regime": "fixed",
+      "policy": "mean",
+      "density": 1.5,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.7611111111111111,
+        0.8055555555555556,
+        0.8111111111111111,
+        0.8388888888888889,
+        0.8444444444444444,
+        0.85,
+        0.85,
+        0.85,
+        0.85,
+        0.85,
+        0.85,
+        0.8611111111111112,
+        0.8611111111111112,
+        0.8666666666666667,
+        0.8722222222222222,
+        0.8777777777777778,
+        0.8777777777777778,
+        0.8777777777777778,
+        0.8833333333333333,
+        0.8833333333333333,
+        0.8833333333333333,
+        0.8833333333333333,
+        0.8833333333333333,
+        0.8888888888888888,
+        0.8888888888888888,
+        0.8888888888888888,
+        0.8944444444444445,
+        0.9,
+        0.9,
+        0.9,
+        0.9055555555555556,
+        0.9444444444444444
+      ],
+      "coverage_upper": [
+        0.7666666666666667,
+        0.8055555555555556,
+        0.8111111111111111,
+        0.8388888888888889,
+        0.85,
+        0.8555555555555555,
+        0.8555555555555555,
+        0.8555555555555555,
+        0.8555555555555555,
+        0.8555555555555555,
+        0.8611111111111112,
+        0.8666666666666667,
+        0.8666666666666667,
+        0.8722222222222222,
+        0.8777777777777778,
+        0.8888888888888888,
+        0.8888888888888888,
+        0.8888888888888888,
+        0.8944444444444445,
+        0.8944444444444445,
+        0.8944444444444445,
+        0.8944444444444445,
+        0.8944444444444445,
+        0.8944444444444445,
+        0.9166666666666666,
+        0.9166666666666666,
+        0.9166666666666666,
+        0.9222222222222223,
+        0.9222222222222223,
+        0.9222222222222223,
+        0.9277777777777778,
+        0.9444444444444444
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.37368706597222223,
+      "mean_prediction": 2.0964950463061944,
+      "mean_return_lower": 0.6981557105229815,
+      "mean_return_upper": 0.7306555985339807,
+      "mean_prediction_bias_bounds": [
+        1.3658394477722138,
+        1.398339335783213
+      ],
+      "censored_fraction": 0.12777777777777777,
+      "quantile_crossing_fraction": 0.05053763440860215,
+      "crash_rate": 0.8722222222222222,
+      "mean_speed_m_s": 25.98186164399739,
+      "mean_duration_s": 10.966666666666667,
+      "crash_within_3_seconds_fraction": 0.016666666666666666,
+      "recent_lateral_request_given_crash": 0.821656050955414,
+      "recent_lane_transition_given_crash": 0.7261146496815286
+    },
+    {
+      "regime": "fixed",
+      "policy": "mean",
+      "density": 2.0,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.9166666666666666,
+        0.9333333333333333,
+        0.9444444444444444,
+        0.9611111111111111,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9722222222222222,
+        0.9722222222222222,
+        0.9777777777777777,
+        0.9777777777777777,
+        0.9777777777777777,
+        0.9777777777777777,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9944444444444445
+      ],
+      "coverage_upper": [
+        0.9166666666666666,
+        0.9333333333333333,
+        0.95,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9722222222222222,
+        0.9722222222222222,
+        0.9777777777777777,
+        0.9777777777777777,
+        0.9777777777777777,
+        0.9833333333333333,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        1.0
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.4704861111111111,
+      "mean_prediction": 1.7719572347213721,
+      "mean_return_lower": -0.23470790486198825,
+      "mean_return_upper": -0.2290557504252928,
+      "mean_prediction_bias_bounds": [
+        2.001012985146665,
+        2.0066651395833603
+      ],
+      "censored_fraction": 0.022222222222222223,
+      "quantile_crossing_fraction": 0.035663082437275985,
+      "crash_rate": 0.9777777777777777,
+      "mean_speed_m_s": 24.77611074064279,
+      "mean_duration_s": 6.1722222222222225,
+      "crash_within_3_seconds_fraction": 0.10555555555555556,
+      "recent_lateral_request_given_crash": 0.8125,
+      "recent_lane_transition_given_crash": 0.6818181818181818
+    },
+    {
+      "regime": "fixed",
+      "policy": "tail25",
+      "density": 1.0,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.39444444444444443,
+        0.5,
+        0.5388888888888889,
+        0.5777777777777777,
+        0.5944444444444444,
+        0.6,
+        0.6055555555555555,
+        0.6166666666666667,
+        0.6166666666666667,
+        0.6222222222222222,
+        0.6277777777777778,
+        0.6444444444444445,
+        0.65,
+        0.6555555555555556,
+        0.6611111111111111,
+        0.6722222222222223,
+        0.6777777777777778,
+        0.6777777777777778,
+        0.6833333333333333,
+        0.6944444444444444,
+        0.7,
+        0.7277777777777777,
+        0.75,
+        0.7555555555555555,
+        0.7833333333333333,
+        0.7888888888888889,
+        0.8,
+        0.8111111111111111,
+        0.8222222222222222,
+        0.8444444444444444,
+        0.8611111111111112,
+        0.8944444444444445
+      ],
+      "coverage_upper": [
+        0.5277777777777778,
+        0.6222222222222222,
+        0.65,
+        0.6777777777777778,
+        0.7055555555555556,
+        0.7166666666666667,
+        0.7277777777777777,
+        0.7388888888888889,
+        0.7555555555555555,
+        0.7722222222222223,
+        0.7944444444444444,
+        0.8166666666666667,
+        0.8277777777777777,
+        0.8222222222222222,
+        0.8277777777777777,
+        0.8333333333333334,
+        0.8444444444444444,
+        0.8444444444444444,
+        0.8444444444444444,
+        0.8555555555555555,
+        0.8611111111111112,
+        0.8611111111111112,
+        0.8722222222222222,
+        0.8777777777777778,
+        0.8777777777777778,
+        0.8944444444444445,
+        0.9,
+        0.9,
+        0.9111111111111111,
+        0.9222222222222223,
+        0.9388888888888889,
+        0.9555555555555556
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.19703776041666665,
+      "mean_prediction": 2.7667242746593224,
+      "mean_return_lower": 2.053784534905555,
+      "mean_return_upper": 2.277044635155027,
+      "mean_prediction_bias_bounds": [
+        0.4896796395042955,
+        0.7129397397537676
+      ],
+      "censored_fraction": 0.8777777777777778,
+      "quantile_crossing_fraction": 0.07311827956989247,
+      "crash_rate": 0.12222222222222222,
+      "mean_speed_m_s": 24.368363366268326,
+      "mean_duration_s": 27.933333333333334,
+      "crash_within_3_seconds_fraction": 0.005555555555555556,
+      "recent_lateral_request_given_crash": 0.5454545454545454,
+      "recent_lane_transition_given_crash": 0.45454545454545453
+    },
+    {
+      "regime": "fixed",
+      "policy": "tail25",
+      "density": 1.5,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.6722222222222223,
+        0.7555555555555555,
+        0.8333333333333334,
+        0.8388888888888889,
+        0.85,
+        0.8555555555555555,
+        0.8666666666666667,
+        0.8833333333333333,
+        0.8944444444444445,
+        0.8944444444444445,
+        0.8944444444444445,
+        0.9,
+        0.9055555555555556,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9166666666666666,
+        0.9222222222222223,
+        0.9277777777777778,
+        0.9333333333333333,
+        0.9388888888888889,
+        0.95,
+        0.9555555555555556,
+        0.9611111111111111,
+        0.9666666666666667,
+        0.9888888888888889
+      ],
+      "coverage_upper": [
+        0.75,
+        0.8222222222222222,
+        0.8722222222222222,
+        0.9,
+        0.9055555555555556,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9111111111111111,
+        0.9166666666666666,
+        0.9277777777777778,
+        0.9277777777777778,
+        0.9277777777777778,
+        0.9333333333333333,
+        0.9444444444444444,
+        0.9444444444444444,
+        0.9555555555555556,
+        0.9555555555555556,
+        0.9555555555555556,
+        0.9555555555555556,
+        0.9555555555555556,
+        0.9555555555555556,
+        0.9611111111111111,
+        0.9666666666666667,
+        0.9777777777777777,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.3970486111111111,
+      "mean_prediction": 2.0863294932991265,
+      "mean_return_lower": 0.8206529227020771,
+      "mean_return_upper": 0.9563046291827693,
+      "mean_prediction_bias_bounds": [
+        1.1300248641163575,
+        1.2656765705970494
+      ],
+      "censored_fraction": 0.5333333333333333,
+      "quantile_crossing_fraction": 0.06003584229390681,
+      "crash_rate": 0.4666666666666667,
+      "mean_speed_m_s": 23.195957469681122,
+      "mean_duration_s": 20.605555555555554,
+      "crash_within_3_seconds_fraction": 0.005555555555555556,
+      "recent_lateral_request_given_crash": 0.6785714285714286,
+      "recent_lane_transition_given_crash": 0.5714285714285714
+    },
+    {
+      "regime": "fixed",
+      "policy": "tail25",
+      "density": 2.0,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.7777777777777778,
+        0.8611111111111112,
+        0.8944444444444445,
+        0.9055555555555556,
+        0.9111111111111111,
+        0.9222222222222223,
+        0.9277777777777778,
+        0.9333333333333333,
+        0.9444444444444444,
+        0.9555555555555556,
+        0.9611111111111111,
+        0.9611111111111111,
+        0.9611111111111111,
+        0.9611111111111111,
+        0.9611111111111111,
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9777777777777777,
+        0.9722222222222222,
+        0.9777777777777777,
+        0.9777777777777777,
+        0.9833333333333333,
+        0.9777777777777777,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9944444444444445,
+        0.9944444444444445
+      ],
+      "coverage_upper": [
+        0.8277777777777777,
+        0.9111111111111111,
+        0.9277777777777778,
+        0.9444444444444444,
+        0.95,
+        0.9611111111111111,
+        0.9722222222222222,
+        0.9722222222222222,
+        0.9777777777777777,
+        0.9777777777777777,
+        0.9777777777777777,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9833333333333333,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9888888888888889,
+        0.9944444444444445,
+        0.9944444444444445,
+        0.9944444444444445,
+        0.9944444444444445,
+        0.9944444444444445,
+        0.9944444444444445,
+        0.9944444444444445,
+        1.0
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.4539930555555556,
+      "mean_prediction": 1.757297274939871,
+      "mean_return_lower": -0.09574012985956298,
+      "mean_return_upper": -0.025088199400869243,
+      "mean_prediction_bias_bounds": [
+        1.7823854743407401,
+        1.853037404799434
+      ],
+      "censored_fraction": 0.2777777777777778,
+      "quantile_crossing_fraction": 0.04283154121863799,
+      "crash_rate": 0.7222222222222222,
+      "mean_speed_m_s": 22.543851733349072,
+      "mean_duration_s": 12.78888888888889,
+      "crash_within_3_seconds_fraction": 0.027777777777777776,
+      "recent_lateral_request_given_crash": 0.6230769230769231,
+      "recent_lane_transition_given_crash": 0.5461538461538461
+    },
+    {
+      "regime": "mixed",
+      "policy": "mean",
+      "density": 1.0,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.2388888888888889,
+        0.2777777777777778,
+        0.28888888888888886,
+        0.3,
+        0.31666666666666665,
+        0.32222222222222224,
+        0.3388888888888889,
+        0.3388888888888889,
+        0.34444444444444444,
+        0.35555555555555557,
+        0.36666666666666664,
+        0.36666666666666664,
+        0.36666666666666664,
+        0.37777777777777777,
+        0.37777777777777777,
+        0.3888888888888889,
+        0.39444444444444443,
+        0.4,
+        0.4111111111111111,
+        0.4166666666666667,
+        0.4166666666666667,
+        0.4222222222222222,
+        0.43333333333333335,
+        0.4388888888888889,
+        0.4388888888888889,
+        0.45555555555555555,
+        0.45555555555555555,
+        0.46111111111111114,
+        0.4666666666666667,
+        0.4888888888888889,
+        0.5,
+        0.5333333333333333
+      ],
+      "coverage_upper": [
+        0.2611111111111111,
+        0.3111111111111111,
+        0.3277777777777778,
+        0.35,
+        0.36666666666666664,
+        0.36666666666666664,
+        0.3888888888888889,
+        0.39444444444444443,
+        0.4,
+        0.4222222222222222,
+        0.42777777777777776,
+        0.43333333333333335,
+        0.43333333333333335,
+        0.4388888888888889,
+        0.4444444444444444,
+        0.4444444444444444,
+        0.45,
+        0.45555555555555555,
+        0.4666666666666667,
+        0.4666666666666667,
+        0.4722222222222222,
+        0.4722222222222222,
+        0.4888888888888889,
+        0.4888888888888889,
+        0.49444444444444446,
+        0.5,
+        0.5055555555555555,
+        0.5222222222222223,
+        0.5333333333333333,
+        0.5833333333333334,
+        0.6222222222222222,
+        0.6833333333333333
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.17026909722222222,
+      "mean_prediction": 2.3052953445870017,
+      "mean_return_lower": 2.2732826583441126,
+      "mean_return_upper": 2.413173480652326,
+      "mean_prediction_bias_bounds": [
+        -0.10787813606532443,
+        0.03201268624288922
+      ],
+      "censored_fraction": 0.55,
+      "quantile_crossing_fraction": 0.07706093189964158,
+      "crash_rate": 0.45,
+      "mean_speed_m_s": 26.701044510142978,
+      "mean_duration_s": 23.06111111111111,
+      "crash_within_3_seconds_fraction": 0.005555555555555556,
+      "recent_lateral_request_given_crash": 0.7283950617283951,
+      "recent_lane_transition_given_crash": 0.48148148148148145
+    },
+    {
+      "regime": "mixed",
+      "policy": "mean",
+      "density": 1.5,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.29444444444444445,
+        0.38333333333333336,
+        0.4444444444444444,
+        0.46111111111111114,
+        0.4777777777777778,
+        0.4888888888888889,
+        0.49444444444444446,
+        0.5055555555555555,
+        0.5111111111111111,
+        0.5222222222222223,
+        0.5333333333333333,
+        0.5388888888888889,
+        0.55,
+        0.5555555555555556,
+        0.5611111111111111,
+        0.5611111111111111,
+        0.5722222222222222,
+        0.5777777777777777,
+        0.5888888888888889,
+        0.6,
+        0.6055555555555555,
+        0.6055555555555555,
+        0.6055555555555555,
+        0.6111111111111112,
+        0.6166666666666667,
+        0.6277777777777778,
+        0.65,
+        0.6555555555555556,
+        0.6833333333333333,
+        0.7333333333333333,
+        0.7611111111111111,
+        0.8111111111111111
+      ],
+      "coverage_upper": [
+        0.29444444444444445,
+        0.38333333333333336,
+        0.45,
+        0.4777777777777778,
+        0.5,
+        0.5222222222222223,
+        0.5333333333333333,
+        0.5388888888888889,
+        0.55,
+        0.5555555555555556,
+        0.5666666666666667,
+        0.5888888888888889,
+        0.6055555555555555,
+        0.6222222222222222,
+        0.6166666666666667,
+        0.6277777777777778,
+        0.6333333333333333,
+        0.6611111111111111,
+        0.6722222222222223,
+        0.6888888888888889,
+        0.7111111111111111,
+        0.7111111111111111,
+        0.7333333333333333,
+        0.7388888888888889,
+        0.7444444444444445,
+        0.75,
+        0.7666666666666667,
+        0.7722222222222223,
+        0.7777777777777778,
+        0.8111111111111111,
+        0.8222222222222222,
+        0.8555555555555555
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.14629991319444446,
+      "mean_prediction": 0.9998099541007024,
+      "mean_return_lower": 0.7453770488768802,
+      "mean_return_upper": 0.8329854426456607,
+      "mean_prediction_bias_bounds": [
+        0.16682451145504193,
+        0.25443290522382217
+      ],
+      "censored_fraction": 0.34444444444444444,
+      "quantile_crossing_fraction": 0.03476702508960573,
+      "crash_rate": 0.6555555555555556,
+      "mean_speed_m_s": 24.23918158443631,
+      "mean_duration_s": 17.07777777777778,
+      "crash_within_3_seconds_fraction": 0.005555555555555556,
+      "recent_lateral_request_given_crash": 0.7457627118644068,
+      "recent_lane_transition_given_crash": 0.5677966101694916
+    },
+    {
+      "regime": "mixed",
+      "policy": "mean",
+      "density": 2.0,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.2,
+        0.37777777777777777,
+        0.4777777777777778,
+        0.5611111111111111,
+        0.5722222222222222,
+        0.5944444444444444,
+        0.6,
+        0.6166666666666667,
+        0.6277777777777778,
+        0.6333333333333333,
+        0.6333333333333333,
+        0.65,
+        0.6555555555555556,
+        0.6555555555555556,
+        0.6611111111111111,
+        0.6666666666666666,
+        0.6777777777777778,
+        0.6777777777777778,
+        0.6777777777777778,
+        0.6833333333333333,
+        0.6888888888888889,
+        0.6888888888888889,
+        0.7,
+        0.7055555555555556,
+        0.7111111111111111,
+        0.7111111111111111,
+        0.7166666666666667,
+        0.7333333333333333,
+        0.7444444444444445,
+        0.7611111111111111,
+        0.7888888888888889,
+        0.8388888888888889
+      ],
+      "coverage_upper": [
+        0.2,
+        0.37777777777777777,
+        0.4777777777777778,
+        0.5611111111111111,
+        0.5722222222222222,
+        0.5944444444444444,
+        0.6,
+        0.6166666666666667,
+        0.6333333333333333,
+        0.6388888888888888,
+        0.6388888888888888,
+        0.6555555555555556,
+        0.6611111111111111,
+        0.6666666666666666,
+        0.6722222222222223,
+        0.6888888888888889,
+        0.6944444444444444,
+        0.6944444444444444,
+        0.6944444444444444,
+        0.7,
+        0.7166666666666667,
+        0.7222222222222222,
+        0.7444444444444445,
+        0.75,
+        0.7555555555555555,
+        0.7555555555555555,
+        0.7722222222222223,
+        0.7944444444444444,
+        0.8055555555555556,
+        0.8111111111111111,
+        0.8222222222222222,
+        0.8666666666666667
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.19787326388888887,
+      "mean_prediction": 0.259764273403885,
+      "mean_return_lower": -0.008749355265668408,
+      "mean_return_upper": 0.040706996055417194,
+      "mean_prediction_bias_bounds": [
+        0.2190572773484679,
+        0.2685136286695534
+      ],
+      "censored_fraction": 0.19444444444444445,
+      "quantile_crossing_fraction": 0.02204301075268817,
+      "crash_rate": 0.8055555555555556,
+      "mean_speed_m_s": 22.77468424302613,
+      "mean_duration_s": 12.605555555555556,
+      "crash_within_3_seconds_fraction": 0.027777777777777776,
+      "recent_lateral_request_given_crash": 0.7586206896551724,
+      "recent_lane_transition_given_crash": 0.5724137931034483
+    },
+    {
+      "regime": "mixed",
+      "policy": "tail25",
+      "density": 1.0,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.45,
+        0.5833333333333334,
+        0.6166666666666667,
+        0.6222222222222222,
+        0.6277777777777778,
+        0.6555555555555556,
+        0.6666666666666666,
+        0.6833333333333333,
+        0.6833333333333333,
+        0.6833333333333333,
+        0.6888888888888889,
+        0.7,
+        0.7055555555555556,
+        0.7166666666666667,
+        0.7166666666666667,
+        0.7166666666666667,
+        0.7277777777777777,
+        0.7277777777777777,
+        0.7333333333333333,
+        0.7333333333333333,
+        0.7444444444444445,
+        0.7444444444444445,
+        0.7555555555555555,
+        0.7666666666666667,
+        0.7666666666666667,
+        0.7722222222222223,
+        0.7777777777777778,
+        0.7888888888888889,
+        0.8,
+        0.8055555555555556,
+        0.8277777777777777,
+        0.8555555555555555
+      ],
+      "coverage_upper": [
+        0.5944444444444444,
+        0.6833333333333333,
+        0.7111111111111111,
+        0.7444444444444445,
+        0.75,
+        0.7555555555555555,
+        0.7722222222222223,
+        0.7722222222222223,
+        0.7777777777777778,
+        0.7833333333333333,
+        0.7944444444444444,
+        0.8055555555555556,
+        0.8055555555555556,
+        0.8055555555555556,
+        0.8111111111111111,
+        0.8111111111111111,
+        0.8111111111111111,
+        0.8111111111111111,
+        0.8111111111111111,
+        0.8111111111111111,
+        0.8277777777777777,
+        0.8277777777777777,
+        0.8333333333333334,
+        0.8444444444444444,
+        0.85,
+        0.8555555555555555,
+        0.8611111111111112,
+        0.8722222222222222,
+        0.8722222222222222,
+        0.8944444444444445,
+        0.9166666666666666,
+        0.9611111111111111
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.23614366319444446,
+      "mean_prediction": 2.2845299310361344,
+      "mean_return_lower": 1.615294857783866,
+      "mean_return_upper": 1.8371419194241645,
+      "mean_prediction_bias_bounds": [
+        0.44738801161197017,
+        0.6692350732522685
+      ],
+      "censored_fraction": 0.8722222222222222,
+      "quantile_crossing_fraction": 0.12329749103942653,
+      "crash_rate": 0.12777777777777777,
+      "mean_speed_m_s": 23.20746861644783,
+      "mean_duration_s": 28.06111111111111,
+      "crash_within_3_seconds_fraction": 0.0,
+      "recent_lateral_request_given_crash": 0.5217391304347826,
+      "recent_lane_transition_given_crash": 0.2608695652173913
+    },
+    {
+      "regime": "mixed",
+      "policy": "tail25",
+      "density": 1.5,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.23333333333333334,
+        0.39444444444444443,
+        0.46111111111111114,
+        0.49444444444444446,
+        0.5222222222222223,
+        0.5444444444444444,
+        0.5833333333333334,
+        0.6055555555555555,
+        0.65,
+        0.6666666666666666,
+        0.6944444444444444,
+        0.6944444444444444,
+        0.6944444444444444,
+        0.7,
+        0.7111111111111111,
+        0.7111111111111111,
+        0.7333333333333333,
+        0.7555555555555555,
+        0.7666666666666667,
+        0.7833333333333333,
+        0.7888888888888889,
+        0.8,
+        0.8111111111111111,
+        0.8222222222222222,
+        0.8333333333333334,
+        0.8388888888888889,
+        0.8611111111111112,
+        0.8722222222222222,
+        0.8777777777777778,
+        0.9,
+        0.9055555555555556,
+        0.9277777777777778
+      ],
+      "coverage_upper": [
+        0.35555555555555557,
+        0.5611111111111111,
+        0.6388888888888888,
+        0.6944444444444444,
+        0.7277777777777777,
+        0.7555555555555555,
+        0.7888888888888889,
+        0.8,
+        0.8,
+        0.8111111111111111,
+        0.8222222222222222,
+        0.8333333333333334,
+        0.8444444444444444,
+        0.8555555555555555,
+        0.8555555555555555,
+        0.8611111111111112,
+        0.8611111111111112,
+        0.8722222222222222,
+        0.8722222222222222,
+        0.8777777777777778,
+        0.9055555555555556,
+        0.9,
+        0.9055555555555556,
+        0.9055555555555556,
+        0.9055555555555556,
+        0.9111111111111111,
+        0.9166666666666666,
+        0.9277777777777778,
+        0.9277777777777778,
+        0.9333333333333333,
+        0.9555555555555556,
+        0.9555555555555556
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.21270616319444444,
+      "mean_prediction": 0.9830931855106934,
+      "mean_return_lower": 0.49697795169192593,
+      "mean_return_upper": 0.6849120867120513,
+      "mean_prediction_bias_bounds": [
+        0.298181098798642,
+        0.4861152338187673
+      ],
+      "censored_fraction": 0.7388888888888889,
+      "quantile_crossing_fraction": 0.054838709677419356,
+      "crash_rate": 0.2611111111111111,
+      "mean_speed_m_s": 21.49880454420669,
+      "mean_duration_s": 25.27777777777778,
+      "crash_within_3_seconds_fraction": 0.0,
+      "recent_lateral_request_given_crash": 0.574468085106383,
+      "recent_lane_transition_given_crash": 0.3191489361702128
+    },
+    {
+      "regime": "mixed",
+      "policy": "tail25",
+      "density": 2.0,
+      "episodes": 180,
+      "taus": [
+        0.015625,
+        0.046875,
+        0.078125,
+        0.109375,
+        0.140625,
+        0.171875,
+        0.203125,
+        0.234375,
+        0.265625,
+        0.296875,
+        0.328125,
+        0.359375,
+        0.390625,
+        0.421875,
+        0.453125,
+        0.484375,
+        0.515625,
+        0.546875,
+        0.578125,
+        0.609375,
+        0.640625,
+        0.671875,
+        0.703125,
+        0.734375,
+        0.765625,
+        0.796875,
+        0.828125,
+        0.859375,
+        0.890625,
+        0.921875,
+        0.953125,
+        0.984375
+      ],
+      "coverage_lower": [
+        0.2777777777777778,
+        0.4388888888888889,
+        0.5055555555555555,
+        0.55,
+        0.5777777777777777,
+        0.5888888888888889,
+        0.5944444444444444,
+        0.6111111111111112,
+        0.6111111111111112,
+        0.6166666666666667,
+        0.6277777777777778,
+        0.6555555555555556,
+        0.6555555555555556,
+        0.6555555555555556,
+        0.6611111111111111,
+        0.6611111111111111,
+        0.6722222222222223,
+        0.6722222222222223,
+        0.6722222222222223,
+        0.6833333333333333,
+        0.7,
+        0.7,
+        0.7055555555555556,
+        0.7222222222222222,
+        0.7277777777777777,
+        0.7388888888888889,
+        0.7555555555555555,
+        0.7833333333333333,
+        0.8222222222222222,
+        0.8388888888888889,
+        0.8666666666666667,
+        0.9222222222222223
+      ],
+      "coverage_upper": [
+        0.29444444444444445,
+        0.4722222222222222,
+        0.5666666666666667,
+        0.6222222222222222,
+        0.6277777777777778,
+        0.6388888888888888,
+        0.65,
+        0.6777777777777778,
+        0.6833333333333333,
+        0.6833333333333333,
+        0.6944444444444444,
+        0.7166666666666667,
+        0.7222222222222222,
+        0.7222222222222222,
+        0.75,
+        0.7666666666666667,
+        0.7722222222222223,
+        0.7833333333333333,
+        0.7944444444444444,
+        0.7944444444444444,
+        0.8055555555555556,
+        0.8166666666666667,
+        0.8222222222222222,
+        0.8388888888888889,
+        0.85,
+        0.8611111111111112,
+        0.8722222222222222,
+        0.8888888888888888,
+        0.9222222222222223,
+        0.9277777777777778,
+        0.9333333333333333,
+        0.9666666666666667
+      ],
+      "minimum_mean_absolute_compatibility_gap": 0.1833224826388889,
+      "mean_prediction": 0.24469451013008237,
+      "mean_return_lower": -0.228785867631628,
+      "mean_return_upper": -0.11856885611606577,
+      "mean_prediction_bias_bounds": [
+        0.36326336624614813,
+        0.4734803777617104
+      ],
+      "censored_fraction": 0.43333333333333335,
+      "quantile_crossing_fraction": 0.03763440860215054,
+      "crash_rate": 0.5666666666666667,
+      "mean_speed_m_s": 20.764348382109535,
+      "mean_duration_s": 16.97222222222222,
+      "crash_within_3_seconds_fraction": 0.027777777777777776,
+      "recent_lateral_request_given_crash": 0.6078431372549019,
+      "recent_lane_transition_given_crash": 0.4215686274509804
+    }
+  ],
+  "training_exposure": [
+    {
+      "seed": 0,
+      "steps": 40000,
+      "episodes": 3317,
+      "elapsed_seconds": 525.5667336250008,
+      "training_complete": true,
+      "completed_episodes_by_density": {
+        "1.0": 1121,
+        "1.5": 1144,
+        "2.0": 1052
+      },
+      "steps_by_density": {
+        "1.0": 18836,
+        "1.5": 12964,
+        "2.0": 8200
+      }
+    },
+    {
+      "seed": 1,
+      "steps": 40000,
+      "episodes": 3255,
+      "elapsed_seconds": 528.967421333,
+      "training_complete": true,
+      "completed_episodes_by_density": {
+        "1.0": 1107,
+        "1.5": 1044,
+        "2.0": 1104
+      },
+      "steps_by_density": {
+        "1.0": 19745,
+        "1.5": 11638,
+        "2.0": 8617
+      }
+    },
+    {
+      "seed": 2,
+      "steps": 40000,
+      "episodes": 3357,
+      "elapsed_seconds": 524.7661405830004,
+      "training_complete": true,
+      "completed_episodes_by_density": {
+        "1.0": 1060,
+        "1.5": 1169,
+        "2.0": 1128
+      },
+      "steps_by_density": {
+        "1.0": 17903,
+        "1.5": 13284,
+        "2.0": 8813
+      }
+    }
+  ]
+}

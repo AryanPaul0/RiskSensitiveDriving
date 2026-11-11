@@ -11,7 +11,7 @@ import numpy as np
 import torch
 
 from .agents import Agent, ReplayBuffer
-from .envs import flatten, govern_action, heuristic_action, make_env, render_frame, seed_everything
+from .envs import flatten, govern_action, heuristic_action, make_env, render_frame, seed_everything, reset_training_episode
 
 
 def save_json(path, value):
@@ -70,7 +70,11 @@ def train(args):
     seed_everything(args.seed)
     rng = np.random.default_rng(args.seed)
     env = make_env(collision_penalty=args.collision_penalty)
-    observation, _ = env.reset(seed=args.seed)
+    densities = getattr(args, "training_densities", None) or [1.]
+    density_rng = np.random.default_rng(np.random.SeedSequence([args.seed, 8675309]))
+    observation, _, episode_density = reset_training_episode(env, density_rng, densities, args.seed)
+    density_steps = {str(float(d)): 0 for d in densities}
+    density_episodes = {str(float(d)): 0 for d in densities}
     env.action_space.seed(args.seed)
     observation = flatten(observation)
     config = {**vars(args), "observation_dim": len(observation),
@@ -89,7 +93,7 @@ def train(args):
     last_loss = last_grad = float("nan")
     with (output / "training.csv").open("w", newline="") as file:
         fields = ["step", "episode", "return", "length", "crashed", "epsilon",
-                  "loss", "grad_norm", "elapsed_seconds", "steps_per_second"]
+                  "loss", "grad_norm", "elapsed_seconds", "steps_per_second", "density"]
         writer = csv.DictWriter(file, fieldnames=fields)
         writer.writeheader()
         try:
@@ -100,6 +104,7 @@ def train(args):
                           else agent.act(observation))
                 next_observation, reward, terminated, truncated, info = env.step(action)
                 next_observation = flatten(next_observation)
+                density_steps[str(episode_density)] += 1
                 replay.add(observation, action, reward, next_observation, terminated)
                 observation = next_observation
                 episode_return += float(reward)
@@ -111,14 +116,15 @@ def train(args):
                     agent.sync_target()
                 if terminated or truncated:
                     episode += 1
+                    density_episodes[str(episode_density)] += 1
                     elapsed = time.perf_counter() - started
                     writer.writerow(dict(zip(fields, [
                         step, episode, episode_return, episode_length,
                         int(info.get("crashed", env.unwrapped.vehicle.crashed)),
-                        epsilon, last_loss, last_grad, elapsed, step / elapsed,
+                        epsilon, last_loss, last_grad, elapsed, step / elapsed, episode_density,
                     ])))
                     file.flush()
-                    observation, _ = env.reset()
+                    observation, _, episode_density = reset_training_episode(env, density_rng, densities)
                     observation = flatten(observation)
                     episode_return = 0.0
                     episode_length = 0
@@ -132,6 +138,8 @@ def train(args):
                 "steps": args.steps, "episodes": episode,
                 "elapsed_seconds": time.perf_counter() - started,
                 "training_complete": True,
+                "completed_episodes_by_density": density_episodes,
+                "steps_by_density": density_steps,
             })
         except KeyboardInterrupt:
             save_checkpoint(output / "interrupted.pt", agent, config, step)
