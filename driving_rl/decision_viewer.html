@@ -1,395 +1,365 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Inside the driving agent</title>
-<style>
-/* Layout only: none of these rules change an agent's decision. */
-* { box-sizing: border-box; }
-body { margin: 0; background: #f2f5fa; color: #172a40; font: 16px/1.6 system-ui; }
-main { max-width: 1280px; margin: auto; padding: 32px 24px 64px; }
-h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.1; margin: 12px 0; }
-h2 { font-size: 23px; margin-top: 0; }
-h3 { font-size: 17px; }
-a { color: #165bb5; }
-section, article { padding: 22px; background: white; border: 1px solid #dce4ef; border-radius: 14px; margin: 20px 0; }
-.cards, .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-.cards article { margin: 0; }
-.big { font-size: 30px; font-weight: 750; color: #164a79; }
-.controls { display: flex; flex-wrap: wrap; gap: 16px; }
-label { display: block; font-size: 14px; font-weight: 600; }
-select, button { font: inherit; padding: 8px 12px; border-radius: 7px; border: 1px solid #a8b8cb; background: white; color: #172a40; }
-button { cursor: pointer; }
-input[type=range] { width: 100%; accent-color: #166c92; }
-.drive { width: 100%; aspect-ratio: 900/240; background: #111; object-fit: contain; }
-canvas { width: 100%; height: 310px; }
-.scroll { overflow: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { padding: 9px; border-bottom: 1px solid #dce4ef; text-align: right; }
-th:first-child, td:first-child { text-align: left; }
-.actual { background: #e0f4eb; }
-.preview { outline: 2px solid #4d84bf; outline-offset: -2px; }
-.note { color: #52667c; font-size: 14px; }
-.notice { padding: 12px 16px; border-left: 4px solid #e9a543; background: #fff8e9; }
-#time-label { font-variant-numeric: tabular-nums; }
-@media(max-width: 750px) { .pair, .cards { grid-template-columns: 1fr; } main { padding: 24px 12px; } }
-</style>
-</head>
-<body>
-<main>
-<p>DISTRIBUTIONAL REINFORCEMENT LEARNING / DECISION VIEWER</p>
-<h1>What did the agent see—and choose?</h1>
-<p>Explore recorded development examples from the same trained models used in the study. Inspect the inputs, proposed actions, speed overrides, and predicted future rewards.</p>
-<p><a href="../long_training-report/index.html">Full 40K-versus-100K study</a> · <a href="../decision_viewer/design.json">Recording design</a> · <a href="../long_training_evaluation/summary.json">Evaluation data</a> · <a href="../prediction_audit/index.html">40K/100K prediction audit</a></p>
-<div class="cards">
-<article><p>Normal traffic, 100K models</p><div class="big" id="normal-result"></div><p class="note">Cautious QR versus governed DQN. The primary collision criterion was not met; this does not prove equivalence.</p></article>
-<article><p>Density 2, cautious QR</p><div class="big" id="dense-result"></div><p class="note">40K → 100K on matching fresh scenarios. A secondary budget comparison, not a replacement primary test.</p></article>
-</div>
-<section>
-<h2>Choose a recorded comparison</h2>
-<div class="controls">
-<label>Training budget<select id="budget"><option value="100000">100K steps</option><option value="40000">40K steps</option></select></label>
-<label>Training seed<select id="model"><option>0</option><option>1</option><option>2</option></select></label>
-<label>Traffic density<select id="density"><option value="1">1.0</option><option value="2">2.0</option><option value="2.5">2.5</option></select></label>
-<label>Development scenario<select id="scenario"><option>18000</option><option>18001</option></select></label>
-<label>Left policy<select id="left-policy"></select></label>
-<label>Right policy<select id="right-policy"></select></label>
-</div>
-<p class="notice">These are illustrative development recordings, chosen before their outcomes. They are not new confirmation tests. Both policies start in matching traffic; their states can diverge after the first action.</p>
-<div class="pair">
-<article><h3 id="left-name"></h3><img class="drive" id="left-frame" alt="Left policy recorded driving frame"><p id="left-state"></p><p class="note" id="left-outcome"></p></article>
-<article><h3 id="right-name"></h3><img class="drive" id="right-frame" alt="Right policy recorded driving frame"><p id="right-state"></p><p class="note" id="right-outcome"></p></article>
-</div>
-<button id="play" type="button">Play</button> <strong id="time-label"></strong>
-<label>Recorded time<input id="time" type="range" min="0" max="30" step="1" value="0"></label>
-<p class="note">One decision is one simulated second. If one episode ends earlier, its last frame stays visible and is marked ended. The time slider does not create new actions.</p>
-</section>
-<section>
-<h2>Inspect the left policy's decision</h2>
-<p id="decision-status"></p>
-<label>Hypothetical lower-tail fraction<select id="alpha"><option value="1">All predictions: mean</option><option value="0.5">Lowest half</option><option value="0.25" selected>Lowest quarter</option><option value="0.125">Lowest eighth</option></select></label>
-<p class="notice">This control only recalculates scores in the left recording's current state. It does not change playback or show the future outcome of a different action.</p>
-<div class="scroll"><table><thead><tr><th>Action</th><th>Mean return</th><th>Explored score</th><th>Recorded choice</th></tr></thead><tbody id="scores"></tbody></table></div>
-<p class="note">Green = action actually applied. Blue outline = highest hypothetical score. A governor can override the network's proposal. Scores are discounted future reward estimates—not collision probabilities.</p>
-<canvas id="quantiles" width="1100" height="310" aria-label="Raw return quantile predictions for the left policy"></canvas>
-<p class="note" id="curve-note"></p>
-</section>
-<section>
-<h2>The 40 numbers the left network received</h2>
-<p class="note">These are normalized inputs, not meters or meters per second. Row 0 is the ego car; other rows are current nearby-vehicle slots. Slots are not persistent vehicle IDs. Missing rows use presence 0. The network does not receive every vehicle or internal driver setting.</p>
-<div class="scroll"><table><thead><tr><th>Slot</th><th>Presence</th><th>x</th><th>y</th><th>vx</th><th>vy</th></tr></thead><tbody id="observation"></tbody></table></div>
-</section>
-<section>
-<h2>How to read the curves</h2>
-<p>QR-DQN predicts 32 return quantiles for each action. The mean selector averages them all. The cautious selector sorts the predictions and averages the lowest quarter. The graph shows raw output-head order so prediction crossings remain visible. Training uses mean-based next-action selection; deploying a different selector changes the continuation policy.</p>
-<p>DQN predicts one expected-return estimate per action. A scalar mean is not a return distribution, so the viewer does not draw it as a quantile curve. A low predicted return can describe several bad outcomes; it is not a calibrated probability of a crash.</p>
-<p>Gap and speed readouts come from simulator measurements for explanation. Those extra measurements are not passed to the learned network. A nearby vehicle or recent lane change does not by itself establish the cause of a collision.</p>
-</section>
-</main>
-<script>
-// Python fills these two placeholders with saved data. No training runs here.
-const recordings = __RECORDINGS__;
-const evidence = __EVIDENCE__;
-const names = {
-    qr_tail: 'QR lower quarter',
-    qr_mean: 'QR mean',
-    qr_governed: 'QR mean + governor',
-    dqn_governed: 'DQN + governor'
-};
-const actions = ['Lane left', 'Maintain target speed', 'Lane right', 'Faster target', 'Slower target'];
-const colors = ['#2474bb', '#9170b6', '#16836f', '#d36b21', '#c53b48'];
-let timer = null;
+<!doctype html> <!-- Display or group this document portion of the recorded-driving explanation. -->
+<html lang="en"> <!-- Display or group this html portion of the recorded-driving explanation. -->
+<head> <!-- Display or group this head portion of the recorded-driving explanation. -->
+<meta charset="utf-8"> <!-- Configure text encoding or sizing for the report viewer. -->
+<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Configure text encoding or sizing for the report viewer. -->
+<title>Inside the driving agent</title> <!-- Display or group this title portion of the recorded-driving explanation. -->
+<style> <!-- Set the appearance of the driving comparison and prediction panels. -->
+* { box-sizing: border-box; } /* Layout only: none of these rules change an agent's decision. Style * in the comparison viewer. */
+body { margin: 0; background: #f2f5fa; color: #172a40; font: 16px/1.6 system-ui; } /* Style body in the comparison viewer. */
+main { max-width: 1280px; margin: auto; padding: 32px 24px 64px; } /* Style main in the comparison viewer. */
+h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.1; margin: 12px 0; } /* Style h1 in the comparison viewer. */
+h2 { font-size: 23px; margin-top: 0; } /* Style h2 in the comparison viewer. */
+h3 { font-size: 17px; } /* Style h3 in the comparison viewer. */
+a { color: #165bb5; } /* Style a in the comparison viewer. */
+section, article { padding: 22px; background: white; border: 1px solid #dce4ef; border-radius: 14px; margin: 20px 0; } /* Style section, article in the comparison viewer. */
+.cards, .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; } /* Style .cards, .pair in the comparison viewer. */
+.cards article { margin: 0; } /* Style .cards article in the comparison viewer. */
+.big { font-size: 30px; font-weight: 750; color: #164a79; } /* Style .big in the comparison viewer. */
+.controls { display: flex; flex-wrap: wrap; gap: 16px; } /* Style .controls in the comparison viewer. */
+label { display: block; font-size: 14px; font-weight: 600; } /* Style label in the comparison viewer. */
+select, button { font: inherit; padding: 8px 12px; border-radius: 7px; border: 1px solid #a8b8cb; background: white; color: #172a40; } /* Style select, button in the comparison viewer. */
+button { cursor: pointer; } /* Style button in the comparison viewer. */
+input[type=range] { width: 100%; accent-color: #166c92; } /* Style input[type=range] in the comparison viewer. */
+.drive { width: 100%; aspect-ratio: 900/240; background: #111; object-fit: contain; } /* Style .drive in the comparison viewer. */
+canvas { width: 100%; height: 310px; } /* Style canvas in the comparison viewer. */
+.scroll { overflow: auto; } /* Style .scroll in the comparison viewer. */
+table { width: 100%; border-collapse: collapse; font-size: 14px; } /* Style table in the comparison viewer. */
+th, td { padding: 9px; border-bottom: 1px solid #dce4ef; text-align: right; } /* Style th, td in the comparison viewer. */
+th:first-child, td:first-child { text-align: left; } /* Style th:first-child, td:first-child in the comparison viewer. */
+.actual { background: #e0f4eb; } /* Style .actual in the comparison viewer. */
+.preview { outline: 2px solid #4d84bf; outline-offset: -2px; } /* Style .preview in the comparison viewer. */
+.note { color: #52667c; font-size: 14px; } /* Style .note in the comparison viewer. */
+.notice { padding: 12px 16px; border-left: 4px solid #e9a543; background: #fff8e9; } /* Style .notice in the comparison viewer. */
+#time-label { font-variant-numeric: tabular-nums; } /* Style #time-label in the comparison viewer. */
+@media(max-width: 750px) { .pair, .cards { grid-template-columns: 1fr; } main { padding: 24px 12px; } } /* Adapt the comparison layout to a narrow screen. */
+</style> <!-- Set the appearance of the driving comparison and prediction panels. -->
+</head> <!-- Display or group this head portion of the recorded-driving explanation. -->
+<body> <!-- Display or group this body portion of the recorded-driving explanation. -->
+<main> <!-- Display or group this main portion of the recorded-driving explanation. -->
+<p>DISTRIBUTIONAL REINFORCEMENT LEARNING / DECISION VIEWER</p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+<h1>What did the agent see—and choose?</h1> <!-- Display or group this h1 portion of the recorded-driving explanation. -->
+<p>Explore recorded development examples from the same trained models used in the study. Inspect the inputs, proposed actions, speed overrides, and predicted future rewards.</p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+<p><a href="../long_training-report/index.html">Full 40K-versus-100K study</a> · <a href="../decision_viewer/design.json">Recording design</a> · <a href="../long_training_evaluation/summary.json">Evaluation data</a> · <a href="../prediction_audit/index.html">40K/100K prediction audit</a></p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+<div class="cards"> <!-- Display or group this div portion of the recorded-driving explanation. -->
+<article><p>Normal traffic, 100K models</p><div class="big" id="normal-result"></div><p class="note">Cautious QR versus governed DQN. The primary collision criterion was not met; this does not prove equivalence.</p></article> <!-- Display or group this article portion of the recorded-driving explanation. -->
+<article><p>Density 2, cautious QR</p><div class="big" id="dense-result"></div><p class="note">40K → 100K on matching fresh scenarios. A secondary budget comparison, not a replacement primary test.</p></article> <!-- Display or group this article portion of the recorded-driving explanation. -->
+</div> <!-- Display or group this div portion of the recorded-driving explanation. -->
+<section> <!-- Display or group this section portion of the recorded-driving explanation. -->
+<h2>Choose a recorded comparison</h2> <!-- Display or group this h2 portion of the recorded-driving explanation. -->
+<div class="controls"> <!-- Display or group this div portion of the recorded-driving explanation. -->
+<label>Training budget<select id="budget"><option value="100000">100K steps</option><option value="40000">40K steps</option></select></label> <!-- Display or group this label portion of the recorded-driving explanation. -->
+<label>Training seed<select id="model"><option>0</option><option>1</option><option>2</option></select></label> <!-- Display or group this label portion of the recorded-driving explanation. -->
+<label>Traffic density<select id="density"><option value="1">1.0</option><option value="2">2.0</option><option value="2.5">2.5</option></select></label> <!-- Display or group this label portion of the recorded-driving explanation. -->
+<label>Development scenario<select id="scenario"><option>18000</option><option>18001</option></select></label> <!-- Display or group this label portion of the recorded-driving explanation. -->
+<label>Left policy<select id="left-policy"></select></label> <!-- Display or group this label portion of the recorded-driving explanation. -->
+<label>Right policy<select id="right-policy"></select></label> <!-- Display or group this label portion of the recorded-driving explanation. -->
+</div> <!-- Display or group this div portion of the recorded-driving explanation. -->
+<p class="notice">These are illustrative development recordings, chosen before their outcomes. They are not new confirmation tests. Both policies start in matching traffic; their states can diverge after the first action.</p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+<div class="pair"> <!-- Display or group this div portion of the recorded-driving explanation. -->
+<article><h3 id="left-name"></h3><img class="drive" id="left-frame" alt="Left policy recorded driving frame"><p id="left-state"></p><p class="note" id="left-outcome"></p></article> <!-- Display or group this article portion of the recorded-driving explanation. -->
+<article><h3 id="right-name"></h3><img class="drive" id="right-frame" alt="Right policy recorded driving frame"><p id="right-state"></p><p class="note" id="right-outcome"></p></article> <!-- Display or group this article portion of the recorded-driving explanation. -->
+</div> <!-- Display or group this div portion of the recorded-driving explanation. -->
+<button id="play" type="button">Play</button> <strong id="time-label"></strong> <!-- Display or group this button portion of the recorded-driving explanation. -->
+<label>Recorded time<input id="time" type="range" min="0" max="30" step="1" value="0"></label> <!-- Display or group this label portion of the recorded-driving explanation. -->
+<p class="note">One decision is one simulated second. If one episode ends earlier, its last frame stays visible and is marked ended. The time slider does not create new actions.</p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+</section> <!-- Display or group this section portion of the recorded-driving explanation. -->
+<section> <!-- Display or group this section portion of the recorded-driving explanation. -->
+<h2>Inspect the left policy's decision</h2> <!-- Display or group this h2 portion of the recorded-driving explanation. -->
+<p id="decision-status"></p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+<label>Hypothetical lower-tail fraction<select id="alpha"><option value="1">All predictions: mean</option><option value="0.5">Lowest half</option><option value="0.25" selected>Lowest quarter</option><option value="0.125">Lowest eighth</option></select></label> <!-- Display or group this label portion of the recorded-driving explanation. -->
+<p class="notice">This control only recalculates scores in the left recording's current state. It does not change playback or show the future outcome of a different action.</p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+<div class="scroll"><table><thead><tr><th>Action</th><th>Mean return</th><th>Explored score</th><th>Recorded choice</th></tr></thead><tbody id="scores"></tbody></table></div> <!-- Display or group this div portion of the recorded-driving explanation. -->
+<p class="note">Green = action actually applied. Blue outline = highest hypothetical score. A governor can override the network's proposal. Scores are discounted future reward estimates—not collision probabilities.</p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+<canvas id="quantiles" width="1100" height="310" aria-label="Raw return quantile predictions for the left policy"></canvas> <!-- Provide the drawing surface for each action's raw return-quantile curve. -->
+<p class="note" id="curve-note"></p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+</section> <!-- Display or group this section portion of the recorded-driving explanation. -->
+<section> <!-- Display or group this section portion of the recorded-driving explanation. -->
+<h2>The 40 numbers the left network received</h2> <!-- Display or group this h2 portion of the recorded-driving explanation. -->
+<p class="note">These are normalized inputs, not meters or meters per second. Row 0 is the ego car; other rows are current nearby-vehicle slots. Slots are not persistent vehicle IDs. Missing rows use presence 0. The network does not receive every vehicle or internal driver setting.</p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+<div class="scroll"><table><thead><tr><th>Slot</th><th>Presence</th><th>x</th><th>y</th><th>vx</th><th>vy</th></tr></thead><tbody id="observation"></tbody></table></div> <!-- Display or group this div portion of the recorded-driving explanation. -->
+</section> <!-- Display or group this section portion of the recorded-driving explanation. -->
+<section> <!-- Display or group this section portion of the recorded-driving explanation. -->
+<h2>How to read the curves</h2> <!-- Display or group this h2 portion of the recorded-driving explanation. -->
+<p>QR-DQN predicts 32 return quantiles for each action. The mean selector averages them all. The cautious selector sorts the predictions and averages the lowest quarter. The graph shows raw output-head order so prediction crossings remain visible. Training uses mean-based next-action selection; deploying a different selector changes the continuation policy.</p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+<p>DQN predicts one expected-return estimate per action. A scalar mean is not a return distribution, so the viewer does not draw it as a quantile curve. A low predicted return can describe several bad outcomes; it is not a calibrated probability of a crash.</p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+<p>Gap and speed readouts come from simulator measurements for explanation. Those extra measurements are not passed to the learned network. A nearby vehicle or recent lane change does not by itself establish the cause of a collision.</p> <!-- Display or group this p portion of the recorded-driving explanation. -->
+</section> <!-- Display or group this section portion of the recorded-driving explanation. -->
+</main> <!-- Display or group this main portion of the recorded-driving explanation. -->
+<script> <!-- Run the saved-data playback and decision-explanation controls. -->
+const recordings = __RECORDINGS__; // Insert saved development trajectories; this page never trains or simulates driving.
+const evidence = __EVIDENCE__; // Insert measured performance summaries, separate from illustrative recordings.
+const names = { // Set names from { for page setup.
+    qr_tail: 'QR lower quarter', // Apply qr_tail: 'QR lower quarter', as part of page setup.
+    qr_mean: 'QR mean', // Apply qr_mean: 'QR mean', as part of page setup.
+    qr_governed: 'QR mean + governor', // Apply qr_governed: 'QR mean + governor', as part of page setup.
+    dqn_governed: 'DQN + governor' // Apply dqn_governed: 'DQN + governor' as part of page setup.
+}; // Finish this step of page setup.
+const actions = ['Lane left', 'Maintain target speed', 'Lane right', 'Faster target', 'Slower target']; // Set actions from ['Lane left', 'Maintain target speed', 'Lane right', 'Faster target', 'Slower target'] for page setup.
+const colors = ['#2474bb', '#9170b6', '#16836f', '#d36b21', '#c53b48']; // Set colors from ['#2474bb', '#9170b6', '#16836f', '#d36b21', '#c53b48'] for page setup.
+let timer = null; // Set timer from null for page setup.
 
-// A small shortcut for finding a page control by its ID. The IDs match the HTML above.
-function element(id) {
-    return document.getElementById(id);
-}
+function element(id) { // A small shortcut for finding a page control by its ID. The IDs match the HTML above.
+    return document.getElementById(id); // Return document.getElementById(id) to the caller.
+} // Finish this step of element.
 
-// The ordinary classroom mean: add the values, then divide by how many there are.
-function average(numbers) {
-    let total = 0;
-    for (const value of numbers) {
-        total += value;
-    }
-    return total / numbers.length;
-}
+function average(numbers) { // The ordinary classroom mean: add the values, then divide by how many there are.
+    let total = 0; // Start the sum used to compute a mean return score.
+    for (const value of numbers) { // Process each matching item while carrying out average.
+        total += value; // Add this predicted return to the running sum.
+    } // Finish this step of average.
+    return total / numbers.length; // Return the average of these predictions, rather than their sum.
+} // Finish this step of average.
 
-// alpha tells us what fraction to average: .25 uses the lowest 8 of 32 QR outputs.
-// This explores one recorded state; it does not predict a new driving video.
-function actionScores(predictions, alpha) {
-    // Copy before sorting: exploring a score must not alter the saved outputs.
-    const scores = [];
-    for (const outputs of predictions) {
-        // Sort a copy numerically. JavaScript's default text sorting would be wrong here.
-        const ordered = outputs.slice().sort(function(a, b) {
-            return a - b;
-        });
-        const count = Math.max(1, Math.ceil(alpha * ordered.length));
-        // slice(0,count) keeps the lowest count predictions, excluding index
-        // count itself. For alpha=.25 and 32 heads, average indices 0..7.
-        // For scalar DQN there is only one prediction, so this stays its mean.
-        scores.push(average(ordered.slice(0, count)));
-    }
-    return scores;
-}
+function actionScores(predictions, alpha) { // alpha tells us what fraction to average: .25 uses the lowest 8 of 32 QR outputs. This explores one recorded state; it does not predict a new driving video.
+    const scores = []; // Collect one mean or lower-tail return score for each maneuver.
+    for (const outputs of predictions) { // Score each action's return predictions independently.
+        const ordered = outputs.slice().sort(function(a, b) { // Sort a copy of this action's predictions numerically; preserve saved head order for the raw-quantile graph.
+            return a - b; // Sort from lower to higher return using a numeric comparison, not alphabetic sorting.
+        }); // Finish this step of actionScores.
+        const count = Math.max(1, Math.ceil(alpha * ordered.length)); // Round the tail fraction up to a whole number of heads, using at least one prediction.
+        scores.push(average(ordered.slice(0, count))); // Average the lowest count returns for this action; alpha=.25 uses the lowest 8 of 32 heads.
+    } // Finish this step of actionScores.
+    return scores; // Return the five action scores for the chosen mean/tail rule.
+} // Finish this step of actionScores.
 
-// Keep the index of the largest score. Ties keep the first action, matching the learner.
-function bestAction(scores) {
-    let best = 0;
-    for (let action = 1; action < scores.length; action += 1) {
-        if (scores[action] > scores[best]) {
-            best = action;
-        }
-    }
-    return best;
-}
+function bestAction(scores) { // Keep the index of the largest score. Ties keep the first action, matching the learner.
+    let best = 0; // Start with the first action as the current highest-scoring candidate.
+    for (let action = 1; action < scores.length; action += 1) { // Process each matching item while carrying out bestAction.
+        if (scores[action] > scores[best]) { // Replace the candidate only for a strictly higher score; ties keep the first action like the learner.
+            best = action; // Remember which maneuver currently has the highest return score.
+        } // Finish this step of bestAction.
+    } // Finish this step of bestAction.
+    return best; // Return the winning maneuver index, not its score.
+} // Finish this step of bestAction.
 
-// Build one table row, one cell at a time. textContent displays values as text, not HTML.
-function addRow(body, values) {
-    const row = document.createElement('tr');
-    for (const value of values) {
-        const cell = document.createElement('td');
-        cell.textContent = value;
-        row.appendChild(cell);
-    }
-    body.appendChild(row);
-    return row;
-}
+function addRow(body, values) { // Build one table row, one cell at a time. textContent displays values as text, not HTML.
+    const row = document.createElement('tr'); // Set row from document.createElement('tr') for addRow.
+    for (const value of values) { // Process each matching item while carrying out addRow.
+        const cell = document.createElement('td'); // Set cell from document.createElement('td') for addRow.
+        cell.textContent = value; // Show this recorded measurement or interpretation as page text.
+        row.appendChild(cell); // Apply row.appendChild(cell) as part of addRow.
+    } // Finish this step of addRow.
+    body.appendChild(row); // Apply body.appendChild(row) as part of addRow.
+    return row; // Return the selected summary row or newly built table row to its caller.
+} // Finish this step of addRow.
 
-function chosenRecording(policy) {
-    // Read the controls once, then look for the matching saved recording.
-    // These controls choose saved data; they never launch training.
-    const budget = Number(element('budget').value);
-    const modelSeed = Number(element('model').value);
-    const density = Number(element('density').value);
-    const scenario = Number(element('scenario').value);
-    for (const record of recordings) {
-        if (record.budget === budget && record.training_seed === modelSeed &&
-            record.density === density && record.scenario === scenario && record.policy === policy) {
-            return record;
-        }
-    }
-}
+function chosenRecording(policy) { // Perform the chosenRecording part of explaining or replaying a saved driving decision.
+    const budget = Number(element('budget').value); // Read the controls once, then look for the matching saved recording. These controls choose saved data; they never launch training.
+    const modelSeed = Number(element('model').value); // Set modelSeed from Number(element('model').value) for chosenRecording.
+    const density = Number(element('density').value); // Set density from Number(element('density').value) for chosenRecording.
+    const scenario = Number(element('scenario').value); // Set scenario from Number(element('scenario').value) for chosenRecording.
+    for (const record of recordings) { // Process each matching item while carrying out chosenRecording.
+        if (record.budget === budget && record.training_seed === modelSeed && // Apply the following behavior only for the condition shown here.
+            record.density === density && record.scenario === scenario && record.policy === policy) { // Apply record.density === density && record.scenario === scenario && record.policy === policy) { as part of chosenRecording.
+            return record; // Return the recording matching the selected budget, model, traffic, scenario and policy.
+        } // Finish this step of chosenRecording.
+    } // Finish this step of chosenRecording.
+} // Finish this step of chosenRecording.
 
-function findDensityResult(rows, density) {
-    // A summary has one row per density. Find that row with an ordinary loop.
-    for (const row of rows) {
-        if (row.density === density) {
-            return row;
-        }
-    }
-}
+function findDensityResult(rows, density) { // Perform the findDensityResult part of explaining or replaying a saved driving decision.
+    for (const row of rows) { // A summary has one row per density. Find that row with an ordinary loop.
+        if (row.density === density) { // Apply the following behavior only for the condition shown here.
+            return row; // Return the selected summary row or newly built table row to its caller.
+        } // Finish this step of findDensityResult.
+    } // Finish this step of findDensityResult.
+} // Finish this step of findDensityResult.
 
-// One policy may finish earlier. Hold its last frame instead of inventing later states.
-function frameAt(record, time) {
-    // Hold the terminal frame if this recording ends before its comparison.
-    return record.states[Math.min(time, record.states.length - 1)];
-}
+function frameAt(record, time) { // One policy may finish earlier. Hold its last frame instead of inventing later states.
+    return record.states[Math.min(time, record.states.length - 1)]; // Return this second's saved state, holding the last frame if this policy already finished.
+} // Finish this step of frameAt.
 
-// Show the picture and measurements from this policy's own saved trajectory.
-function showRecording(side, record, time) {
-    const state = frameAt(record, time);
-    element(side + '-name').textContent = names[record.policy];
-    element(side + '-frame').src = '../decision_viewer/' + state.frame;
-    let message = 't=' + state.time + ' s · speed ' + state.speed_m_s.toFixed(2) + ' m/s · lane ' + state.lane;
-    if (state.action === null) {
-        message += ' · ended';
-    } else {
-        message += ' · ' + actions[state.action];
-        if (state.gap_m === null) {
-            message += ' · no car directly ahead';
-        } else {
-            message += ' · approximate front gap ' + state.gap_m.toFixed(1) + ' m';
-        }
-    }
-    element(side + '-state').textContent = message;
-    const duration = record.states.length - 1;
-    element(side + '-outcome').textContent = 'Recorded outcome: ' + (record.crashed ? 'collision' : 'time cutoff, no collision recorded') + ' after ' + duration + ' s. This is one example.';
-}
+function showRecording(side, record, time) { // Show the picture and measurements from this policy's own saved trajectory.
+    const state = frameAt(record, time); // Set state from frameAt(record, time) for showRecording.
+    element(side + '-name').textContent = names[record.policy]; // Show this recorded measurement or interpretation as page text.
+    element(side + '-frame').src = '../decision_viewer/' + state.frame; // Set element(side + '-frame').src from '../decision_viewer/' + state.frame for showRecording.
+    let message = 't=' + state.time + ' s · speed ' + state.speed_m_s.toFixed(2) + ' m/s · lane ' + state.lane; // Set message from 't=' + state.time + ' s · speed ' + state.speed_m_s.toFixed(2) + ' m/s · lane ' + state.lane for showRecording.
+    if (state.action === null) { // Apply the following behavior only for the condition shown here.
+        message += ' · ended'; // Apply message += ' · ended' as part of showRecording.
+    } else { // Handle the remaining case for this saved state or display choice.
+        message += ' · ' + actions[state.action]; // Apply message += ' · ' + actions[state.action] as part of showRecording.
+        if (state.gap_m === null) { // Apply the following behavior only for the condition shown here.
+            message += ' · no car directly ahead'; // Apply message += ' · no car directly ahead' as part of showRecording.
+        } else { // Handle the remaining case for this saved state or display choice.
+            message += ' · approximate front gap ' + state.gap_m.toFixed(1) + ' m'; // Apply message += ' · approximate front gap ' + state.gap_m.toFixed(1) + ' m' as part of showRecording.
+        } // Finish this step of showRecording.
+    } // Finish this step of showRecording.
+    element(side + '-state').textContent = message; // Show this recorded measurement or interpretation as page text.
+    const duration = record.states.length - 1; // Set duration from record.states.length - 1 for showRecording.
+    element(side + '-outcome').textContent = 'Recorded outcome: ' + (record.crashed ? 'collision' : 'time cutoff, no collision recorded') + ' after ' + duration + ' s. This is one example.'; // Show this recorded measurement or interpretation as page text.
+} // Finish this step of showRecording.
 
-// Draw one colored line per action. The vertical values are predicted returns, not crash chances.
-function drawQuantiles(predictions) {
-    const canvas = element('quantiles');
-    const context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    canvas.style.display = predictions && predictions[0].length > 1 ? 'block' : 'none';
-    if (!predictions || predictions[0].length === 1) {
-        element('curve-note').textContent = predictions ? 'DQN supplies scalar means. See the action scores above; no quantile distribution is implied.' : 'There is no issued decision at the terminal frame.';
-        return;
-    }
-    element('curve-note').textContent = 'Raw QR output heads; assigned quantile fraction on the horizontal axis and predicted discounted return on the vertical axis. Lower-tail scoring sorts these values; this graph does not hide crossings.';
-    // Find the graph's value range one action at a time. Starting with an
-    // actual prediction works even when every return estimate is negative.
-    let low = predictions[0][0];
-    let high = predictions[0][0];
-    for (const actionPredictions of predictions) {
-        for (const value of actionPredictions) {
-            low = Math.min(low, value);
-            high = Math.max(high, value);
-        }
-    }
-    if (high - low < 0.01) {
-        high = low + 0.01;
-    }
-    const left = 65,
-        right = 20,
-        top = 40,
-        bottom = 45;
-    const width = canvas.width - left - right;
-    const height = canvas.height - top - bottom;
-    context.font = '14px system-ui';
-    context.fillStyle = '#52667c';
-    for (let tick = 0; tick <= 4; tick += 1) {
-        const y = top + height * tick / 4;
-        context.strokeStyle = '#dce4ef';
-        context.beginPath();
-        context.moveTo(left, y);
-        context.lineTo(left + width, y);
-        context.stroke();
-        context.fillText((high - (high - low) * tick / 4).toFixed(2), 5, y + 5);
-        context.fillText((tick / 4).toFixed(2), left + width * tick / 4 - 10, top + height + 23);
-    }
-    for (let action = 0; action < predictions.length; action += 1) {
-        context.strokeStyle = colors[action];
-        context.lineWidth = 2;
-        context.beginPath();
-        const outputs = predictions[action];
-        for (let i = 0; i < outputs.length; i += 1) {
-            const x = left + width * (i + 0.5) / outputs.length;
-            const y = top + height * (high - outputs[i]) / (high - low);
-            if (i === 0) {
-                context.moveTo(x, y);
-            } else {
-                context.lineTo(x, y);
-            }
-        }
-        context.stroke();
-        context.fillStyle = colors[action];
-        context.fillText(actions[action], left + action * 195, 20);
-    }
-}
+function drawQuantiles(predictions) { // Draw one colored line per action. The vertical values are predicted returns, not crash chances.
+    const canvas = element('quantiles'); // Set canvas from element('quantiles') for drawQuantiles.
+    const context = canvas.getContext('2d'); // Set context from canvas.getContext('2d') for drawQuantiles.
+    context.clearRect(0, 0, canvas.width, canvas.height); // Apply context.clearRect(0, 0, canvas.width, canvas.height) as part of drawQuantiles.
+    canvas.style.display = predictions && predictions[0].length > 1 ? 'block' : 'none'; // Set canvas.style.display from predictions && predictions[0].length > 1 ? 'block' : 'none' for drawQuantiles.
+    if (!predictions || predictions[0].length === 1) { // Apply the following behavior only for the condition shown here.
+        element('curve-note').textContent = predictions ? 'DQN supplies scalar means. See the action scores above; no quantile distribution is implied.' : 'There is no issued decision at the terminal frame.'; // Show this recorded measurement or interpretation as page text.
+        return; // Apply return as part of drawQuantiles.
+    } // Finish this step of drawQuantiles.
+    element('curve-note').textContent = 'Raw QR output heads; assigned quantile fraction on the horizontal axis and predicted discounted return on the vertical axis. Lower-tail scoring sorts these values; this graph does not hide crossings.'; // Show this recorded measurement or interpretation as page text.
+    let low = predictions[0][0]; // Start the graph's lower return bound from a real prediction, including when all returns are negative.
+    let high = predictions[0][0]; // Start the upper graph bound from the same real prediction.
+    for (const actionPredictions of predictions) { // Process each matching item while carrying out drawQuantiles.
+        for (const value of actionPredictions) { // Process each matching item while carrying out drawQuantiles.
+            low = Math.min(low, value); // Expand the graph downward if this head predicts a lower return.
+            high = Math.max(high, value); // Expand the graph upward if this head predicts a higher return.
+        } // Finish this step of drawQuantiles.
+    } // Finish this step of drawQuantiles.
+    if (high - low < 0.01) { // Apply the following behavior only for the condition shown here.
+        high = low + 0.01; // Set high from low + 0.01 for drawQuantiles.
+    } // Finish this step of drawQuantiles.
+    const left = 65, // Set left from 65, for drawQuantiles.
+        right = 20, // Set right from 20, for drawQuantiles.
+        top = 40, // Set top from 40, for drawQuantiles.
+        bottom = 45; // Set bottom from 45 for drawQuantiles.
+    const width = canvas.width - left - right; // Set width from canvas.width - left - right for drawQuantiles.
+    const height = canvas.height - top - bottom; // Set height from canvas.height - top - bottom for drawQuantiles.
+    context.font = '14px system-ui'; // Set context.font from '14px system-ui' for drawQuantiles.
+    context.fillStyle = '#52667c'; // Set context.fillStyle from '#52667c' for drawQuantiles.
+    for (let tick = 0; tick <= 4; tick += 1) { // Process each matching item while carrying out drawQuantiles.
+        const y = top + height * tick / 4; // Set y from top + height * tick / 4 for drawQuantiles.
+        context.strokeStyle = '#dce4ef'; // Set context.strokeStyle from '#dce4ef' for drawQuantiles.
+        context.beginPath(); // Apply context.beginPath() as part of drawQuantiles.
+        context.moveTo(left, y); // Apply context.moveTo(left, y) as part of drawQuantiles.
+        context.lineTo(left + width, y); // Apply context.lineTo(left + width, y) as part of drawQuantiles.
+        context.stroke(); // Apply context.stroke() as part of drawQuantiles.
+        context.fillText((high - (high - low) * tick / 4).toFixed(2), 5, y + 5); // Apply context.fillText((high - (high - low) * tick / 4).toFixed(2), 5, y + 5) as part of drawQuantiles.
+        context.fillText((tick / 4).toFixed(2), left + width * tick / 4 - 10, top + height + 23); // Apply context.fillText((tick / 4).toFixed(2), left + width * tick / 4 - 10, top + height + 23) as part of drawQuantiles.
+    } // Finish this step of drawQuantiles.
+    for (let action = 0; action < predictions.length; action += 1) { // Process each matching item while carrying out drawQuantiles.
+        context.strokeStyle = colors[action]; // Set context.strokeStyle from colors[action] for drawQuantiles.
+        context.lineWidth = 2; // Set context.lineWidth from 2 for drawQuantiles.
+        context.beginPath(); // Apply context.beginPath() as part of drawQuantiles.
+        const outputs = predictions[action]; // Plot this action's raw quantile heads without sorting away crossings.
+        for (let i = 0; i < outputs.length; i += 1) { // Process each matching item while carrying out drawQuantiles.
+            const x = left + width * (i + 0.5) / outputs.length; // Place this head horizontally at its assigned midpoint quantile fraction.
+            const y = top + height * (high - outputs[i]) / (high - low); // Map its predicted return onto the graph; larger returns appear higher.
+            if (i === 0) { // Apply the following behavior only for the condition shown here.
+                context.moveTo(x, y); // Apply context.moveTo(x, y) as part of drawQuantiles.
+            } else { // Handle the remaining case for this saved state or display choice.
+                context.lineTo(x, y); // Apply context.lineTo(x, y) as part of drawQuantiles.
+            } // Finish this step of drawQuantiles.
+        } // Finish this step of drawQuantiles.
+        context.stroke(); // Apply context.stroke() as part of drawQuantiles.
+        context.fillStyle = colors[action]; // Set context.fillStyle from colors[action] for drawQuantiles.
+        context.fillText(actions[action], left + action * 195, 20); // Apply context.fillText(actions[action], left + action * 195, 20) as part of drawQuantiles.
+    } // Finish this step of drawQuantiles.
+} // Finish this step of drawQuantiles.
 
-// Read-only explanation of one saved decision: green is actual, blue is hypothetical.
-function showDecision(record, time) {
-    const state = frameAt(record, time);
-    const body = element('scores');
-    body.replaceChildren();
-    const observation = element('observation');
-    observation.replaceChildren();
-    const scalar = record.policy === 'dqn_governed';
-    element('alpha').disabled = scalar || !state.predictions;
-    if (!state.predictions) {
-        element('decision-status').textContent = 'Episode ended: no action was issued from this frame; its observation table is not retained.';
-        drawQuantiles(null);
-        return;
-    }
-    let message = 'Network proposed: ' + actions[state.proposed_action] + '. Applied: ' + actions[state.action] + '.';
-    if (state.governor_override) {
-        message += ' The speed governor overrode the proposal.';
-    }
-    message += ' Immediate reward after this action: ' + state.reward_after_action.toFixed(3) + '.';
-    element('decision-status').textContent = message;
-    let alpha = 1;
-    if (!scalar) {
-        alpha = Number(element('alpha').value);
-    }
-    const means = actionScores(state.predictions, 1);
-    // These are alternative scores for the SAME saved observation. Changing
-    // alpha does not reveal what would happen after taking a different action.
-    const scores = actionScores(state.predictions, alpha);
-    const preview = bestAction(scores);
-    for (let action = 0; action < actions.length; action += 1) {
-        const row = addRow(body, [actions[action], means[action].toFixed(3), scores[action].toFixed(3), action === state.action ? 'Applied' : '']);
-        if (action === state.action) {
-            row.classList.add('actual');
-        }
-        if (action === preview) {
-            row.classList.add('preview');
-        }
-    }
-    for (let slot = 0; slot < state.observation.length; slot += 1) {
-        // The first cell identifies the slot; the next five are its inputs.
-        const cells = [slot];
-        for (const value of state.observation[slot]) {
-            cells.push(value.toFixed(3));
-        }
-        addRow(observation, cells);
-    }
-    drawQuantiles(state.predictions);
-}
+function showDecision(record, time) { // Read-only explanation of one saved decision: green is actual, blue is hypothetical.
+    const state = frameAt(record, time); // Set state from frameAt(record, time) for showDecision.
+    const body = element('scores'); // Set body from element('scores') for showDecision.
+    body.replaceChildren(); // Apply body.replaceChildren() as part of showDecision.
+    const observation = element('observation'); // Set observation from element('observation') for showDecision.
+    observation.replaceChildren(); // Apply observation.replaceChildren() as part of showDecision.
+    const scalar = record.policy === 'dqn_governed'; // Set scalar from record.policy === 'dqn_governed' for showDecision.
+    element('alpha').disabled = scalar || !state.predictions; // Set element('alpha').disabled from scalar || !state.predictions for showDecision.
+    if (!state.predictions) { // Apply the following behavior only for the condition shown here.
+        element('decision-status').textContent = 'Episode ended: no action was issued from this frame; its observation table is not retained.'; // Show this recorded measurement or interpretation as page text.
+        drawQuantiles(null); // Apply drawQuantiles(null) as part of showDecision.
+        return; // Apply return as part of showDecision.
+    } // Finish this step of showDecision.
+    let message = 'Network proposed: ' + actions[state.proposed_action] + '. Applied: ' + actions[state.action] + '.'; // Set message from 'Network proposed: ' + actions[state.proposed_action] + '. Applied: ' + actions[state.action] + '.' for showDecision.
+    if (state.governor_override) { // Apply the following behavior only for the condition shown here.
+        message += ' The speed governor overrode the proposal.'; // Apply message += ' The speed governor overrode the proposal.' as part of showDecision.
+    } // Finish this step of showDecision.
+    message += ' Immediate reward after this action: ' + state.reward_after_action.toFixed(3) + '.'; // Apply message += ' Immediate reward after this action: ' + state.reward_after_action.toFixed(3) + '.' as part of showDecision.
+    element('decision-status').textContent = message; // Show this recorded measurement or interpretation as page text.
+    let alpha = 1; // Set alpha from 1 for showDecision.
+    if (!scalar) { // Apply the following behavior only for the condition shown here.
+        alpha = Number(element('alpha').value); // Set alpha from Number(element('alpha').value) for showDecision.
+    } // Finish this step of showDecision.
+    const means = actionScores(state.predictions, 1); // Compute each action's ordinary expected-return estimate from all of its heads.
+    const scores = actionScores(state.predictions, alpha); // Compute hypothetical scores in this saved state; changing alpha does not create an alternative future rollout.
+    const preview = bestAction(scores); // Find which action the hypothetical risk setting would favor in this observation.
+    for (let action = 0; action < actions.length; action += 1) { // Process each matching item while carrying out showDecision.
+        const row = addRow(body, [actions[action], means[action].toFixed(3), scores[action].toFixed(3), action === state.action ? 'Applied' : '']); // Set row from addRow(body, [actions[action], means[action].toFixed(3), scores[action].toFixed(3), action === state.action ? 'Applied' : '']) for showDecision.
+        if (action === state.action) { // Apply the following behavior only for the condition shown here.
+            row.classList.add('actual'); // Apply row.classList.add('actual') as part of showDecision.
+        } // Finish this step of showDecision.
+        if (action === preview) { // Apply the following behavior only for the condition shown here.
+            row.classList.add('preview'); // Apply row.classList.add('preview') as part of showDecision.
+        } // Finish this step of showDecision.
+    } // Finish this step of showDecision.
+    for (let slot = 0; slot < state.observation.length; slot += 1) { // Process each matching item while carrying out showDecision.
+        const cells = [slot]; // The first cell identifies the slot; the next five are its inputs.
+        for (const value of state.observation[slot]) { // Process each matching item while carrying out showDecision.
+            cells.push(value.toFixed(3)); // Apply cells.push(value.toFixed(3)) as part of showDecision.
+        } // Finish this step of showDecision.
+        addRow(observation, cells); // Apply addRow(observation, cells) as part of showDecision.
+    } // Finish this step of showDecision.
+    drawQuantiles(state.predictions); // Apply drawQuantiles(state.predictions) as part of showDecision.
+} // Finish this step of showDecision.
 
-// Refresh the pictures and numbers together so controls cannot show mismatched recordings.
-function update() {
-    const left = chosenRecording(element('left-policy').value);
-    const right = chosenRecording(element('right-policy').value);
-    const last = Math.max(left.states.length, right.states.length) - 1;
-    element('time').max = last;
-    const time = Math.min(Number(element('time').value), last);
-    element('time').value = time;
-    element('time-label').textContent = time + ' / ' + last + ' simulated seconds';
-    showRecording('left', left, time);
-    showRecording('right', right, time);
-    showDecision(left, time);
-}
+function update() { // Refresh the pictures and numbers together so controls cannot show mismatched recordings.
+    const left = chosenRecording(element('left-policy').value); // Set left from chosenRecording(element('left-policy').value) for update.
+    const right = chosenRecording(element('right-policy').value); // Set right from chosenRecording(element('right-policy').value) for update.
+    const last = Math.max(left.states.length, right.states.length) - 1; // Set last from Math.max(left.states.length, right.states.length) - 1 for update.
+    element('time').max = last; // Set element('time').max from last for update.
+    const time = Math.min(Number(element('time').value), last); // Set time from Math.min(Number(element('time').value), last) for update.
+    element('time').value = time; // Set element('time').value from time for update.
+    element('time-label').textContent = time + ' / ' + last + ' simulated seconds'; // Show this recorded measurement or interpretation as page text.
+    showRecording('left', left, time); // Apply showRecording('left', left, time) as part of update.
+    showRecording('right', right, time); // Apply showRecording('right', right, time) as part of update.
+    showDecision(left, time); // Apply showDecision(left, time) as part of update.
+} // Finish this step of update.
 
-// Cancel the playback timer while we inspect a decision or change recordings.
-function stop() {
-    clearInterval(timer);
-    timer = null;
-    element('play').textContent = 'Play';
-}
+function stop() { // Cancel the playback timer while we inspect a decision or change recordings.
+    clearInterval(timer); // Apply clearInterval(timer) as part of stop.
+    timer = null; // Mark playback as stopped; saved policy decisions remain unchanged.
+    element('play').textContent = 'Play'; // Show this recorded measurement or interpretation as page text.
+} // Finish this step of stop.
 
-// Playing moves through saved pictures once per second. It does not rerun the simulator.
-function startOrStop() {
-    if (timer !== null) {
-        stop();
-        return;
-    }
-    if (Number(element('time').value) >= Number(element('time').max)) {
-        element('time').value = 0;
-    }
-    update();
-    element('play').textContent = 'Pause';
-    timer = setInterval(function() {
-        element('time').value = Number(element('time').value) + 1;
-        update();
-        if (Number(element('time').value) >= Number(element('time').max)) {
-            stop();
-        }
-    }, 1000);
-}
+function startOrStop() { // Playing moves through saved pictures once per second. It does not rerun the simulator.
+    if (timer !== null) { // Apply the following behavior only for the condition shown here.
+        stop(); // Apply stop() as part of startOrStop.
+        return; // Apply return as part of startOrStop.
+    } // Finish this step of startOrStop.
+    if (Number(element('time').value) >= Number(element('time').max)) { // Apply the following behavior only for the condition shown here.
+        element('time').value = 0; // Set element('time').value from 0 for startOrStop.
+    } // Finish this step of startOrStop.
+    update(); // Apply update() as part of startOrStop.
+    element('play').textContent = 'Pause'; // Show this recorded measurement or interpretation as page text.
+    timer = setInterval(function() { // Set timer from setInterval(function() { for startOrStop.
+        element('time').value = Number(element('time').value) + 1; // Set element('time').value from Number(element('time').value) + 1 for startOrStop.
+        update(); // Apply update() as part of startOrStop.
+        if (Number(element('time').value) >= Number(element('time').max)) { // Apply the following behavior only for the condition shown here.
+            stop(); // Apply stop() as part of startOrStop.
+        } // Finish this step of startOrStop.
+    }, 1000); // Apply }, 1000) as part of startOrStop.
+} // Finish this step of startOrStop.
 
-// Populate policy choices using textContent, then connect ordinary page controls.
-for (const id of ['left-policy', 'right-policy']) {
-    for (const policy of Object.keys(names)) {
-        const option = document.createElement('option');
-        option.value = policy;
-        option.textContent = names[policy];
-        element(id).appendChild(option);
-    }
-}
-element('left-policy').value = 'qr_tail';
-element('right-policy').value = 'dqn_governed';
-for (const id of ['budget', 'model', 'density', 'scenario', 'left-policy', 'right-policy']) {
-    element(id).addEventListener('change', function() {
-        stop();
-        element('time').value = 0;
-        update();
-    });
-}
-element('alpha').addEventListener('change', update);
-element('time').addEventListener('input', function() {
-    stop();
-    update();
-});
-element('play').addEventListener('click', startOrStop);
-const normal = evidence.groups['100000'];
-element('normal-result').textContent = (100 * normal.qr_tail[0].crash_rate).toFixed(1) + '% vs ' + (100 * normal.dqn_governed[0].crash_rate).toFixed(1) + '% collisions';
-const oldDense = findDensityResult(evidence.groups['40000'].qr_tail, 2);
-const newDense = findDensityResult(normal.qr_tail, 2);
-element('dense-result').textContent = (100 * oldDense.crash_rate).toFixed(1) + '% → ' + (100 * newDense.crash_rate).toFixed(1) + '% collisions';
-update();
-</script>
-</body>
-</html>
+for (const id of ['left-policy', 'right-policy']) { // Populate policy choices using textContent, then connect ordinary page controls.
+    for (const policy of Object.keys(names)) { // Process each matching item while carrying out startOrStop.
+        const option = document.createElement('option'); // Set option from document.createElement('option') for startOrStop.
+        option.value = policy; // Set option.value from policy for startOrStop.
+        option.textContent = names[policy]; // Show this recorded measurement or interpretation as page text.
+        element(id).appendChild(option); // Apply element(id).appendChild(option) as part of startOrStop.
+    } // Finish this step of startOrStop.
+} // Finish this step of startOrStop.
+element('left-policy').value = 'qr_tail'; // Set element('left-policy').value from 'qr_tail' for startOrStop.
+element('right-policy').value = 'dqn_governed'; // Set element('right-policy').value from 'dqn_governed' for startOrStop.
+for (const id of ['budget', 'model', 'density', 'scenario', 'left-policy', 'right-policy']) { // Process each matching item while carrying out startOrStop.
+    element(id).addEventListener('change', function() { // Refresh the saved-data view when this reader control changes.
+        stop(); // Apply stop() as part of startOrStop.
+        element('time').value = 0; // Set element('time').value from 0 for startOrStop.
+        update(); // Apply update() as part of startOrStop.
+    }); // Finish this step of startOrStop.
+} // Finish this step of startOrStop.
+element('alpha').addEventListener('change', update); // Refresh the saved-data view when this reader control changes.
+element('time').addEventListener('input', function() { // Refresh the saved-data view when this reader control changes.
+    stop(); // Apply stop() as part of startOrStop.
+    update(); // Apply update() as part of startOrStop.
+}); // Finish this step of startOrStop.
+element('play').addEventListener('click', startOrStop); // Refresh the saved-data view when this reader control changes.
+const normal = evidence.groups['100000']; // Set normal from evidence.groups['100000'] for startOrStop.
+element('normal-result').textContent = (100 * normal.qr_tail[0].crash_rate).toFixed(1) + '% vs ' + (100 * normal.dqn_governed[0].crash_rate).toFixed(1) + '% collisions'; // Show this recorded measurement or interpretation as page text.
+const oldDense = findDensityResult(evidence.groups['40000'].qr_tail, 2); // Set oldDense from findDensityResult(evidence.groups['40000'].qr_tail, 2) for startOrStop.
+const newDense = findDensityResult(normal.qr_tail, 2); // Set newDense from findDensityResult(normal.qr_tail, 2) for startOrStop.
+element('dense-result').textContent = (100 * oldDense.crash_rate).toFixed(1) + '% → ' + (100 * newDense.crash_rate).toFixed(1) + '% collisions'; // Show this recorded measurement or interpretation as page text.
+update(); // Apply update() as part of startOrStop.
+</script> <!-- Run the saved-data playback and decision-explanation controls. -->
+</body> <!-- Display or group this body portion of the recorded-driving explanation. -->
+</html> <!-- Display or group this html portion of the recorded-driving explanation. -->
