@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inside the driving agent</title>
+<style>
+/* Layout only: none of these rules change an agent's decision. */
+* { box-sizing: border-box; }
+body { margin: 0; background: #f2f5fa; color: #172a40; font: 16px/1.6 system-ui; }
+main { max-width: 1280px; margin: auto; padding: 32px 24px 64px; }
+h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.1; margin: 12px 0; }
+h2 { font-size: 23px; margin-top: 0; }
+h3 { font-size: 17px; }
+a { color: #165bb5; }
+section, article { padding: 22px; background: white; border: 1px solid #dce4ef; border-radius: 14px; margin: 20px 0; }
+.cards, .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.cards article { margin: 0; }
+.big { font-size: 30px; font-weight: 750; color: #164a79; }
+.controls { display: flex; flex-wrap: wrap; gap: 16px; }
+label { display: block; font-size: 14px; font-weight: 600; }
+select, button { font: inherit; padding: 8px 12px; border-radius: 7px; border: 1px solid #a8b8cb; background: white; color: #172a40; }
+button { cursor: pointer; }
+input[type=range] { width: 100%; accent-color: #166c92; }
+.drive { width: 100%; aspect-ratio: 900/240; background: #111; object-fit: contain; }
+canvas { width: 100%; height: 310px; }
+.scroll { overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 9px; border-bottom: 1px solid #dce4ef; text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+.actual { background: #e0f4eb; }
+.preview { outline: 2px solid #4d84bf; outline-offset: -2px; }
+.note { color: #52667c; font-size: 14px; }
+.notice { padding: 12px 16px; border-left: 4px solid #e9a543; background: #fff8e9; }
+#time-label { font-variant-numeric: tabular-nums; }
+@media(max-width: 750px) { .pair, .cards { grid-template-columns: 1fr; } main { padding: 24px 12px; } }
+</style>
+</head>
+<body>
+<main>
+<p>DISTRIBUTIONAL REINFORCEMENT LEARNING / DECISION VIEWER</p>
+<h1>What did the agent see—and choose?</h1>
+<p>Explore recorded development examples from the same trained models used in the study. Inspect the inputs, proposed actions, speed overrides, and predicted future rewards.</p>
+<p><a href="../long_training-report/index.html">Full 40K-versus-100K study</a> · <a href="../decision_viewer/design.json">Recording design</a> · <a href="../long_training_evaluation/summary.json">Evaluation data</a> · <a href="../prediction_audit/index.html">40K/100K prediction audit</a></p>
+<div class="cards">
+<article><p>Normal traffic, 100K models</p><div class="big" id="normal-result"></div><p class="note">Cautious QR versus governed DQN. The primary collision criterion was not met; this does not prove equivalence.</p></article>
+<article><p>Density 2, cautious QR</p><div class="big" id="dense-result"></div><p class="note">40K → 100K on matching fresh scenarios. A secondary budget comparison, not a replacement primary test.</p></article>
+</div>
+<section>
+<h2>Choose a recorded comparison</h2>
+<div class="controls">
+<label>Training budget<select id="budget"><option value="100000">100K steps</option><option value="40000">40K steps</option></select></label>
+<label>Training seed<select id="model"><option>0</option><option>1</option><option>2</option></select></label>
+<label>Traffic density<select id="density"><option value="1">1.0</option><option value="2">2.0</option><option value="2.5">2.5</option></select></label>
+<label>Development scenario<select id="scenario"><option>18000</option><option>18001</option></select></label>
+<label>Left policy<select id="left-policy"></select></label>
+<label>Right policy<select id="right-policy"></select></label>
+</div>
+<p class="notice">These are illustrative development recordings, chosen before their outcomes. They are not new confirmation tests. Both policies start in matching traffic; their states can diverge after the first action.</p>
+<div class="pair">
+<article><h3 id="left-name"></h3><img class="drive" id="left-frame" alt="Left policy recorded driving frame"><p id="left-state"></p><p class="note" id="left-outcome"></p></article>
+<article><h3 id="right-name"></h3><img class="drive" id="right-frame" alt="Right policy recorded driving frame"><p id="right-state"></p><p class="note" id="right-outcome"></p></article>
+</div>
+<button id="play" type="button">Play</button> <strong id="time-label"></strong>
+<label>Recorded time<input id="time" type="range" min="0" max="30" step="1" value="0"></label>
+<p class="note">One decision is one simulated second. If one episode ends earlier, its last frame stays visible and is marked ended. The time slider does not create new actions.</p>
+</section>
+<section>
+<h2>Inspect the left policy's decision</h2>
+<p id="decision-status"></p>
+<label>Hypothetical lower-tail fraction<select id="alpha"><option value="1">All predictions: mean</option><option value="0.5">Lowest half</option><option value="0.25" selected>Lowest quarter</option><option value="0.125">Lowest eighth</option></select></label>
+<p class="notice">This control only recalculates scores in the left recording's current state. It does not change playback or show the future outcome of a different action.</p>
+<div class="scroll"><table><thead><tr><th>Action</th><th>Mean return</th><th>Explored score</th><th>Recorded choice</th></tr></thead><tbody id="scores"></tbody></table></div>
+<p class="note">Green = action actually applied. Blue outline = highest hypothetical score. A governor can override the network's proposal. Scores are discounted future reward estimates—not collision probabilities.</p>
+<canvas id="quantiles" width="1100" height="310" aria-label="Raw return quantile predictions for the left policy"></canvas>
+<p class="note" id="curve-note"></p>
+</section>
+<section>
+<h2>The 40 numbers the left network received</h2>
+<p class="note">These are normalized inputs, not meters or meters per second. Row 0 is the ego car; other rows are current nearby-vehicle slots. Slots are not persistent vehicle IDs. Missing rows use presence 0. The network does not receive every vehicle or internal driver setting.</p>
+<div class="scroll"><table><thead><tr><th>Slot</th><th>Presence</th><th>x</th><th>y</th><th>vx</th><th>vy</th></tr></thead><tbody id="observation"></tbody></table></div>
+</section>
+<section>
+<h2>How to read the curves</h2>
+<p>QR-DQN predicts 32 return quantiles for each action. The mean selector averages them all. The cautious selector sorts the predictions and averages the lowest quarter. The graph shows raw output-head order so prediction crossings remain visible. Training uses mean-based next-action selection; deploying a different selector changes the continuation policy.</p>
+<p>DQN predicts one expected-return estimate per action. A scalar mean is not a return distribution, so the viewer does not draw it as a quantile curve. A low predicted return can describe several bad outcomes; it is not a calibrated probability of a crash.</p>
+<p>Gap and speed readouts come from simulator measurements for explanation. Those extra measurements are not passed to the learned network. A nearby vehicle or recent lane change does not by itself establish the cause of a collision.</p>
+</section>
+</main>
+<script>
+// Python fills these two placeholders with saved data. No training runs here.
+const recordings = __RECORDINGS__;
+const evidence = __EVIDENCE__;
+const names = {
+    qr_tail: 'QR lower quarter',
+    qr_mean: 'QR mean',
+    qr_governed: 'QR mean + governor',
+    dqn_governed: 'DQN + governor'
+};
+const actions = ['Lane left', 'Maintain target speed', 'Lane right', 'Faster target', 'Slower target'];
+const colors = ['#2474bb', '#9170b6', '#16836f', '#d36b21', '#c53b48'];
+let timer = null;
+
+function element(id) {
+    return document.getElementById(id);
+}
+
+function average(numbers) {
+    let total = 0;
+    for (const value of numbers) {
+        total += value;
+    }
+    return total / numbers.length;
+}
+
+function actionScores(predictions, alpha) {
+    // Copy before sorting: exploring a score must not alter the saved outputs.
+    const scores = [];
+    for (const outputs of predictions) {
+        const ordered = outputs.slice().sort(function(a, b) {
+            return a - b;
+        });
+        const count = Math.max(1, Math.ceil(alpha * ordered.length));
+        scores.push(average(ordered.slice(0, count)));
+    }
+    return scores;
+}
+
+function bestAction(scores) {
+    let best = 0;
+    for (let action = 1; action < scores.length; action += 1) {
+        if (scores[action] > scores[best]) {
+            best = action;
+        }
+    }
+    return best;
+}
+
+function addRow(body, values) {
+    const row = document.createElement('tr');
+    for (const value of values) {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        row.appendChild(cell);
+    }
+    body.appendChild(row);
+    return row;
+}
+
+function chosenRecording(policy) {
+    return recordings.find(function(record) {
+        return record.budget === Number(element('budget').value) &&
+            record.training_seed === Number(element('model').value) &&
+            record.density === Number(element('density').value) &&
+            record.scenario === Number(element('scenario').value) && record.policy === policy;
+    });
+}
+
+function frameAt(record, time) {
+    // Hold the terminal frame if this recording ends before its comparison.
+    return record.states[Math.min(time, record.states.length - 1)];
+}
+
+function showRecording(side, record, time) {
+    const state = frameAt(record, time);
+    element(side + '-name').textContent = names[record.policy];
+    element(side + '-frame').src = '../decision_viewer/' + state.frame;
+    let message = 't=' + state.time + ' s · speed ' + state.speed_m_s.toFixed(2) + ' m/s · lane ' + state.lane;
+    if (state.action === null) {
+        message += ' · ended';
+    } else {
+        message += ' · ' + actions[state.action];
+        message += state.gap_m === null ? ' · no car directly ahead' : ' · approximate front gap ' + state.gap_m.toFixed(1) + ' m';
+    }
+    element(side + '-state').textContent = message;
+    const duration = record.states.length - 1;
+    element(side + '-outcome').textContent = 'Recorded outcome: ' + (record.crashed ? 'collision' : 'time cutoff, no collision recorded') + ' after ' + duration + ' s. This is one example.';
+}
+
+function drawQuantiles(predictions) {
+    const canvas = element('quantiles');
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.style.display = predictions && predictions[0].length > 1 ? 'block' : 'none';
+    if (!predictions || predictions[0].length === 1) {
+        element('curve-note').textContent = predictions ? 'DQN supplies scalar means. See the action scores above; no quantile distribution is implied.' : 'There is no issued decision at the terminal frame.';
+        return;
+    }
+    element('curve-note').textContent = 'Raw QR output heads; assigned quantile fraction on the horizontal axis and predicted discounted return on the vertical axis. Lower-tail scoring sorts these values; this graph does not hide crossings.';
+    const all = predictions.flat();
+    let low = Math.min(...all);
+    let high = Math.max(...all);
+    if (high - low < 0.01) {
+        high = low + 0.01;
+    }
+    const left = 65,
+        right = 20,
+        top = 40,
+        bottom = 45;
+    const width = canvas.width - left - right;
+    const height = canvas.height - top - bottom;
+    context.font = '14px system-ui';
+    context.fillStyle = '#52667c';
+    for (let tick = 0; tick <= 4; tick += 1) {
+        const y = top + height * tick / 4;
+        context.strokeStyle = '#dce4ef';
+        context.beginPath();
+        context.moveTo(left, y);
+        context.lineTo(left + width, y);
+        context.stroke();
+        context.fillText((high - (high - low) * tick / 4).toFixed(2), 5, y + 5);
+        context.fillText((tick / 4).toFixed(2), left + width * tick / 4 - 10, top + height + 23);
+    }
+    for (let action = 0; action < predictions.length; action += 1) {
+        context.strokeStyle = colors[action];
+        context.lineWidth = 2;
+        context.beginPath();
+        const outputs = predictions[action];
+        for (let i = 0; i < outputs.length; i += 1) {
+            const x = left + width * (i + 0.5) / outputs.length;
+            const y = top + height * (high - outputs[i]) / (high - low);
+            if (i === 0) {
+                context.moveTo(x, y);
+            } else {
+                context.lineTo(x, y);
+            }
+        }
+        context.stroke();
+        context.fillStyle = colors[action];
+        context.fillText(actions[action], left + action * 195, 20);
+    }
+}
+
+function showDecision(record, time) {
+    const state = frameAt(record, time);
+    const body = element('scores');
+    body.replaceChildren();
+    const observation = element('observation');
+    observation.replaceChildren();
+    const scalar = record.policy === 'dqn_governed';
+    element('alpha').disabled = scalar || !state.predictions;
+    if (!state.predictions) {
+        element('decision-status').textContent = 'Episode ended: no action was issued from this frame; its observation table is not retained.';
+        drawQuantiles(null);
+        return;
+    }
+    let message = 'Network proposed: ' + actions[state.proposed_action] + '. Applied: ' + actions[state.action] + '.';
+    if (state.governor_override) {
+        message += ' The speed governor overrode the proposal.';
+    }
+    message += ' Immediate reward after this action: ' + state.reward_after_action.toFixed(3) + '.';
+    element('decision-status').textContent = message;
+    const alpha = scalar ? 1 : Number(element('alpha').value);
+    const means = actionScores(state.predictions, 1);
+    const scores = actionScores(state.predictions, alpha);
+    const preview = bestAction(scores);
+    for (let action = 0; action < actions.length; action += 1) {
+        const row = addRow(body, [actions[action], means[action].toFixed(3), scores[action].toFixed(3), action === state.action ? 'Applied' : '']);
+        if (action === state.action) {
+            row.classList.add('actual');
+        }
+        if (action === preview) {
+            row.classList.add('preview');
+        }
+    }
+    for (let slot = 0; slot < state.observation.length; slot += 1) {
+        addRow(observation, [slot, ...state.observation[slot].map(function(value) {
+            return value.toFixed(3);
+        })]);
+    }
+    drawQuantiles(state.predictions);
+}
+
+function update() {
+    const left = chosenRecording(element('left-policy').value);
+    const right = chosenRecording(element('right-policy').value);
+    const last = Math.max(left.states.length, right.states.length) - 1;
+    element('time').max = last;
+    const time = Math.min(Number(element('time').value), last);
+    element('time').value = time;
+    element('time-label').textContent = time + ' / ' + last + ' simulated seconds';
+    showRecording('left', left, time);
+    showRecording('right', right, time);
+    showDecision(left, time);
+}
+
+function stop() {
+    clearInterval(timer);
+    timer = null;
+    element('play').textContent = 'Play';
+}
+
+function startOrStop() {
+    if (timer !== null) {
+        stop();
+        return;
+    }
+    if (Number(element('time').value) >= Number(element('time').max)) {
+        element('time').value = 0;
+    }
+    update();
+    element('play').textContent = 'Pause';
+    timer = setInterval(function() {
+        element('time').value = Number(element('time').value) + 1;
+        update();
+        if (Number(element('time').value) >= Number(element('time').max)) {
+            stop();
+        }
+    }, 1000);
+}
+
+// Populate policy choices using textContent, then connect ordinary page controls.
+for (const id of ['left-policy', 'right-policy']) {
+    for (const policy of Object.keys(names)) {
+        const option = document.createElement('option');
+        option.value = policy;
+        option.textContent = names[policy];
+        element(id).appendChild(option);
+    }
+}
+element('left-policy').value = 'qr_tail';
+element('right-policy').value = 'dqn_governed';
+for (const id of ['budget', 'model', 'density', 'scenario', 'left-policy', 'right-policy']) {
+    element(id).addEventListener('change', function() {
+        stop();
+        element('time').value = 0;
+        update();
+    });
+}
+element('alpha').addEventListener('change', update);
+element('time').addEventListener('input', function() {
+    stop();
+    update();
+});
+element('play').addEventListener('click', startOrStop);
+const normal = evidence.groups['100000'];
+element('normal-result').textContent = (100 * normal.qr_tail[0].crash_rate).toFixed(1) + '% vs ' + (100 * normal.dqn_governed[0].crash_rate).toFixed(1) + '% collisions';
+const oldDense = evidence.groups['40000'].qr_tail.find(function(row) {
+    return row.density === 2;
+});
+const newDense = normal.qr_tail.find(function(row) {
+    return row.density === 2;
+});
+element('dense-result').textContent = (100 * oldDense.crash_rate).toFixed(1) + '% → ' + (100 * newDense.crash_rate).toFixed(1) + '% collisions';
+update();
+</script>
+</body>
+</html>

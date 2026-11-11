@@ -1,0 +1,4283 @@
+{
+  "design": {
+    "status": "Locked before confirmation evaluations",
+    "training_steps": 40000,
+    "training_seeds": [
+      0,
+      1,
+      2
+    ],
+    "training_densities": [
+      1.0,
+      1.5,
+      2.0
+    ],
+    "scenario_seed_start": 20000,
+    "episodes_per_density": 100,
+    "densities": [
+      1.0,
+      1.5,
+      2.0,
+      2.5
+    ],
+    "policies": {
+      "qr_tail": {
+        "algorithm": "qrdqn",
+        "alpha": 0.25,
+        "speed_cap_m_s": null
+      },
+      "dqn_governed": {
+        "algorithm": "dqn",
+        "alpha": 1.0,
+        "speed_cap_m_s": 25.0
+      },
+      "qr_governed": {
+        "algorithm": "qrdqn",
+        "alpha": 1.0,
+        "speed_cap_m_s": 25.0
+      },
+      "dqn_mean": {
+        "algorithm": "dqn",
+        "alpha": 1.0,
+        "speed_cap_m_s": null
+      },
+      "qr_mean": {
+        "algorithm": "qrdqn",
+        "alpha": 1.0,
+        "speed_cap_m_s": null
+      }
+    },
+    "primary": {
+      "left": "qr_tail",
+      "right": "dqn_governed",
+      "density": 1.0,
+      "metric": "crashed",
+      "direction": "Lower collision fraction is better",
+      "estimand": "Expected paired collision difference over fresh scenarios, averaged over the three fixed trained-model pairs.",
+      "interval": "Two-sided percentile 95% scenario-cluster bootstrap; 10000 replicates; RNG seed 20261111. Resample scenario IDs while retaining all fixed models and policy pairing.",
+      "decision_rule": "Evidence of fewer collisions for the locked QR-tail policy if the upper conditional confidence endpoint is strictly below zero. Report speed/distance regardless of collision result. Do not claim speed-independent or real-road safety benefit."
+    },
+    "secondary": "Other policies, traffic densities, seed variation and crossed bootstrap intervals are descriptive/exploratory; no family-wise inference claimed.",
+    "generalization_limit": "Primary interval conditions on this selected set of trained models, architecture, rewards and governor caps; it does not cover new training runs or remove speed/action-rule differences.",
+    "no_tuning": "No retraining, checkpoint selection, alpha adjustment or governor adjustment using these results. Further tuned models need a new untouched scenario block.",
+    "replays": "Training seed 0, first reserved scenario 20000 at density 1, for QR tail and both governed controls; fixed before outcomes.",
+    "checkpoint_hashes": {
+      "qr_tail": {
+        "0": {
+          "path": "results/density_coverage/qrdqn_seed0/final.pt",
+          "sha256": "f5079fc235770454d6db581a0e75aca1b4d56c9ee52ddb85d340792f8861d639"
+        },
+        "1": {
+          "path": "results/density_coverage/qrdqn_seed1/final.pt",
+          "sha256": "1f0e908f05151560e1e3ff6147b8660fba372780080ba02b5299fbf2d56de1c3"
+        },
+        "2": {
+          "path": "results/density_coverage/qrdqn_seed2/final.pt",
+          "sha256": "db0ac1360dcaab600486a0bba05a47aec5767eb6a6edb306a4c018c113196507"
+        }
+      },
+      "dqn_governed": {
+        "0": {
+          "path": "results/baseline_controls/dqn_seed0/final.pt",
+          "sha256": "15ee1d329c413a77c964224a937f1e44ed00458324068d822cb8fe231a029a4c"
+        },
+        "1": {
+          "path": "results/baseline_controls/dqn_seed1/final.pt",
+          "sha256": "8850ca961e2aa9c08f8d68bd57f92ab3bb63fbc5b3ece0ff2ae5313c1d7c0ae0"
+        },
+        "2": {
+          "path": "results/baseline_controls/dqn_seed2/final.pt",
+          "sha256": "d51cdc3ea728d16b2eb1dae19f35730d3a31730569083031debc91db25ca193d"
+        }
+      },
+      "qr_governed": {
+        "0": {
+          "path": "results/density_coverage/qrdqn_seed0/final.pt",
+          "sha256": "f5079fc235770454d6db581a0e75aca1b4d56c9ee52ddb85d340792f8861d639"
+        },
+        "1": {
+          "path": "results/density_coverage/qrdqn_seed1/final.pt",
+          "sha256": "1f0e908f05151560e1e3ff6147b8660fba372780080ba02b5299fbf2d56de1c3"
+        },
+        "2": {
+          "path": "results/density_coverage/qrdqn_seed2/final.pt",
+          "sha256": "db0ac1360dcaab600486a0bba05a47aec5767eb6a6edb306a4c018c113196507"
+        }
+      },
+      "dqn_mean": {
+        "0": {
+          "path": "results/baseline_controls/dqn_seed0/final.pt",
+          "sha256": "15ee1d329c413a77c964224a937f1e44ed00458324068d822cb8fe231a029a4c"
+        },
+        "1": {
+          "path": "results/baseline_controls/dqn_seed1/final.pt",
+          "sha256": "8850ca961e2aa9c08f8d68bd57f92ab3bb63fbc5b3ece0ff2ae5313c1d7c0ae0"
+        },
+        "2": {
+          "path": "results/baseline_controls/dqn_seed2/final.pt",
+          "sha256": "d51cdc3ea728d16b2eb1dae19f35730d3a31730569083031debc91db25ca193d"
+        }
+      },
+      "qr_mean": {
+        "0": {
+          "path": "results/density_coverage/qrdqn_seed0/final.pt",
+          "sha256": "f5079fc235770454d6db581a0e75aca1b4d56c9ee52ddb85d340792f8861d639"
+        },
+        "1": {
+          "path": "results/density_coverage/qrdqn_seed1/final.pt",
+          "sha256": "1f0e908f05151560e1e3ff6147b8660fba372780080ba02b5299fbf2d56de1c3"
+        },
+        "2": {
+          "path": "results/density_coverage/qrdqn_seed2/final.pt",
+          "sha256": "db0ac1360dcaab600486a0bba05a47aec5767eb6a6edb306a4c018c113196507"
+        }
+      }
+    },
+    "source_hashes": {
+      "driving_rl/__init__.py": "1689c50964fa46771f9f89404720c8817bd98a0c21f9ea6692a9fac33544e673",
+      "driving_rl/agents.py": "c1fb517ecf616aef68b98ac851df0baf74139f1ff73c9c2e197fd8d48ca38dea",
+      "driving_rl/analysis.py": "95fd066095bea136de2bbee75066d8f5b3d92a263ccea8fa8706aa1da2af5a62",
+      "driving_rl/baseline_controls_report.py": "74cd6046111610028ead02e1bab63dd3bbec3510bdddee8b7500823b0afe0fce",
+      "driving_rl/calibration.py": "a2b39654767c0013344223bcc22cdbf2ef33152440807c48a8e3d0e60fe0d259",
+      "driving_rl/cli.py": "bd10c0755c9791ccfffdcc14d8034a064f0c44e073fb5ad44b9083bc9027c025",
+      "driving_rl/controls_report.py": "61876df9d3f9a14c98b2ccdba7e8c3efba13751da191a0724addc43cb85700ea",
+      "driving_rl/density_coverage_report.py": "aa83c1a18902abfe947350fb643e1309248ba16d07e6feabc3984f7d18f5005c",
+      "driving_rl/diagnostics.py": "5bdf9de304f93599c6cae708b5cb0e1f8adeed38971c94bd7f4151a760b4af35",
+      "driving_rl/envs.py": "ad1cfe63e22ec2dbe41a8465912bc4bb9f8ef0806d88ddbe61f395b4e936061c",
+      "driving_rl/experiment.py": "f4129396f6bda0bc695fe43e15410fb22aecd72a8a700302091ae11055315af0",
+      "driving_rl/metrics.py": "52bf5329bc71e997fcaa9494789fffed20eae04435717ebb9c11531c29379ba2",
+      "driving_rl/plots.py": "bf7156844034a92cbb3dcf417c678cc30a7c68613d7aacebd7340ade71c475fc",
+      "driving_rl/risk_analysis_analysis.py": "5f5967f6595c31af78036d7c2df9e0f042c14f72b32cb10add040c7ddf7199fe",
+      "driving_rl/risk_analysis_report.py": "fb28157b7303fac6cff20b1f715d4fc6f108fab1e71dbcea8e662297c9c2c190",
+      "driving_rl/training_budget_report.py": "1672316bb88e028dcde36d73b8157664dd8019276560fbf5ad9f93090b9ffd98"
+    }
+  },
+  "groups": {
+    "qr_tail": [
+      {
+        "density": 1.0,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.29,
+            "mean_speed_m_s": 24.184112586711862,
+            "mean_return": 3.4568393178219803,
+            "worst_10_percent_mean_return": -0.21571995410103034,
+            "mean_distance_m": 620.4235261585277,
+            "mean_duration_s": 25.9,
+            "collisions_per_1000m": 0.4674226359461111
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.14,
+            "mean_speed_m_s": 23.62264390862893,
+            "mean_return": 3.4782387161759516,
+            "worst_10_percent_mean_return": 0.2557481580377818,
+            "mean_distance_m": 649.4788118890507,
+            "mean_duration_s": 27.7,
+            "collisions_per_1000m": 0.2155574553583989
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.05,
+            "mean_speed_m_s": 22.316610372646025,
+            "mean_return": 2.58416237055072,
+            "worst_10_percent_mean_return": 0.2626662919190288,
+            "mean_distance_m": 656.3769413605572,
+            "mean_duration_s": 29.38,
+            "collisions_per_1000m": 0.07617574117755956
+          }
+        ],
+        "crash_rate": 0.16,
+        "crash_rate_seed_range": [
+          0.05,
+          0.29
+        ],
+        "mean_speed_m_s": 23.37445562266227,
+        "mean_speed_m_s_seed_range": [
+          22.316610372646025,
+          24.184112586711862
+        ],
+        "mean_return": 3.1730801348495508,
+        "mean_return_seed_range": [
+          2.58416237055072,
+          3.4782387161759516
+        ],
+        "worst_10_percent_mean_return": 0.10089816528526008,
+        "worst_10_percent_mean_return_seed_range": [
+          -0.21571995410103034,
+          0.2626662919190288
+        ],
+        "mean_distance_m": 642.0930931360452,
+        "mean_distance_m_seed_range": [
+          620.4235261585277,
+          656.3769413605572
+        ],
+        "mean_duration_s": 27.659999999999997,
+        "mean_duration_s_seed_range": [
+          25.9,
+          29.38
+        ]
+      },
+      {
+        "density": 1.5,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.46,
+            "mean_speed_m_s": 21.967988306974988,
+            "mean_return": 0.6847241942069883,
+            "worst_10_percent_mean_return": -1.8900501479016918,
+            "mean_distance_m": 478.8439171981795,
+            "mean_duration_s": 21.88,
+            "collisions_per_1000m": 0.9606470573784472
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.29,
+            "mean_speed_m_s": 21.30579067191587,
+            "mean_return": 0.7025306616639047,
+            "worst_10_percent_mean_return": -1.8503306198855711,
+            "mean_distance_m": 523.7664656394703,
+            "mean_duration_s": 24.52,
+            "collisions_per_1000m": 0.55368187737246
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.21,
+            "mean_speed_m_s": 20.889617118592536,
+            "mean_return": 0.5075896515008536,
+            "worst_10_percent_mean_return": -1.6136032650246677,
+            "mean_distance_m": 545.3019924475956,
+            "mean_duration_s": 26.02,
+            "collisions_per_1000m": 0.38510770712098824
+          }
+        ],
+        "crash_rate": 0.32,
+        "crash_rate_seed_range": [
+          0.21,
+          0.46
+        ],
+        "mean_speed_m_s": 21.387798699161134,
+        "mean_speed_m_s_seed_range": [
+          20.889617118592536,
+          21.967988306974988
+        ],
+        "mean_return": 0.6316148357905821,
+        "mean_return_seed_range": [
+          0.5075896515008536,
+          0.7025306616639047
+        ],
+        "worst_10_percent_mean_return": -1.7846613442706436,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.8900501479016918,
+          -1.6136032650246677
+        ],
+        "mean_distance_m": 515.9707917617485,
+        "mean_distance_m_seed_range": [
+          478.8439171981795,
+          545.3019924475956
+        ],
+        "mean_duration_s": 24.14,
+        "mean_duration_s_seed_range": [
+          21.88,
+          26.02
+        ]
+      },
+      {
+        "density": 2.0,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.64,
+            "mean_speed_m_s": 21.09900344095099,
+            "mean_return": -0.5223475415141577,
+            "worst_10_percent_mean_return": -1.970003538478749,
+            "mean_distance_m": 337.1800325050592,
+            "mean_duration_s": 15.88,
+            "collisions_per_1000m": 1.8980957894960673
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.61,
+            "mean_speed_m_s": 20.753273284960883,
+            "mean_return": -0.5791096874659258,
+            "worst_10_percent_mean_return": -1.9528680279010011,
+            "mean_distance_m": 334.29832331483226,
+            "mean_duration_s": 15.89,
+            "collisions_per_1000m": 1.8247174976869989
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.57,
+            "mean_speed_m_s": 20.37593800499454,
+            "mean_return": -0.672561029005358,
+            "worst_10_percent_mean_return": -1.919075749366654,
+            "mean_distance_m": 356.15875296747635,
+            "mean_duration_s": 17.18,
+            "collisions_per_1000m": 1.6004099162264622
+          }
+        ],
+        "crash_rate": 0.6066666666666666,
+        "crash_rate_seed_range": [
+          0.57,
+          0.64
+        ],
+        "mean_speed_m_s": 20.742738243635472,
+        "mean_speed_m_s_seed_range": [
+          20.37593800499454,
+          21.09900344095099
+        ],
+        "mean_return": -0.5913394193284806,
+        "mean_return_seed_range": [
+          -0.672561029005358,
+          -0.5223475415141577
+        ],
+        "worst_10_percent_mean_return": -1.9473157719154681,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.970003538478749,
+          -1.919075749366654
+        ],
+        "mean_distance_m": 342.5457029291226,
+        "mean_distance_m_seed_range": [
+          334.29832331483226,
+          356.15875296747635
+        ],
+        "mean_duration_s": 16.316666666666666,
+        "mean_duration_s_seed_range": [
+          15.88,
+          17.18
+        ]
+      },
+      {
+        "density": 2.5,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.8,
+            "mean_speed_m_s": 20.66334911455661,
+            "mean_return": -1.0221075202662713,
+            "worst_10_percent_mean_return": -1.970515945681289,
+            "mean_distance_m": 232.66107752153417,
+            "mean_duration_s": 10.89,
+            "collisions_per_1000m": 3.438478014982782
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.79,
+            "mean_speed_m_s": 20.996581654644274,
+            "mean_return": -1.0605338545875944,
+            "worst_10_percent_mean_return": -1.9701236822833437,
+            "mean_distance_m": 216.81858006483236,
+            "mean_duration_s": 10.15,
+            "collisions_per_1000m": 3.6435991775417813
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.72,
+            "mean_speed_m_s": 20.64619982509423,
+            "mean_return": -1.075417741347157,
+            "worst_10_percent_mean_return": -1.969739396570871,
+            "mean_distance_m": 247.81486890406458,
+            "mean_duration_s": 11.88,
+            "collisions_per_1000m": 2.905394672983607
+          }
+        ],
+        "crash_rate": 0.77,
+        "crash_rate_seed_range": [
+          0.72,
+          0.8
+        ],
+        "mean_speed_m_s": 20.768710198098372,
+        "mean_speed_m_s_seed_range": [
+          20.64619982509423,
+          20.996581654644274
+        ],
+        "mean_return": -1.0526863720670077,
+        "mean_return_seed_range": [
+          -1.075417741347157,
+          -1.0221075202662713
+        ],
+        "worst_10_percent_mean_return": -1.9701263415118344,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.970515945681289,
+          -1.969739396570871
+        ],
+        "mean_distance_m": 232.4315088301437,
+        "mean_distance_m_seed_range": [
+          216.81858006483236,
+          247.81486890406458
+        ],
+        "mean_duration_s": 10.973333333333334,
+        "mean_duration_s_seed_range": [
+          10.15,
+          11.88
+        ]
+      }
+    ],
+    "dqn_governed": [
+      {
+        "density": 1.0,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.2,
+            "mean_speed_m_s": 23.590931220319575,
+            "mean_return": 3.6470567931526268,
+            "worst_10_percent_mean_return": -0.13606504676002174,
+            "mean_distance_m": 659.8592292475801,
+            "mean_duration_s": 27.89,
+            "collisions_per_1000m": 0.30309494985476626
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.1,
+            "mean_speed_m_s": 23.594569171221536,
+            "mean_return": 4.016408128644117,
+            "worst_10_percent_mean_return": 0.869577738649976,
+            "mean_distance_m": 689.5618010638387,
+            "mean_duration_s": 29.17,
+            "collisions_per_1000m": 0.14501963398454276
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.2,
+            "mean_speed_m_s": 23.484759768999446,
+            "mean_return": 3.6246237689645735,
+            "worst_10_percent_mean_return": -0.21580548696263874,
+            "mean_distance_m": 662.0242898684988,
+            "mean_duration_s": 28.04,
+            "collisions_per_1000m": 0.30210371894319316
+          }
+        ],
+        "crash_rate": 0.16666666666666666,
+        "crash_rate_seed_range": [
+          0.1,
+          0.2
+        ],
+        "mean_speed_m_s": 23.55675338684685,
+        "mean_speed_m_s_seed_range": [
+          23.484759768999446,
+          23.594569171221536
+        ],
+        "mean_return": 3.762696230253772,
+        "mean_return_seed_range": [
+          3.6246237689645735,
+          4.016408128644117
+        ],
+        "worst_10_percent_mean_return": 0.17256906830910515,
+        "worst_10_percent_mean_return_seed_range": [
+          -0.21580548696263874,
+          0.869577738649976
+        ],
+        "mean_distance_m": 670.4817733933058,
+        "mean_distance_m_seed_range": [
+          659.8592292475801,
+          689.5618010638387
+        ],
+        "mean_duration_s": 28.366666666666664,
+        "mean_duration_s_seed_range": [
+          27.89,
+          29.17
+        ]
+      },
+      {
+        "density": 1.5,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.44,
+            "mean_speed_m_s": 22.168930026308544,
+            "mean_return": 1.196825356929655,
+            "worst_10_percent_mean_return": -1.654483629122519,
+            "mean_distance_m": 499.5624320582156,
+            "mean_duration_s": 22.34,
+            "collisions_per_1000m": 0.88077079412714
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.38,
+            "mean_speed_m_s": 22.127884830497738,
+            "mean_return": 1.5128074001045502,
+            "worst_10_percent_mean_return": -1.6974980761468033,
+            "mean_distance_m": 536.3357369317107,
+            "mean_duration_s": 23.94,
+            "collisions_per_1000m": 0.7085114301238215
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.5,
+            "mean_speed_m_s": 22.301074450202396,
+            "mean_return": 1.1010024623599706,
+            "worst_10_percent_mean_return": -1.505783189213086,
+            "mean_distance_m": 474.27524315393157,
+            "mean_duration_s": 21.04,
+            "collisions_per_1000m": 1.0542401426542924
+          }
+        ],
+        "crash_rate": 0.44,
+        "crash_rate_seed_range": [
+          0.38,
+          0.5
+        ],
+        "mean_speed_m_s": 22.199296435669556,
+        "mean_speed_m_s_seed_range": [
+          22.127884830497738,
+          22.301074450202396
+        ],
+        "mean_return": 1.2702117397980586,
+        "mean_return_seed_range": [
+          1.1010024623599706,
+          1.5128074001045502
+        ],
+        "worst_10_percent_mean_return": -1.6192549648274694,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.6974980761468033,
+          -1.505783189213086
+        ],
+        "mean_distance_m": 503.39113738128594,
+        "mean_distance_m_seed_range": [
+          474.27524315393157,
+          536.3357369317107
+        ],
+        "mean_duration_s": 22.439999999999998,
+        "mean_duration_s_seed_range": [
+          21.04,
+          23.94
+        ]
+      },
+      {
+        "density": 2.0,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.77,
+            "mean_speed_m_s": 21.33825408833601,
+            "mean_return": -0.5297703587661692,
+            "worst_10_percent_mean_return": -1.8295999959431437,
+            "mean_distance_m": 294.4462019418134,
+            "mean_duration_s": 13.42,
+            "collisions_per_1000m": 2.6150787305864536
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.69,
+            "mean_speed_m_s": 21.170550996199626,
+            "mean_return": -0.24352784007299877,
+            "worst_10_percent_mean_return": -1.8345945219512263,
+            "mean_distance_m": 347.8804270584813,
+            "mean_duration_s": 15.96,
+            "collisions_per_1000m": 1.9834401315254389
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.63,
+            "mean_speed_m_s": 21.289682759832708,
+            "mean_return": -0.06590208430446659,
+            "worst_10_percent_mean_return": -1.8463345095633745,
+            "mean_distance_m": 362.6807823059009,
+            "mean_duration_s": 16.62,
+            "collisions_per_1000m": 1.737064743255766
+          }
+        ],
+        "crash_rate": 0.6966666666666667,
+        "crash_rate_seed_range": [
+          0.63,
+          0.77
+        ],
+        "mean_speed_m_s": 21.266162614789447,
+        "mean_speed_m_s_seed_range": [
+          21.170550996199626,
+          21.33825408833601
+        ],
+        "mean_return": -0.27973342771454485,
+        "mean_return_seed_range": [
+          -0.5297703587661692,
+          -0.06590208430446659
+        ],
+        "worst_10_percent_mean_return": -1.8368430091525816,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.8463345095633745,
+          -1.8295999959431437
+        ],
+        "mean_distance_m": 335.0024704353985,
+        "mean_distance_m_seed_range": [
+          294.4462019418134,
+          362.6807823059009
+        ],
+        "mean_duration_s": 15.333333333333334,
+        "mean_duration_s_seed_range": [
+          13.42,
+          16.62
+        ]
+      },
+      {
+        "density": 2.5,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.84,
+            "mean_speed_m_s": 21.009275768461244,
+            "mean_return": -0.9404976967507476,
+            "worst_10_percent_mean_return": -1.9359898197130072,
+            "mean_distance_m": 217.74494109612726,
+            "mean_duration_s": 9.93,
+            "collisions_per_1000m": 3.8577245274744065
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.79,
+            "mean_speed_m_s": 20.6872737532777,
+            "mean_return": -0.8320813154632428,
+            "worst_10_percent_mean_return": -1.9701879520479486,
+            "mean_distance_m": 244.057719847095,
+            "mean_duration_s": 11.25,
+            "collisions_per_1000m": 3.2369391982148494
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.75,
+            "mean_speed_m_s": 21.030338397267066,
+            "mean_return": -0.6300021276202638,
+            "worst_10_percent_mean_return": -1.8825963826312608,
+            "mean_distance_m": 264.87998435768543,
+            "mean_duration_s": 12.12,
+            "collisions_per_1000m": 2.8314710219373316
+          }
+        ],
+        "crash_rate": 0.7933333333333333,
+        "crash_rate_seed_range": [
+          0.75,
+          0.84
+        ],
+        "mean_speed_m_s": 20.90896263966867,
+        "mean_speed_m_s_seed_range": [
+          20.6872737532777,
+          21.030338397267066
+        ],
+        "mean_return": -0.8008603799447513,
+        "mean_return_seed_range": [
+          -0.9404976967507476,
+          -0.6300021276202638
+        ],
+        "worst_10_percent_mean_return": -1.9295913847974056,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.9701879520479486,
+          -1.8825963826312608
+        ],
+        "mean_distance_m": 242.2275484336359,
+        "mean_distance_m_seed_range": [
+          217.74494109612726,
+          264.87998435768543
+        ],
+        "mean_duration_s": 11.1,
+        "mean_duration_s_seed_range": [
+          9.93,
+          12.12
+        ]
+      }
+    ],
+    "qr_governed": [
+      {
+        "density": 1.0,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.35,
+            "mean_speed_m_s": 24.0316218835669,
+            "mean_return": 3.637668675965567,
+            "worst_10_percent_mean_return": -0.2579667212095574,
+            "mean_distance_m": 632.1843095784081,
+            "mean_duration_s": 26.15,
+            "collisions_per_1000m": 0.5536360119937308
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.13,
+            "mean_speed_m_s": 23.700764972265166,
+            "mean_return": 3.95540913763035,
+            "worst_10_percent_mean_return": 0.34693664883195935,
+            "mean_distance_m": 671.4774820887852,
+            "mean_duration_s": 28.27,
+            "collisions_per_1000m": 0.19360291814344255
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.07,
+            "mean_speed_m_s": 23.200369483915296,
+            "mean_return": 3.5694877777327854,
+            "worst_10_percent_mean_return": 0.4716114304690506,
+            "mean_distance_m": 672.7598381130846,
+            "mean_duration_s": 28.95,
+            "collisions_per_1000m": 0.10404901724860939
+          }
+        ],
+        "crash_rate": 0.18333333333333335,
+        "crash_rate_seed_range": [
+          0.07,
+          0.35
+        ],
+        "mean_speed_m_s": 23.64425211324912,
+        "mean_speed_m_s_seed_range": [
+          23.200369483915296,
+          24.0316218835669
+        ],
+        "mean_return": 3.7208551971095676,
+        "mean_return_seed_range": [
+          3.5694877777327854,
+          3.95540913763035
+        ],
+        "worst_10_percent_mean_return": 0.18686045269715082,
+        "worst_10_percent_mean_return_seed_range": [
+          -0.2579667212095574,
+          0.4716114304690506
+        ],
+        "mean_distance_m": 658.8072099267594,
+        "mean_distance_m_seed_range": [
+          632.1843095784081,
+          672.7598381130846
+        ],
+        "mean_duration_s": 27.790000000000003,
+        "mean_duration_s_seed_range": [
+          26.15,
+          28.95
+        ]
+      },
+      {
+        "density": 1.5,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.55,
+            "mean_speed_m_s": 22.61028776932549,
+            "mean_return": 1.2879004843934576,
+            "worst_10_percent_mean_return": -1.417812499924771,
+            "mean_distance_m": 489.9712913688454,
+            "mean_duration_s": 21.47,
+            "collisions_per_1000m": 1.1225147466567904
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.34,
+            "mean_speed_m_s": 22.013427918142558,
+            "mean_return": 1.429251805000949,
+            "worst_10_percent_mean_return": -1.616804164955512,
+            "mean_distance_m": 545.836364939669,
+            "mean_duration_s": 24.61,
+            "collisions_per_1000m": 0.6228973037323741
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.28,
+            "mean_speed_m_s": 22.047071549288777,
+            "mean_return": 1.6016924098088934,
+            "worst_10_percent_mean_return": -1.434751419949997,
+            "mean_distance_m": 558.9885054326662,
+            "mean_duration_s": 25.2,
+            "collisions_per_1000m": 0.5009047543531784
+          }
+        ],
+        "crash_rate": 0.39000000000000007,
+        "crash_rate_seed_range": [
+          0.28,
+          0.55
+        ],
+        "mean_speed_m_s": 22.22359574558561,
+        "mean_speed_m_s_seed_range": [
+          22.013427918142558,
+          22.61028776932549
+        ],
+        "mean_return": 1.4396148997344334,
+        "mean_return_seed_range": [
+          1.2879004843934576,
+          1.6016924098088934
+        ],
+        "worst_10_percent_mean_return": -1.4897893616100932,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.616804164955512,
+          -1.417812499924771
+        ],
+        "mean_distance_m": 531.5987205803935,
+        "mean_distance_m_seed_range": [
+          489.9712913688454,
+          558.9885054326662
+        ],
+        "mean_duration_s": 23.76,
+        "mean_duration_s_seed_range": [
+          21.47,
+          25.2
+        ]
+      },
+      {
+        "density": 2.0,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.72,
+            "mean_speed_m_s": 21.15595012272589,
+            "mean_return": -0.3655074158817284,
+            "worst_10_percent_mean_return": -1.8684349226057546,
+            "mean_distance_m": 330.81008480816786,
+            "mean_duration_s": 15.18,
+            "collisions_per_1000m": 2.1764753647625885
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.63,
+            "mean_speed_m_s": 21.01453434699543,
+            "mean_return": -0.2390200542640413,
+            "worst_10_percent_mean_return": -1.8687936698626835,
+            "mean_distance_m": 360.48609280177567,
+            "mean_duration_s": 16.74,
+            "collisions_per_1000m": 1.747640235171083
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.54,
+            "mean_speed_m_s": 21.06546549387847,
+            "mean_return": 0.029130286791457554,
+            "worst_10_percent_mean_return": -1.8093783787626658,
+            "mean_distance_m": 389.43319498625203,
+            "mean_duration_s": 18.06,
+            "collisions_per_1000m": 1.3866306389702174
+          }
+        ],
+        "crash_rate": 0.63,
+        "crash_rate_seed_range": [
+          0.54,
+          0.72
+        ],
+        "mean_speed_m_s": 21.078649987866594,
+        "mean_speed_m_s_seed_range": [
+          21.01453434699543,
+          21.15595012272589
+        ],
+        "mean_return": -0.19179906111810405,
+        "mean_return_seed_range": [
+          -0.3655074158817284,
+          0.029130286791457554
+        ],
+        "worst_10_percent_mean_return": -1.8488689904103677,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.8687936698626835,
+          -1.8093783787626658
+        ],
+        "mean_distance_m": 360.2431241987318,
+        "mean_distance_m_seed_range": [
+          330.81008480816786,
+          389.43319498625203
+        ],
+        "mean_duration_s": 16.66,
+        "mean_duration_s_seed_range": [
+          15.18,
+          18.06
+        ]
+      },
+      {
+        "density": 2.5,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.84,
+            "mean_speed_m_s": 20.68817003071743,
+            "mean_return": -1.0441625001978498,
+            "worst_10_percent_mean_return": -1.9365304153177518,
+            "mean_distance_m": 222.33860486224717,
+            "mean_duration_s": 10.29,
+            "collisions_per_1000m": 3.7780213675462844
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.71,
+            "mean_speed_m_s": 20.96750605723306,
+            "mean_return": -0.5920685459676492,
+            "worst_10_percent_mean_return": -1.919550895417796,
+            "mean_distance_m": 280.7380948805096,
+            "mean_duration_s": 12.97,
+            "collisions_per_1000m": 2.5290475818830247
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.69,
+            "mean_speed_m_s": 21.008849343120215,
+            "mean_return": -0.5458252971180325,
+            "worst_10_percent_mean_return": -1.8509826528900373,
+            "mean_distance_m": 279.25549483127014,
+            "mean_duration_s": 12.88,
+            "collisions_per_1000m": 2.4708555884170056
+          }
+        ],
+        "crash_rate": 0.7466666666666666,
+        "crash_rate_seed_range": [
+          0.69,
+          0.84
+        ],
+        "mean_speed_m_s": 20.888175143690233,
+        "mean_speed_m_s_seed_range": [
+          20.68817003071743,
+          21.008849343120215
+        ],
+        "mean_return": -0.7273521144278439,
+        "mean_return_seed_range": [
+          -1.0441625001978498,
+          -0.5458252971180325
+        ],
+        "worst_10_percent_mean_return": -1.9023546545418617,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.9365304153177518,
+          -1.8509826528900373
+        ],
+        "mean_distance_m": 260.77739819134234,
+        "mean_distance_m_seed_range": [
+          222.33860486224717,
+          280.7380948805096
+        ],
+        "mean_duration_s": 12.046666666666667,
+        "mean_duration_s_seed_range": [
+          10.29,
+          12.97
+        ]
+      }
+    ],
+    "dqn_mean": [
+      {
+        "density": 1.0,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.58,
+            "mean_speed_m_s": 26.57206242180413,
+            "mean_return": 4.308591720677906,
+            "worst_10_percent_mean_return": 0.305731700917953,
+            "mean_distance_m": 564.7054459729288,
+            "mean_duration_s": 21.37,
+            "collisions_per_1000m": 1.027084127019034
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.54,
+            "mean_speed_m_s": 26.92971429631578,
+            "mean_return": 4.8391551798885555,
+            "worst_10_percent_mean_return": -0.09678542623350446,
+            "mean_distance_m": 579.1541737107624,
+            "mean_duration_s": 21.55,
+            "collisions_per_1000m": 0.932394212995318
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.52,
+            "mean_speed_m_s": 26.688124456125923,
+            "mean_return": 5.03753231986322,
+            "worst_10_percent_mean_return": -0.05658449358789688,
+            "mean_distance_m": 606.9599164509672,
+            "mean_duration_s": 22.73,
+            "collisions_per_1000m": 0.856728732665838
+          }
+        ],
+        "crash_rate": 0.5466666666666667,
+        "crash_rate_seed_range": [
+          0.52,
+          0.58
+        ],
+        "mean_speed_m_s": 26.729967058081943,
+        "mean_speed_m_s_seed_range": [
+          26.57206242180413,
+          26.92971429631578
+        ],
+        "mean_return": 4.728426406809894,
+        "mean_return_seed_range": [
+          4.308591720677906,
+          5.03753231986322
+        ],
+        "worst_10_percent_mean_return": 0.05078726036551722,
+        "worst_10_percent_mean_return_seed_range": [
+          -0.09678542623350446,
+          0.305731700917953
+        ],
+        "mean_distance_m": 583.6065120448861,
+        "mean_distance_m_seed_range": [
+          564.7054459729288,
+          606.9599164509672
+        ],
+        "mean_duration_s": 21.883333333333336,
+        "mean_duration_s_seed_range": [
+          21.37,
+          22.73
+        ]
+      },
+      {
+        "density": 1.5,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.77,
+            "mean_speed_m_s": 24.51044028799518,
+            "mean_return": 0.8564859108970346,
+            "worst_10_percent_mean_return": -1.4608970866339293,
+            "mean_distance_m": 354.82739078191867,
+            "mean_duration_s": 14.68,
+            "collisions_per_1000m": 2.1700692223990443
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.76,
+            "mean_speed_m_s": 23.700821804590447,
+            "mean_return": 0.8541765972655714,
+            "worst_10_percent_mean_return": -1.4779271276054127,
+            "mean_distance_m": 385.1386242122532,
+            "mean_duration_s": 16.26,
+            "collisions_per_1000m": 1.9733154563619086
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.72,
+            "mean_speed_m_s": 24.810482467974058,
+            "mean_return": 1.3765985703620762,
+            "worst_10_percent_mean_return": -1.3466282943696122,
+            "mean_distance_m": 395.43550233575087,
+            "mean_duration_s": 16.21,
+            "collisions_per_1000m": 1.8207773347287175
+          }
+        ],
+        "crash_rate": 0.75,
+        "crash_rate_seed_range": [
+          0.72,
+          0.77
+        ],
+        "mean_speed_m_s": 24.34058152018656,
+        "mean_speed_m_s_seed_range": [
+          23.700821804590447,
+          24.810482467974058
+        ],
+        "mean_return": 1.0290870261748941,
+        "mean_return_seed_range": [
+          0.8541765972655714,
+          1.3765985703620762
+        ],
+        "worst_10_percent_mean_return": -1.4284841695363182,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.4779271276054127,
+          -1.3466282943696122
+        ],
+        "mean_distance_m": 378.4671724433076,
+        "mean_distance_m_seed_range": [
+          354.82739078191867,
+          395.43550233575087
+        ],
+        "mean_duration_s": 15.716666666666669,
+        "mean_duration_s_seed_range": [
+          14.68,
+          16.26
+        ]
+      },
+      {
+        "density": 2.0,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.88,
+            "mean_speed_m_s": 23.12262278492185,
+            "mean_return": -0.6174430092351966,
+            "worst_10_percent_mean_return": -1.8201562659906465,
+            "mean_distance_m": 227.52881392446605,
+            "mean_duration_s": 9.89,
+            "collisions_per_1000m": 3.8676420134292897
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.8,
+            "mean_speed_m_s": 22.44842932923279,
+            "mean_return": -0.2068303568916579,
+            "worst_10_percent_mean_return": -1.8258490547549733,
+            "mean_distance_m": 287.6838014333714,
+            "mean_duration_s": 12.64,
+            "collisions_per_1000m": 2.780830884512915
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.83,
+            "mean_speed_m_s": 23.284255409406796,
+            "mean_return": -0.25112374024047535,
+            "worst_10_percent_mean_return": -1.836944162288282,
+            "mean_distance_m": 253.03916608118925,
+            "mean_duration_s": 10.84,
+            "collisions_per_1000m": 3.2801246259786088
+          }
+        ],
+        "crash_rate": 0.8366666666666668,
+        "crash_rate_seed_range": [
+          0.8,
+          0.88
+        ],
+        "mean_speed_m_s": 22.95176917452048,
+        "mean_speed_m_s_seed_range": [
+          22.44842932923279,
+          23.284255409406796
+        ],
+        "mean_return": -0.3584657021224433,
+        "mean_return_seed_range": [
+          -0.6174430092351966,
+          -0.2068303568916579
+        ],
+        "worst_10_percent_mean_return": -1.8276498276779674,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.836944162288282,
+          -1.8201562659906465
+        ],
+        "mean_distance_m": 256.0839271463422,
+        "mean_distance_m_seed_range": [
+          227.52881392446605,
+          287.6838014333714
+        ],
+        "mean_duration_s": 11.123333333333335,
+        "mean_duration_s_seed_range": [
+          9.89,
+          12.64
+        ]
+      },
+      {
+        "density": 2.5,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.91,
+            "mean_speed_m_s": 22.58372726507623,
+            "mean_return": -0.8975240271050278,
+            "worst_10_percent_mean_return": -1.9359898197130072,
+            "mean_distance_m": 169.4925825166108,
+            "mean_duration_s": 7.28,
+            "collisions_per_1000m": 5.368966514571912
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.88,
+            "mean_speed_m_s": 21.586142947547636,
+            "mean_return": -0.8859654717643721,
+            "worst_10_percent_mean_return": -1.9701879520479486,
+            "mean_distance_m": 199.46128285409944,
+            "mean_duration_s": 8.87,
+            "collisions_per_1000m": 4.411883787209452
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.9,
+            "mean_speed_m_s": 22.300464669762924,
+            "mean_return": -0.8904547903526364,
+            "worst_10_percent_mean_return": -1.8825963826312608,
+            "mean_distance_m": 195.10588979834574,
+            "mean_duration_s": 8.58,
+            "collisions_per_1000m": 4.612879708194391
+          }
+        ],
+        "crash_rate": 0.8966666666666666,
+        "crash_rate_seed_range": [
+          0.88,
+          0.91
+        ],
+        "mean_speed_m_s": 22.15677829412893,
+        "mean_speed_m_s_seed_range": [
+          21.586142947547636,
+          22.58372726507623
+        ],
+        "mean_return": -0.891314763074012,
+        "mean_return_seed_range": [
+          -0.8975240271050278,
+          -0.8859654717643721
+        ],
+        "worst_10_percent_mean_return": -1.9295913847974056,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.9701879520479486,
+          -1.8825963826312608
+        ],
+        "mean_distance_m": 188.01991838968533,
+        "mean_distance_m_seed_range": [
+          169.4925825166108,
+          199.46128285409944
+        ],
+        "mean_duration_s": 8.243333333333332,
+        "mean_duration_s_seed_range": [
+          7.28,
+          8.87
+        ]
+      }
+    ],
+    "qr_mean": [
+      {
+        "density": 1.0,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.79,
+            "mean_speed_m_s": 28.13579347741315,
+            "mean_return": 4.356791195308521,
+            "worst_10_percent_mean_return": -0.28826744083886413,
+            "mean_distance_m": 500.179395697657,
+            "mean_duration_s": 17.54,
+            "collisions_per_1000m": 1.5794333129178528
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.44,
+            "mean_speed_m_s": 26.604877705531184,
+            "mean_return": 5.30317635059676,
+            "worst_10_percent_mean_return": -0.017262600815459227,
+            "mean_distance_m": 632.4661139598545,
+            "mean_duration_s": 23.87,
+            "collisions_per_1000m": 0.6956894453130004
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.26,
+            "mean_speed_m_s": 25.3315518720772,
+            "mean_return": 5.016482915284534,
+            "worst_10_percent_mean_return": 0.18918031712437192,
+            "mean_distance_m": 665.6956678374233,
+            "mean_duration_s": 26.32,
+            "collisions_per_1000m": 0.39056886286286807
+          }
+        ],
+        "crash_rate": 0.49666666666666665,
+        "crash_rate_seed_range": [
+          0.26,
+          0.79
+        ],
+        "mean_speed_m_s": 26.690741018340514,
+        "mean_speed_m_s_seed_range": [
+          25.3315518720772,
+          28.13579347741315
+        ],
+        "mean_return": 4.892150153729939,
+        "mean_return_seed_range": [
+          4.356791195308521,
+          5.30317635059676
+        ],
+        "worst_10_percent_mean_return": -0.03878324150998381,
+        "worst_10_percent_mean_return_seed_range": [
+          -0.28826744083886413,
+          0.18918031712437192
+        ],
+        "mean_distance_m": 599.4470591649782,
+        "mean_distance_m_seed_range": [
+          500.179395697657,
+          665.6956678374233
+        ],
+        "mean_duration_s": 22.576666666666664,
+        "mean_duration_s_seed_range": [
+          17.54,
+          26.32
+        ]
+      },
+      {
+        "density": 1.5,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.95,
+            "mean_speed_m_s": 25.87631523135385,
+            "mean_return": 0.4594053171114931,
+            "worst_10_percent_mean_return": -1.3267777271593415,
+            "mean_distance_m": 260.45768922556266,
+            "mean_duration_s": 10.01,
+            "collisions_per_1000m": 3.647425433377307
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.59,
+            "mean_speed_m_s": 23.927464542742356,
+            "mean_return": 1.2598549123185598,
+            "worst_10_percent_mean_return": -1.4913088932243745,
+            "mean_distance_m": 425.8800765762265,
+            "mean_duration_s": 18.21,
+            "collisions_per_1000m": 1.3853665208834873
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.54,
+            "mean_speed_m_s": 23.19794106483374,
+            "mean_return": 1.3554723512641862,
+            "worst_10_percent_mean_return": -1.3630017301529809,
+            "mean_distance_m": 462.47898294074815,
+            "mean_duration_s": 20.05,
+            "collisions_per_1000m": 1.1676206269230263
+          }
+        ],
+        "crash_rate": 0.6933333333333334,
+        "crash_rate_seed_range": [
+          0.54,
+          0.95
+        ],
+        "mean_speed_m_s": 24.33390694630998,
+        "mean_speed_m_s_seed_range": [
+          23.19794106483374,
+          25.87631523135385
+        ],
+        "mean_return": 1.0249108602314132,
+        "mean_return_seed_range": [
+          0.4594053171114931,
+          1.3554723512641862
+        ],
+        "worst_10_percent_mean_return": -1.3936961168455657,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.4913088932243745,
+          -1.3267777271593415
+        ],
+        "mean_distance_m": 382.93891624751245,
+        "mean_distance_m_seed_range": [
+          260.45768922556266,
+          462.47898294074815
+        ],
+        "mean_duration_s": 16.09,
+        "mean_duration_s_seed_range": [
+          10.01,
+          20.05
+        ]
+      },
+      {
+        "density": 2.0,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.88,
+            "mean_speed_m_s": 23.250036464226472,
+            "mean_return": -0.4497862417026572,
+            "worst_10_percent_mean_return": -1.8623828771544662,
+            "mean_distance_m": 238.56383366932047,
+            "mean_duration_s": 10.25,
+            "collisions_per_1000m": 3.6887401852360857
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.81,
+            "mean_speed_m_s": 22.404791847020842,
+            "mean_return": -0.35555211446522345,
+            "worst_10_percent_mean_return": -1.8630858484157298,
+            "mean_distance_m": 282.03823995996925,
+            "mean_duration_s": 12.49,
+            "collisions_per_1000m": 2.8719509812391624
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.69,
+            "mean_speed_m_s": 22.25390813332105,
+            "mean_return": -0.03362752934650882,
+            "worst_10_percent_mean_return": -1.785534662490773,
+            "mean_distance_m": 313.9083336011907,
+            "mean_duration_s": 13.98,
+            "collisions_per_1000m": 2.1980939215096478
+          }
+        ],
+        "crash_rate": 0.7933333333333333,
+        "crash_rate_seed_range": [
+          0.69,
+          0.88
+        ],
+        "mean_speed_m_s": 22.63624548152279,
+        "mean_speed_m_s_seed_range": [
+          22.25390813332105,
+          23.250036464226472
+        ],
+        "mean_return": -0.27965529517146315,
+        "mean_return_seed_range": [
+          -0.4497862417026572,
+          -0.03362752934650882
+        ],
+        "worst_10_percent_mean_return": -1.8370011293536563,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.8630858484157298,
+          -1.785534662490773
+        ],
+        "mean_distance_m": 278.1701357434935,
+        "mean_distance_m_seed_range": [
+          238.56383366932047,
+          313.9083336011907
+        ],
+        "mean_duration_s": 12.24,
+        "mean_duration_s_seed_range": [
+          10.25,
+          13.98
+        ]
+      },
+      {
+        "density": 2.5,
+        "training_seeds": 3,
+        "total_evaluation_episodes": 300,
+        "per_seed": [
+          {
+            "training_seed": 0,
+            "episodes": 100,
+            "crash_rate": 0.91,
+            "mean_speed_m_s": 21.947430835803246,
+            "mean_return": -0.9770599399609229,
+            "worst_10_percent_mean_return": -1.9365304153177518,
+            "mean_distance_m": 177.73101785615486,
+            "mean_duration_s": 7.79,
+            "collisions_per_1000m": 5.120096711180156
+          },
+          {
+            "training_seed": 1,
+            "episodes": 100,
+            "crash_rate": 0.8,
+            "mean_speed_m_s": 22.274960289852487,
+            "mean_return": -0.5807632883396138,
+            "worst_10_percent_mean_return": -1.919550895417796,
+            "mean_distance_m": 232.66608201227297,
+            "mean_duration_s": 10.32,
+            "collisions_per_1000m": 3.4384040556362687
+          },
+          {
+            "training_seed": 2,
+            "episodes": 100,
+            "crash_rate": 0.78,
+            "mean_speed_m_s": 21.893370167683653,
+            "mean_return": -0.6136813810776455,
+            "worst_10_percent_mean_return": -1.8514689784873688,
+            "mean_distance_m": 234.92604042925527,
+            "mean_duration_s": 10.53,
+            "collisions_per_1000m": 3.3201938728239293
+          }
+        ],
+        "crash_rate": 0.8300000000000001,
+        "crash_rate_seed_range": [
+          0.78,
+          0.91
+        ],
+        "mean_speed_m_s": 22.038587097779796,
+        "mean_speed_m_s_seed_range": [
+          21.893370167683653,
+          22.274960289852487
+        ],
+        "mean_return": -0.7238348697927274,
+        "mean_return_seed_range": [
+          -0.9770599399609229,
+          -0.5807632883396138
+        ],
+        "worst_10_percent_mean_return": -1.9025167630743056,
+        "worst_10_percent_mean_return_seed_range": [
+          -1.9365304153177518,
+          -1.8514689784873688
+        ],
+        "mean_distance_m": 215.10771343256104,
+        "mean_distance_m_seed_range": [
+          177.73101785615486,
+          234.92604042925527
+        ],
+        "mean_duration_s": 9.546666666666667,
+        "mean_duration_s_seed_range": [
+          7.79,
+          10.53
+        ]
+      }
+    ]
+  },
+  "contrasts": [
+    {
+      "reference": "dqn_governed",
+      "density": 1.0,
+      "primary": true,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.006666666666666667,
+          "conditional_95_percent_interval": [
+            -0.06333333333333332,
+            0.05
+          ],
+          "per_training_seed_differences": [
+            0.09,
+            0.04,
+            -0.15
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.006666666666666667,
+          "exploratory_95_percent_interval": [
+            -0.14666666666666667,
+            0.13
+          ],
+          "per_training_seed_differences": [
+            0.09,
+            0.04,
+            -0.15
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -0.18229776418458318,
+          "conditional_95_percent_interval": [
+            -0.437607939455137,
+            0.08325565861725184
+          ],
+          "per_training_seed_differences": [
+            0.5931813663922831,
+            0.028074737407391373,
+            -1.1681493963534237
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.18229776418458318,
+          "exploratory_95_percent_interval": [
+            -1.101212280189466,
+            0.6539578131641517
+          ],
+          "per_training_seed_differences": [
+            0.5931813663922831,
+            0.028074737407391373,
+            -1.1681493963534237
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": -28.388680257260717,
+          "conditional_95_percent_interval": [
+            -49.912396443297716,
+            -7.218546395349586
+          ],
+          "per_training_seed_differences": [
+            -39.435703089052474,
+            -40.08298917478805,
+            -5.6473485079416585
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -28.388680257260717,
+          "exploratory_95_percent_interval": [
+            -61.24219468769423,
+            2.4063936400301373
+          ],
+          "per_training_seed_differences": [
+            -39.435703089052474,
+            -40.08298917478805,
+            -5.6473485079416585
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.5896160954042218,
+          "conditional_95_percent_interval": [
+            -0.8804123561340175,
+            -0.28334405372497645
+          ],
+          "per_training_seed_differences": [
+            -0.19021747533064687,
+            -0.5381694124681651,
+            -1.0404613984138535
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.5896160954042218,
+          "exploratory_95_percent_interval": [
+            -1.1265124046555413,
+            -0.04716842381156896
+          ],
+          "per_training_seed_differences": [
+            -0.19021747533064687,
+            -0.5381694124681651,
+            -1.0404613984138535
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "dqn_governed",
+      "density": 1.5,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.12,
+          "conditional_95_percent_interval": [
+            -0.20000000000000004,
+            -0.039999999999999994
+          ],
+          "per_training_seed_differences": [
+            0.02,
+            -0.09,
+            -0.29
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.12,
+          "exploratory_95_percent_interval": [
+            -0.2900833333333333,
+            0.05
+          ],
+          "per_training_seed_differences": [
+            0.02,
+            -0.09,
+            -0.29
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -0.811497736508428,
+          "conditional_95_percent_interval": [
+            -1.0131940613849255,
+            -0.5939609377727683
+          ],
+          "per_training_seed_differences": [
+            -0.20094171933355515,
+            -0.8220941585818677,
+            -1.411457331609861
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.811497736508428,
+          "exploratory_95_percent_interval": [
+            -1.3833274807874962,
+            -0.15893989705858183
+          ],
+          "per_training_seed_differences": [
+            -0.20094171933355515,
+            -0.8220941585818677,
+            -1.411457331609861
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": 12.579654380462436,
+          "conditional_95_percent_interval": [
+            -19.71728694515982,
+            45.64560264037285
+          ],
+          "per_training_seed_differences": [
+            -20.718514860036194,
+            -12.569271292240474,
+            71.02674929366398
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 12.579654380462436,
+          "exploratory_95_percent_interval": [
+            -46.219616267963765,
+            74.39349440553063
+          ],
+          "per_training_seed_differences": [
+            -20.718514860036194,
+            -12.569271292240474,
+            71.02674929366398
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.6385969040074764,
+          "conditional_95_percent_interval": [
+            -0.9189005106561616,
+            -0.36419866288102815
+          ],
+          "per_training_seed_differences": [
+            -0.5121011627226666,
+            -0.8102767384406452,
+            -0.593412810859117
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.6385969040074764,
+          "exploratory_95_percent_interval": [
+            -0.9991251956256876,
+            -0.27525507618813694
+          ],
+          "per_training_seed_differences": [
+            -0.5121011627226666,
+            -0.8102767384406452,
+            -0.593412810859117
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "dqn_governed",
+      "density": 2.0,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.09,
+          "conditional_95_percent_interval": [
+            -0.15666666666666665,
+            -0.02333333333333333
+          ],
+          "per_training_seed_differences": [
+            -0.13,
+            -0.08,
+            -0.06
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.09,
+          "exploratory_95_percent_interval": [
+            -0.17666666666666667,
+            -0.0033333333333333335
+          ],
+          "per_training_seed_differences": [
+            -0.13,
+            -0.08,
+            -0.06
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -0.5234243711539736,
+          "conditional_95_percent_interval": [
+            -0.7357785001783763,
+            -0.30437387627077483
+          ],
+          "per_training_seed_differences": [
+            -0.23925064738501903,
+            -0.4172777112387379,
+            -0.9137447548381635
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.5234243711539736,
+          "exploratory_95_percent_interval": [
+            -0.9490148285199417,
+            -0.10422084075599441
+          ],
+          "per_training_seed_differences": [
+            -0.23925064738501903,
+            -0.4172777112387379,
+            -0.9137447548381635
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": 7.543232493724078,
+          "conditional_95_percent_interval": [
+            -22.123699342203736,
+            37.42983644985728
+          ],
+          "per_training_seed_differences": [
+            42.73383056324582,
+            -13.582103743649059,
+            -6.52202933842452
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 7.543232493724078,
+          "exploratory_95_percent_interval": [
+            -36.40705266943989,
+            55.941299412255646
+          ],
+          "per_training_seed_differences": [
+            42.73383056324582,
+            -13.582103743649059,
+            -6.52202933842452
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.31160599161393565,
+          "conditional_95_percent_interval": [
+            -0.5224715315472954,
+            -0.10921867713623767
+          ],
+          "per_training_seed_differences": [
+            0.007422817252011402,
+            -0.33558184739292707,
+            -0.6066589447008915
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.31160599161393565,
+          "exploratory_95_percent_interval": [
+            -0.6905854023894047,
+            0.052418906003706536
+          ],
+          "per_training_seed_differences": [
+            0.007422817252011402,
+            -0.33558184739292707,
+            -0.6066589447008915
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "dqn_governed",
+      "density": 2.5,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.023333333333333334,
+          "conditional_95_percent_interval": [
+            -0.08333333333333331,
+            0.03333333333333333
+          ],
+          "per_training_seed_differences": [
+            -0.04,
+            0.0,
+            -0.03
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.023333333333333334,
+          "exploratory_95_percent_interval": [
+            -0.09666666666666666,
+            0.043333333333333335
+          ],
+          "per_training_seed_differences": [
+            -0.04,
+            0.0,
+            -0.03
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -0.14025244157029745,
+          "conditional_95_percent_interval": [
+            -0.3972734640744916,
+            0.11148852260937174
+          ],
+          "per_training_seed_differences": [
+            -0.345926653904634,
+            0.30930790136657843,
+            -0.38413857217283676
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.14025244157029745,
+          "exploratory_95_percent_interval": [
+            -0.5935362920941358,
+            0.3422794557733886
+          ],
+          "per_training_seed_differences": [
+            -0.345926653904634,
+            0.30930790136657843,
+            -0.38413857217283676
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": -9.796039603492192,
+          "conditional_95_percent_interval": [
+            -35.8887300262606,
+            15.015221225461453
+          ],
+          "per_training_seed_differences": [
+            14.91613642540693,
+            -27.239139782262665,
+            -17.065115453620848
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -9.796039603492192,
+          "exploratory_95_percent_interval": [
+            -43.375615424221486,
+            29.73413498848602
+          ],
+          "per_training_seed_differences": [
+            14.91613642540693,
+            -27.239139782262665,
+            -17.065115453620848
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.2518259921222562,
+          "conditional_95_percent_interval": [
+            -0.42452104199228535,
+            -0.09186272571062519
+          ],
+          "per_training_seed_differences": [
+            -0.0816098235155239,
+            -0.22845253912435137,
+            -0.4454156137268934
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.2518259921222562,
+          "exploratory_95_percent_interval": [
+            -0.5097131210188844,
+            0.005627861105428741
+          ],
+          "per_training_seed_differences": [
+            -0.0816098235155239,
+            -0.22845253912435137,
+            -0.4454156137268934
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "qr_governed",
+      "density": 1.0,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.023333333333333334,
+          "conditional_95_percent_interval": [
+            -0.07333333333333333,
+            0.029999999999999992
+          ],
+          "per_training_seed_differences": [
+            -0.06,
+            0.01,
+            -0.02
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.023333333333333334,
+          "exploratory_95_percent_interval": [
+            -0.10333333333333333,
+            0.05
+          ],
+          "per_training_seed_differences": [
+            -0.06,
+            0.01,
+            -0.02
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -0.26979649058685085,
+          "conditional_95_percent_interval": [
+            -0.5346867437739249,
+            0.003693811450113873
+          ],
+          "per_training_seed_differences": [
+            0.1524907031449576,
+            -0.07812106363623546,
+            -0.8837591112692746
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.26979649058685085,
+          "exploratory_95_percent_interval": [
+            -0.8520962182150087,
+            0.30967755592071944
+          ],
+          "per_training_seed_differences": [
+            0.1524907031449576,
+            -0.07812106363623546,
+            -0.8837591112692746
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": -16.714116790714098,
+          "conditional_95_percent_interval": [
+            -37.174202921865735,
+            3.582425844799838
+          ],
+          "per_training_seed_differences": [
+            -11.760783419880516,
+            -21.998670199734462,
+            -16.38289675252731
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -16.714116790714098,
+          "exploratory_95_percent_interval": [
+            -41.79790321461153,
+            9.964248486405879
+          ],
+          "per_training_seed_differences": [
+            -11.760783419880516,
+            -21.998670199734462,
+            -16.38289675252731
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.5477750622600173,
+          "conditional_95_percent_interval": [
+            -0.8240084514501008,
+            -0.26541570875318576
+          ],
+          "per_training_seed_differences": [
+            -0.18082935814358753,
+            -0.47717042145439875,
+            -0.9853254071820655
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.5477750622600173,
+          "exploratory_95_percent_interval": [
+            -1.024925458380814,
+            -0.011932871123713596
+          ],
+          "per_training_seed_differences": [
+            -0.18082935814358753,
+            -0.47717042145439875,
+            -0.9853254071820655
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "qr_governed",
+      "density": 1.5,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.07,
+          "conditional_95_percent_interval": [
+            -0.14333333333333334,
+            2.220446049250313e-18
+          ],
+          "per_training_seed_differences": [
+            -0.09,
+            -0.05,
+            -0.07
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.07,
+          "exploratory_95_percent_interval": [
+            -0.16,
+            0.016666666666666666
+          ],
+          "per_training_seed_differences": [
+            -0.09,
+            -0.05,
+            -0.07
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -0.8357970464244796,
+          "conditional_95_percent_interval": [
+            -1.027782110171699,
+            -0.6343718823160117
+          ],
+          "per_training_seed_differences": [
+            -0.6422994623505055,
+            -0.7076372462266933,
+            -1.15745443069624
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.8357970464244796,
+          "exploratory_95_percent_interval": [
+            -1.1747687201333619,
+            -0.4732575352770493
+          ],
+          "per_training_seed_differences": [
+            -0.6422994623505055,
+            -0.7076372462266933,
+            -1.15745443069624
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": -15.627928818645083,
+          "conditional_95_percent_interval": [
+            -42.30978231319855,
+            11.53448828100603
+          ],
+          "per_training_seed_differences": [
+            -11.127374170665899,
+            -22.06989930019872,
+            -13.68651298507063
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -15.627928818645083,
+          "exploratory_95_percent_interval": [
+            -48.35368330306995,
+            17.212113492999407
+          ],
+          "per_training_seed_differences": [
+            -11.127374170665899,
+            -22.06989930019872,
+            -13.68651298507063
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.8080000639438512,
+          "conditional_95_percent_interval": [
+            -1.0760244380275998,
+            -0.539525919561501
+          ],
+          "per_training_seed_differences": [
+            -0.6031762901864689,
+            -0.7267211433370445,
+            -1.0941027583080398
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.8080000639438512,
+          "exploratory_95_percent_interval": [
+            -1.189111834232312,
+            -0.43173257555705
+          ],
+          "per_training_seed_differences": [
+            -0.6031762901864689,
+            -0.7267211433370445,
+            -1.0941027583080398
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "qr_governed",
+      "density": 2.0,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.023333333333333334,
+          "conditional_95_percent_interval": [
+            -0.08333333333333334,
+            0.03666666666666667
+          ],
+          "per_training_seed_differences": [
+            -0.08,
+            -0.02,
+            0.03
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.023333333333333334,
+          "exploratory_95_percent_interval": [
+            -0.11666666666666667,
+            0.06674999999999878
+          ],
+          "per_training_seed_differences": [
+            -0.08,
+            -0.02,
+            0.03
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -0.33591174423112286,
+          "conditional_95_percent_interval": [
+            -0.5289435626655796,
+            -0.1402292460745915
+          ],
+          "per_training_seed_differences": [
+            -0.05694668177489877,
+            -0.26126106203454047,
+            -0.6895274888839295
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.33591174423112286,
+          "exploratory_95_percent_interval": [
+            -0.722032716113538,
+            0.05217066971125692
+          ],
+          "per_training_seed_differences": [
+            -0.05694668177489877,
+            -0.26126106203454047,
+            -0.6895274888839295
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": -17.697421269609265,
+          "conditional_95_percent_interval": [
+            -45.565506546493715,
+            9.424406872825926
+          ],
+          "per_training_seed_differences": [
+            6.369947696891334,
+            -26.187769486943388,
+            -33.274442018775744
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -17.697421269609265,
+          "exploratory_95_percent_interval": [
+            -57.25814070868465,
+            20.123090832085097
+          ],
+          "per_training_seed_differences": [
+            6.369947696891334,
+            -26.187769486943388,
+            -33.274442018775744
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.3995403582103765,
+          "conditional_95_percent_interval": [
+            -0.5827843443825255,
+            -0.22170031912023858
+          ],
+          "per_training_seed_differences": [
+            -0.15684012563242944,
+            -0.3400896332018846,
+            -0.7016913157968157
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.3995403582103765,
+          "exploratory_95_percent_interval": [
+            -0.7559573900066543,
+            -0.07051278721289594
+          ],
+          "per_training_seed_differences": [
+            -0.15684012563242944,
+            -0.3400896332018846,
+            -0.7016913157968157
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "qr_governed",
+      "density": 2.5,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": 0.023333333333333334,
+          "conditional_95_percent_interval": [
+            -0.02333333333333333,
+            0.06999999999999999
+          ],
+          "per_training_seed_differences": [
+            -0.04,
+            0.08,
+            0.03
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 0.023333333333333334,
+          "exploratory_95_percent_interval": [
+            -0.06333333333333334,
+            0.11
+          ],
+          "per_training_seed_differences": [
+            -0.04,
+            0.08,
+            0.03
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -0.11946494559186234,
+          "conditional_95_percent_interval": [
+            -0.33757639995601507,
+            0.11311747186585201
+          ],
+          "per_training_seed_differences": [
+            -0.024820916160817,
+            0.0290755974112162,
+            -0.3626495180259862
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.11946494559186234,
+          "exploratory_95_percent_interval": [
+            -0.46514702152767057,
+            0.19242459337004605
+          ],
+          "per_training_seed_differences": [
+            -0.024820916160817,
+            0.0290755974112162,
+            -0.3626495180259862
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": -28.345889361198594,
+          "conditional_95_percent_interval": [
+            -50.66049279095651,
+            -7.450287703328135
+          ],
+          "per_training_seed_differences": [
+            10.322472659287028,
+            -63.919514815677246,
+            -31.440625927205552
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -28.345889361198594,
+          "exploratory_95_percent_interval": [
+            -75.45543869585565,
+            15.642782435845362
+          ],
+          "per_training_seed_differences": [
+            10.322472659287028,
+            -63.919514815677246,
+            -31.440625927205552
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.3253342576391636,
+          "conditional_95_percent_interval": [
+            -0.4728543337519899,
+            -0.18976672743103754
+          ],
+          "per_training_seed_differences": [
+            0.022054979931578636,
+            -0.46846530861994495,
+            -0.5295924442291247
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.3253342576391636,
+          "exploratory_95_percent_interval": [
+            -0.6658832736923341,
+            0.015284674068465242
+          ],
+          "per_training_seed_differences": [
+            0.022054979931578636,
+            -0.46846530861994495,
+            -0.5295924442291247
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "dqn_mean",
+      "density": 1.0,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.38666666666666666,
+          "conditional_95_percent_interval": [
+            -0.4633333333333332,
+            -0.3133333333333333
+          ],
+          "per_training_seed_differences": [
+            -0.29,
+            -0.4,
+            -0.47
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.38666666666666666,
+          "exploratory_95_percent_interval": [
+            -0.5066666666666667,
+            -0.2633333333333333
+          ],
+          "per_training_seed_differences": [
+            -0.29,
+            -0.4,
+            -0.47
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -3.355511435419676,
+          "conditional_95_percent_interval": [
+            -3.6410252221111628,
+            -3.064589744293676
+          ],
+          "per_training_seed_differences": [
+            -2.3879498350922703,
+            -3.307070387686851,
+            -4.371514083479906
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -3.355511435419676,
+          "exploratory_95_percent_interval": [
+            -4.343275722477279,
+            -2.3904318919979097
+          ],
+          "per_training_seed_differences": [
+            -2.3879498350922703,
+            -3.307070387686851,
+            -4.371514083479906
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": 58.486581091159046,
+          "conditional_95_percent_interval": [
+            25.073513430251573,
+            92.87763973700527
+          ],
+          "per_training_seed_differences": [
+            55.7180801855988,
+            70.32463817828827,
+            49.4170249095901
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 58.486581091159046,
+          "exploratory_95_percent_interval": [
+            18.974311306059008,
+            100.53359519910238
+          ],
+          "per_training_seed_differences": [
+            55.7180801855988,
+            70.32463817828827,
+            49.4170249095901
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -1.5553462719603435,
+          "conditional_95_percent_interval": [
+            -2.0273383563334137,
+            -1.0978459228925903
+          ],
+          "per_training_seed_differences": [
+            -0.8517524028559261,
+            -1.3609164637126043,
+            -2.4533699493125
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -1.5553462719603435,
+          "exploratory_95_percent_interval": [
+            -2.511537673633483,
+            -0.6590003267212226
+          ],
+          "per_training_seed_differences": [
+            -0.8517524028559261,
+            -1.3609164637126043,
+            -2.4533699493125
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "dqn_mean",
+      "density": 1.5,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.43,
+          "conditional_95_percent_interval": [
+            -0.5066666666666666,
+            -0.3533333333333333
+          ],
+          "per_training_seed_differences": [
+            -0.31,
+            -0.47,
+            -0.51
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.43,
+          "exploratory_95_percent_interval": [
+            -0.56,
+            -0.29
+          ],
+          "per_training_seed_differences": [
+            -0.31,
+            -0.47,
+            -0.51
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -2.952782821025425,
+          "conditional_95_percent_interval": [
+            -3.248609432340078,
+            -2.6531006879178647
+          ],
+          "per_training_seed_differences": [
+            -2.542451981020188,
+            -2.3950311326745704,
+            -3.9208653493815175
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -2.952782821025425,
+          "exploratory_95_percent_interval": [
+            -3.8646903747698014,
+            -2.1986546910108014
+          ],
+          "per_training_seed_differences": [
+            -2.542451981020188,
+            -2.3950311326745704,
+            -3.9208653493815175
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": 137.50361931844085,
+          "conditional_95_percent_interval": [
+            101.97362475968225,
+            172.51563106557848
+          ],
+          "per_training_seed_differences": [
+            124.01652641626079,
+            138.62784142721708,
+            149.86649011184477
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 137.50361931844085,
+          "exploratory_95_percent_interval": [
+            93.37571845453618,
+            180.57467354270594
+          ],
+          "per_training_seed_differences": [
+            124.01652641626079,
+            138.62784142721708,
+            149.86649011184477
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.3974721903843118,
+          "conditional_95_percent_interval": [
+            -0.7044376867142321,
+            -0.10608833874874031
+          ],
+          "per_training_seed_differences": [
+            -0.17176171669004595,
+            -0.15164593560166645,
+            -0.869008918861223
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.3974721903843118,
+          "exploratory_95_percent_interval": [
+            -0.9505712633900121,
+            0.07839003387389237
+          ],
+          "per_training_seed_differences": [
+            -0.17176171669004595,
+            -0.15164593560166645,
+            -0.869008918861223
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "dqn_mean",
+      "density": 2.0,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.23,
+          "conditional_95_percent_interval": [
+            -0.30333333333333334,
+            -0.15666666666666665
+          ],
+          "per_training_seed_differences": [
+            -0.24,
+            -0.19,
+            -0.26
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.23,
+          "exploratory_95_percent_interval": [
+            -0.3233333333333333,
+            -0.14
+          ],
+          "per_training_seed_differences": [
+            -0.24,
+            -0.19,
+            -0.26
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -2.209030930885007,
+          "conditional_95_percent_interval": [
+            -2.549710427331809,
+            -1.8675125858976216
+          ],
+          "per_training_seed_differences": [
+            -2.023619343970857,
+            -1.6951560442719087,
+            -2.9083174044122546
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -2.209030930885007,
+          "exploratory_95_percent_interval": [
+            -2.973234916875537,
+            -1.5327292656202218
+          ],
+          "per_training_seed_differences": [
+            -2.023619343970857,
+            -1.6951560442719087,
+            -2.9083174044122546
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": 86.46177578278036,
+          "conditional_95_percent_interval": [
+            52.8625512949253,
+            119.66837701810574
+          ],
+          "per_training_seed_differences": [
+            109.6512185805932,
+            46.61452188146084,
+            103.11958688628711
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 86.46177578278036,
+          "exploratory_95_percent_interval": [
+            33.5827966117772,
+            138.86021389051703
+          ],
+          "per_training_seed_differences": [
+            109.6512185805932,
+            46.61452188146084,
+            103.11958688628711
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.23287371720603733,
+          "conditional_95_percent_interval": [
+            -0.45558709982350065,
+            -0.028540593630144922
+          ],
+          "per_training_seed_differences": [
+            0.09509546772103877,
+            -0.37227933057426804,
+            -0.42143728876488273
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.23287371720603733,
+          "exploratory_95_percent_interval": [
+            -0.6026780490354494,
+            0.13079215748748277
+          ],
+          "per_training_seed_differences": [
+            0.09509546772103877,
+            -0.37227933057426804,
+            -0.42143728876488273
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "dqn_mean",
+      "density": 2.5,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.12666666666666668,
+          "conditional_95_percent_interval": [
+            -0.19,
+            -0.06999999999999999
+          ],
+          "per_training_seed_differences": [
+            -0.11,
+            -0.09,
+            -0.18
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.12666666666666668,
+          "exploratory_95_percent_interval": [
+            -0.21,
+            -0.04666666666666667
+          ],
+          "per_training_seed_differences": [
+            -0.11,
+            -0.09,
+            -0.18
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -1.388068096030557,
+          "conditional_95_percent_interval": [
+            -1.7885472442624064,
+            -1.0027479045782137
+          ],
+          "per_training_seed_differences": [
+            -1.9203781505196194,
+            -0.5895612929033597,
+            -1.654264844668692
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -1.388068096030557,
+          "exploratory_95_percent_interval": [
+            -2.142931074510669,
+            -0.5723028993268826
+          ],
+          "per_training_seed_differences": [
+            -1.9203781505196194,
+            -0.5895612929033597,
+            -1.654264844668692
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": 44.41159044045836,
+          "conditional_95_percent_interval": [
+            15.973400595842735,
+            73.13510889839844
+          ],
+          "per_training_seed_differences": [
+            63.16849500492335,
+            17.357297210732924,
+            52.708979105718825
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 44.41159044045836,
+          "exploratory_95_percent_interval": [
+            3.895154944043375,
+            85.17285762538667
+          ],
+          "per_training_seed_differences": [
+            63.16849500492335,
+            17.357297210732924,
+            52.708979105718825
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.1613716089929955,
+          "conditional_95_percent_interval": [
+            -0.3648745012698877,
+            0.017694492973228445
+          ],
+          "per_training_seed_differences": [
+            -0.12458349316124352,
+            -0.17456838282322232,
+            -0.18496295099452065
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.1613716089929955,
+          "exploratory_95_percent_interval": [
+            -0.3988713114503497,
+            0.04651737865925078
+          ],
+          "per_training_seed_differences": [
+            -0.12458349316124352,
+            -0.17456838282322232,
+            -0.18496295099452065
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "qr_mean",
+      "density": 1.0,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.33666666666666667,
+          "conditional_95_percent_interval": [
+            -0.39333333333333337,
+            -0.28333333333333327
+          ],
+          "per_training_seed_differences": [
+            -0.5,
+            -0.3,
+            -0.21
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.33666666666666667,
+          "exploratory_95_percent_interval": [
+            -0.5,
+            -0.18666666666666668
+          ],
+          "per_training_seed_differences": [
+            -0.5,
+            -0.3,
+            -0.21
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -3.3162853956782397,
+          "conditional_95_percent_interval": [
+            -3.594915298301117,
+            -3.046586449200191
+          ],
+          "per_training_seed_differences": [
+            -3.951680890701291,
+            -2.9822337969022543,
+            -3.0149414994311736
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -3.3162853956782397,
+          "exploratory_95_percent_interval": [
+            -3.9806836813334834,
+            -2.7538672324431417
+          ],
+          "per_training_seed_differences": [
+            -3.951680890701291,
+            -2.9822337969022543,
+            -3.0149414994311736
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": 42.64603397106687,
+          "conditional_95_percent_interval": [
+            19.059090621112635,
+            67.17179166263675
+          ],
+          "per_training_seed_differences": [
+            120.24413046087062,
+            17.012697929196218,
+            -9.318726476866242
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 42.64603397106687,
+          "exploratory_95_percent_interval": [
+            -20.21073836096475,
+            117.34120965309133
+          ],
+          "per_training_seed_differences": [
+            120.24413046087062,
+            17.012697929196218,
+            -9.318726476866242
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -1.7190700188803885,
+          "conditional_95_percent_interval": [
+            -2.1177928049047434,
+            -1.329660984238388
+          ],
+          "per_training_seed_differences": [
+            -0.8999518774865419,
+            -1.824937634420809,
+            -2.4323205447338143
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -1.7190700188803885,
+          "exploratory_95_percent_interval": [
+            -2.5533002682222303,
+            -0.8056486120628014
+          ],
+          "per_training_seed_differences": [
+            -0.8999518774865419,
+            -1.824937634420809,
+            -2.4323205447338143
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "qr_mean",
+      "density": 1.5,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.37333333333333335,
+          "conditional_95_percent_interval": [
+            -0.43999999999999995,
+            -0.3066666666666667
+          ],
+          "per_training_seed_differences": [
+            -0.49,
+            -0.3,
+            -0.33
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.37333333333333335,
+          "exploratory_95_percent_interval": [
+            -0.5,
+            -0.24666666666666667
+          ],
+          "per_training_seed_differences": [
+            -0.49,
+            -0.3,
+            -0.33
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -2.94610824714885,
+          "conditional_95_percent_interval": [
+            -3.217404940235308,
+            -2.6767009970725955
+          ],
+          "per_training_seed_differences": [
+            -3.908326924378864,
+            -2.621673870826482,
+            -2.3083239462412046
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -2.94610824714885,
+          "exploratory_95_percent_interval": [
+            -3.8250684428802195,
+            -2.1998305204762594
+          ],
+          "per_training_seed_differences": [
+            -3.908326924378864,
+            -2.621673870826482,
+            -2.3083239462412046
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": 133.031875514236,
+          "conditional_95_percent_interval": [
+            104.71535072748672,
+            160.12474986389742
+          ],
+          "per_training_seed_differences": [
+            218.38622797261684,
+            97.88638906324378,
+            82.82300950684744
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 133.031875514236,
+          "exploratory_95_percent_interval": [
+            62.17617537285688,
+            212.42203807006635
+          ],
+          "per_training_seed_differences": [
+            218.38622797261684,
+            97.88638906324378,
+            82.82300950684744
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.39329602444083095,
+          "conditional_95_percent_interval": [
+            -0.6720317309838075,
+            -0.13348834988807526
+          ],
+          "per_training_seed_differences": [
+            0.22531887709549556,
+            -0.5573242506546552,
+            -0.8478826997633333
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.39329602444083095,
+          "exploratory_95_percent_interval": [
+            -0.9758111231072416,
+            0.21458679774055298
+          ],
+          "per_training_seed_differences": [
+            0.22531887709549556,
+            -0.5573242506546552,
+            -0.8478826997633333
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "qr_mean",
+      "density": 2.0,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.18666666666666668,
+          "conditional_95_percent_interval": [
+            -0.2533333333333333,
+            -0.12333333333333332
+          ],
+          "per_training_seed_differences": [
+            -0.24,
+            -0.2,
+            -0.12
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.18666666666666668,
+          "exploratory_95_percent_interval": [
+            -0.27666666666666667,
+            -0.09
+          ],
+          "per_training_seed_differences": [
+            -0.24,
+            -0.2,
+            -0.12
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -1.893507237887318,
+          "conditional_95_percent_interval": [
+            -2.1970850397069603,
+            -1.5982714879052453
+          ],
+          "per_training_seed_differences": [
+            -2.151033023275483,
+            -1.6515185620599606,
+            -1.8779701283265107
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -1.893507237887318,
+          "exploratory_95_percent_interval": [
+            -2.3261321823339274,
+            -1.4619345781027648
+          ],
+          "per_training_seed_differences": [
+            -2.151033023275483,
+            -1.6515185620599606,
+            -1.8779701283265107
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": 64.37556718562914,
+          "conditional_95_percent_interval": [
+            37.072865704513134,
+            93.33291303672739
+          ],
+          "per_training_seed_differences": [
+            98.61619883573877,
+            52.260083354863006,
+            42.25041936628564
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 64.37556718562914,
+          "exploratory_95_percent_interval": [
+            19.658780829834118,
+            107.7217175383073
+          ],
+          "per_training_seed_differences": [
+            98.61619883573877,
+            52.260083354863006,
+            42.25041936628564
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.31168412415701746,
+          "conditional_95_percent_interval": [
+            -0.5437360641702497,
+            -0.10072537727762441
+          ],
+          "per_training_seed_differences": [
+            -0.0725612998115006,
+            -0.2235575730007026,
+            -0.6389334996588492
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.31168412415701746,
+          "exploratory_95_percent_interval": [
+            -0.6962407588222719,
+            0.04641451025869083
+          ],
+          "per_training_seed_differences": [
+            -0.0725612998115006,
+            -0.2235575730007026,
+            -0.6389334996588492
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    },
+    {
+      "reference": "qr_mean",
+      "density": 2.5,
+      "primary": false,
+      "crashed": {
+        "fixed_models": {
+          "mean_difference": -0.06,
+          "conditional_95_percent_interval": [
+            -0.10666666666666666,
+            -0.016666666666666663
+          ],
+          "per_training_seed_differences": [
+            -0.11,
+            -0.01,
+            -0.06
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.06,
+          "exploratory_95_percent_interval": [
+            -0.13333333333333333,
+            0.016666666666666666
+          ],
+          "per_training_seed_differences": [
+            -0.11,
+            -0.01,
+            -0.06
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "mean_speed_m_s": {
+        "fixed_models": {
+          "mean_difference": -1.2698768996814243,
+          "conditional_95_percent_interval": [
+            -1.5682905023229243,
+            -0.9789617077550241
+          ],
+          "per_training_seed_differences": [
+            -1.284081721246632,
+            -1.2783786352082132,
+            -1.2471703425894278
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -1.2698768996814243,
+          "exploratory_95_percent_interval": [
+            -1.6321617444061107,
+            -0.9219317307901305
+          ],
+          "per_training_seed_differences": [
+            -1.284081721246632,
+            -1.2783786352082132,
+            -1.2471703425894278
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "distance_m": {
+        "fixed_models": {
+          "mean_difference": 17.32379539758267,
+          "conditional_95_percent_interval": [
+            -4.331560427923829,
+            38.90497007287921
+          ],
+          "per_training_seed_differences": [
+            54.93005966537931,
+            -15.84750194744061,
+            12.888828474809321
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": 17.32379539758267,
+          "exploratory_95_percent_interval": [
+            -27.415050603172492,
+            59.85995705764876
+          ],
+          "per_training_seed_differences": [
+            54.93005966537931,
+            -15.84750194744061,
+            12.888828474809321
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      },
+      "return": {
+        "fixed_models": {
+          "mean_difference": -0.3288515022742801,
+          "conditional_95_percent_interval": [
+            -0.5066479619849033,
+            -0.17551845946807285
+          ],
+          "per_training_seed_differences": [
+            -0.04504758030534841,
+            -0.4797705662479803,
+            -0.4617363602695116
+          ],
+          "fixed_model_pairs": 3,
+          "scenario_clusters": 100,
+          "bootstrap_replicates": 10000,
+          "bootstrap_rng_seed": 20261111,
+          "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+        },
+        "exploratory_new_training": {
+          "mean_difference": -0.3288515022742801,
+          "exploratory_95_percent_interval": [
+            -0.6316155675482708,
+            -0.023679837867296338
+          ],
+          "per_training_seed_differences": [
+            -0.04504758030534841,
+            -0.4797705662479803,
+            -0.4617363602695116
+          ],
+          "training_seeds": 3,
+          "scenarios_per_seed": 100,
+          "bootstrap_replicates": 5000,
+          "bootstrap_rng_seed": 2026
+        }
+      }
+    }
+  ],
+  "primary_criterion_met": false,
+  "primary": {
+    "reference": "dqn_governed",
+    "density": 1.0,
+    "primary": true,
+    "crashed": {
+      "fixed_models": {
+        "mean_difference": -0.006666666666666667,
+        "conditional_95_percent_interval": [
+          -0.06333333333333332,
+          0.05
+        ],
+        "per_training_seed_differences": [
+          0.09,
+          0.04,
+          -0.15
+        ],
+        "fixed_model_pairs": 3,
+        "scenario_clusters": 100,
+        "bootstrap_replicates": 10000,
+        "bootstrap_rng_seed": 20261111,
+        "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+      },
+      "exploratory_new_training": {
+        "mean_difference": -0.006666666666666667,
+        "exploratory_95_percent_interval": [
+          -0.14666666666666667,
+          0.13
+        ],
+        "per_training_seed_differences": [
+          0.09,
+          0.04,
+          -0.15
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 100,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    "mean_speed_m_s": {
+      "fixed_models": {
+        "mean_difference": -0.18229776418458318,
+        "conditional_95_percent_interval": [
+          -0.437607939455137,
+          0.08325565861725184
+        ],
+        "per_training_seed_differences": [
+          0.5931813663922831,
+          0.028074737407391373,
+          -1.1681493963534237
+        ],
+        "fixed_model_pairs": 3,
+        "scenario_clusters": 100,
+        "bootstrap_replicates": 10000,
+        "bootstrap_rng_seed": 20261111,
+        "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+      },
+      "exploratory_new_training": {
+        "mean_difference": -0.18229776418458318,
+        "exploratory_95_percent_interval": [
+          -1.101212280189466,
+          0.6539578131641517
+        ],
+        "per_training_seed_differences": [
+          0.5931813663922831,
+          0.028074737407391373,
+          -1.1681493963534237
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 100,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    "distance_m": {
+      "fixed_models": {
+        "mean_difference": -28.388680257260717,
+        "conditional_95_percent_interval": [
+          -49.912396443297716,
+          -7.218546395349586
+        ],
+        "per_training_seed_differences": [
+          -39.435703089052474,
+          -40.08298917478805,
+          -5.6473485079416585
+        ],
+        "fixed_model_pairs": 3,
+        "scenario_clusters": 100,
+        "bootstrap_replicates": 10000,
+        "bootstrap_rng_seed": 20261111,
+        "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+      },
+      "exploratory_new_training": {
+        "mean_difference": -28.388680257260717,
+        "exploratory_95_percent_interval": [
+          -61.24219468769423,
+          2.4063936400301373
+        ],
+        "per_training_seed_differences": [
+          -39.435703089052474,
+          -40.08298917478805,
+          -5.6473485079416585
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 100,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    },
+    "return": {
+      "fixed_models": {
+        "mean_difference": -0.5896160954042218,
+        "conditional_95_percent_interval": [
+          -0.8804123561340175,
+          -0.28334405372497645
+        ],
+        "per_training_seed_differences": [
+          -0.19021747533064687,
+          -0.5381694124681651,
+          -1.0404613984138535
+        ],
+        "fixed_model_pairs": 3,
+        "scenario_clusters": 100,
+        "bootstrap_replicates": 10000,
+        "bootstrap_rng_seed": 20261111,
+        "scope": "Fresh scenarios conditional on the locked trained models; no new-training generalization."
+      },
+      "exploratory_new_training": {
+        "mean_difference": -0.5896160954042218,
+        "exploratory_95_percent_interval": [
+          -1.1265124046555413,
+          -0.04716842381156896
+        ],
+        "per_training_seed_differences": [
+          -0.19021747533064687,
+          -0.5381694124681651,
+          -1.0404613984138535
+        ],
+        "training_seeds": 3,
+        "scenarios_per_seed": 100,
+        "bootstrap_replicates": 5000,
+        "bootstrap_rng_seed": 2026
+      }
+    }
+  },
+  "development_comparison": [
+    {
+      "policy": "qr_tail",
+      "density": 1.0,
+      "development": {
+        "collision_fraction": 0.1111111111111111,
+        "speed_m_s": 22.769446001032193
+      },
+      "confirmation": {
+        "collision_fraction": 0.16,
+        "speed_m_s": 23.37445562266227
+      }
+    },
+    {
+      "policy": "qr_tail",
+      "density": 1.5,
+      "development": {
+        "collision_fraction": 0.3111111111111111,
+        "speed_m_s": 21.237155227672428
+      },
+      "confirmation": {
+        "collision_fraction": 0.32,
+        "speed_m_s": 21.387798699161134
+      }
+    },
+    {
+      "policy": "qr_tail",
+      "density": 2.0,
+      "development": {
+        "collision_fraction": 0.6666666666666666,
+        "speed_m_s": 20.29873727032064
+      },
+      "confirmation": {
+        "collision_fraction": 0.6066666666666666,
+        "speed_m_s": 20.742738243635472
+      }
+    },
+    {
+      "policy": "qr_tail",
+      "density": 2.5,
+      "development": {
+        "collision_fraction": 0.8444444444444444,
+        "speed_m_s": 20.678232679598118
+      },
+      "confirmation": {
+        "collision_fraction": 0.77,
+        "speed_m_s": 20.768710198098372
+      }
+    },
+    {
+      "policy": "dqn_governed",
+      "density": 1.0,
+      "development": {
+        "collision_fraction": 0.37777777777777777,
+        "speed_m_s": 23.47703796279654
+      },
+      "confirmation": {
+        "collision_fraction": 0.16666666666666666,
+        "speed_m_s": 23.55675338684685
+      }
+    },
+    {
+      "policy": "dqn_governed",
+      "density": 1.5,
+      "development": {
+        "collision_fraction": 0.5888888888888889,
+        "speed_m_s": 22.173786640478898
+      },
+      "confirmation": {
+        "collision_fraction": 0.44,
+        "speed_m_s": 22.199296435669556
+      }
+    },
+    {
+      "policy": "dqn_governed",
+      "density": 2.0,
+      "development": {
+        "collision_fraction": 0.8111111111111112,
+        "speed_m_s": 20.873931574213287
+      },
+      "confirmation": {
+        "collision_fraction": 0.6966666666666667,
+        "speed_m_s": 21.266162614789447
+      }
+    },
+    {
+      "policy": "dqn_governed",
+      "density": 2.5,
+      "development": {
+        "collision_fraction": 0.9111111111111111,
+        "speed_m_s": 21.16299571258053
+      },
+      "confirmation": {
+        "collision_fraction": 0.7933333333333333,
+        "speed_m_s": 20.90896263966867
+      }
+    },
+    {
+      "policy": "qr_governed",
+      "density": 1.0,
+      "development": {
+        "collision_fraction": 0.25555555555555554,
+        "speed_m_s": 23.348993892690768
+      },
+      "confirmation": {
+        "collision_fraction": 0.18333333333333335,
+        "speed_m_s": 23.64425211324912
+      }
+    },
+    {
+      "policy": "qr_governed",
+      "density": 1.5,
+      "development": {
+        "collision_fraction": 0.5222222222222221,
+        "speed_m_s": 22.01280169253762
+      },
+      "confirmation": {
+        "collision_fraction": 0.39000000000000007,
+        "speed_m_s": 22.22359574558561
+      }
+    },
+    {
+      "policy": "qr_governed",
+      "density": 2.0,
+      "development": {
+        "collision_fraction": 0.7333333333333334,
+        "speed_m_s": 20.93998849846134
+      },
+      "confirmation": {
+        "collision_fraction": 0.63,
+        "speed_m_s": 21.078649987866594
+      }
+    },
+    {
+      "policy": "qr_governed",
+      "density": 2.5,
+      "development": {
+        "collision_fraction": 0.8777777777777778,
+        "speed_m_s": 20.78549424204326
+      },
+      "confirmation": {
+        "collision_fraction": 0.7466666666666666,
+        "speed_m_s": 20.888175143690233
+      }
+    },
+    {
+      "policy": "dqn_mean",
+      "density": 1.0,
+      "development": {
+        "collision_fraction": 0.6111111111111112,
+        "speed_m_s": 26.55031384069247
+      },
+      "confirmation": {
+        "collision_fraction": 0.5466666666666667,
+        "speed_m_s": 26.729967058081943
+      }
+    },
+    {
+      "policy": "dqn_mean",
+      "density": 1.5,
+      "development": {
+        "collision_fraction": 0.8000000000000002,
+        "speed_m_s": 24.66834674891773
+      },
+      "confirmation": {
+        "collision_fraction": 0.75,
+        "speed_m_s": 24.34058152018656
+      }
+    },
+    {
+      "policy": "dqn_mean",
+      "density": 2.0,
+      "development": {
+        "collision_fraction": 0.8777777777777779,
+        "speed_m_s": 22.365424692425165
+      },
+      "confirmation": {
+        "collision_fraction": 0.8366666666666668,
+        "speed_m_s": 22.95176917452048
+      }
+    },
+    {
+      "policy": "dqn_mean",
+      "density": 2.5,
+      "development": {
+        "collision_fraction": 0.9444444444444445,
+        "speed_m_s": 22.64004450915746
+      },
+      "confirmation": {
+        "collision_fraction": 0.8966666666666666,
+        "speed_m_s": 22.15677829412893
+      }
+    },
+    {
+      "policy": "qr_mean",
+      "density": 1.0,
+      "development": {
+        "collision_fraction": 0.5000000000000001,
+        "speed_m_s": 26.405931494237354
+      },
+      "confirmation": {
+        "collision_fraction": 0.49666666666666665,
+        "speed_m_s": 26.690741018340514
+      }
+    },
+    {
+      "policy": "qr_mean",
+      "density": 1.5,
+      "development": {
+        "collision_fraction": 0.7222222222222222,
+        "speed_m_s": 24.06975420800346
+      },
+      "confirmation": {
+        "collision_fraction": 0.6933333333333334,
+        "speed_m_s": 24.33390694630998
+      }
+    },
+    {
+      "policy": "qr_mean",
+      "density": 2.0,
+      "development": {
+        "collision_fraction": 0.8000000000000002,
+        "speed_m_s": 22.324026226541424
+      },
+      "confirmation": {
+        "collision_fraction": 0.7933333333333333,
+        "speed_m_s": 22.63624548152279
+      }
+    },
+    {
+      "policy": "qr_mean",
+      "density": 2.5,
+      "development": {
+        "collision_fraction": 0.9111111111111111,
+        "speed_m_s": 22.25266213903667
+      },
+      "confirmation": {
+        "collision_fraction": 0.8300000000000001,
+        "speed_m_s": 22.038587097779796
+      }
+    }
+  ],
+  "interpretation": "Primary inference is conditional on six selected trained networks and frozen deployment settings. Residual speeds/action interventions remain; no claim of speed-independent benefit, new-training robustness or real-road safety. Other contrasts are secondary/exploratory.",
+  "consumed_confirmation_seeds": [
+    20000,
+    20099
+  ],
+  "future_untouched_seeds_begin": 20100
+}

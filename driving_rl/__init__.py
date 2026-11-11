@@ -1,4 +1,12 @@
-"""Small, inspectable deep reinforcement learning experiments."""
+"""Prepare temporary folders for plotting libraries when this package is imported.
+
+Python runs this small file before loading the other driving_rl modules. The
+settings below keep graphics caches out of restricted personal folders.
+
+Original implementation notes:
+Small, inspectable deep reinforcement learning experiments.
+"""
+
 import os
 from pathlib import Path
 import tempfile

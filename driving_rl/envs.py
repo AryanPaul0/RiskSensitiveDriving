@@ -1,4 +1,15 @@
-"""Environment and randomness shared by training and evaluation."""
+"""Set up the highway and translate between simulator data and the agent.
+
+The neural network sees eight rows of five values: presence, x, y, vx and vy.
+That is 40 inputs, not a complete description of all traffic. Observations are
+partial: some vehicles and driver settings are missing. The five actions are
+lane left, keep target speed, lane right, increase target speed and decrease it.
+The simulator turns those requests into steering and acceleration.
+
+Original implementation notes:
+Environment and randomness shared by training and evaluation.
+"""
+
 import os
 import random
 
@@ -13,6 +24,10 @@ import torch
 
 
 def seed_everything(seed):
+    """Give Python, NumPy and PyTorch repeatable random starting points.
+    Using one CPU thread per process also avoids many threads competing for these
+    small networks when several training jobs run at once.
+    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -21,6 +36,10 @@ def seed_everything(seed):
 
 
 def make_env(density=1.0, render=False, collision_penalty=-2.0):
+    """Create a highway with explicitly shared settings for fair comparisons.
+    Density changes how closely vehicles start together. It does not change the
+    five available actions or the 40 observation inputs.
+    """
     return gym.make(
         "highway-fast-v0",
         render_mode="rgb_array" if render else None,
@@ -51,11 +70,20 @@ def make_env(density=1.0, render=False, collision_penalty=-2.0):
 
 
 def flatten(observation):
+    """Turn the 8-by-5 observation table into a row of 40 numbers.
+    Keep float32 numbers because that is the number format used by the network.
+    """
     return np.asarray(observation, dtype=np.float32).reshape(-1)
 
 
 def observed_speed(env, observation):
-    """Decode ego velocity using observation metadata, without simulator state."""
+    """Recover the ego car's speed from the observation it is allowed to see.
+    Undo normalization using the simulator's feature ranges, then combine horizontal
+    and vertical velocity with the Pythagorean theorem. No hidden traffic data is used.
+
+    Original implementation notes:
+    Decode ego velocity using observation metadata, without simulator state.
+    """
     observer = env.unwrapped.observation_type
     ego = np.asarray(observation)[0]
     velocity = []
@@ -63,13 +91,18 @@ def observed_speed(env, observation):
         value = float(ego[observer.features.index(feature)])
         if observer.normalize:
             low, high = observer.features_range[feature]
-            value = low + (value + 1) * .5 * (high - low)
+            value = low + (value + 1) * 0.5 * (high - low)
         velocity.append(value)
     return float(np.linalg.norm(velocity))
 
 
 def govern_action(env, observation, action, speed_cap):
-    """Simple ego-speed control; no traffic state or collision-avoidance claim.
+    """Apply a simple speed rule after the network proposes an action.
+    Above the threshold, request a lower target speed. Near it, block further
+    acceleration. This is an action override, not a physical guarantee about speed.
+
+    Original implementation notes:
+    Simple ego-speed control; no traffic state or collision-avoidance claim.
 
     Above the cap, request a slower target speed. Near the cap, suppress an
     acceleration request. Other learned actions remain available below the cap.
@@ -84,7 +117,12 @@ def govern_action(env, observation, action, speed_cap):
 
 
 def render_frame(env):
-    """Draw on an offscreen surface even with SDL's dummy video driver.
+    """Draw one simulator image and copy its pixels for a replay.
+    The simulator normally turns drawing off without a physical display, so we
+    explicitly enable it. Copying prevents later frames from overwriting earlier ones.
+
+    Original implementation notes:
+    Draw on an offscreen surface even with SDL's dummy video driver.
 
     HighwayEnv disables its viewer under the dummy driver by default, returning
     black frames. Offscreen surfaces need no window, so enable their drawing.
@@ -96,7 +134,12 @@ def render_frame(env):
 
 
 def heuristic_action(env):
-    """Privileged full-state comparator: stay in lane and keep a generous gap.
+    """Drive using a hand-written following-distance rule rather than a neural network.
+    This comparator reads extra simulator state, so it must be identified as having
+    more information than the learned policies.
+
+    Original implementation notes:
+    Privileged full-state comparator: stay in lane and keep a generous gap.
 
     This rule sees simulator state, unlike the learned policies. Report it as a
     sanity check, not as an observation-matched algorithm comparison.
@@ -113,11 +156,20 @@ def heuristic_action(env):
     return actions["IDLE"]
 
 
-def reset_training_episode(env, density_rng, densities=(1.,), seed=None):
-    """Sample density at reset, with randomness separate from exploration/replay."""
+def reset_training_episode(env, density_rng, densities=(1.0,), seed=None):
+    """Choose a traffic density before starting the next driving episode.
+    Use a separate random generator so choosing density does not consume the random
+    numbers used for exploration or replay sampling. One density reproduces the old
+    fixed-density behavior. Equal episode probabilities do not mean equal step counts.
+
+    Original implementation notes:
+    Sample density at reset, with randomness separate from exploration/replay.
+    """
     if not densities or any(not np.isfinite(d) or d <= 0 for d in densities):
         raise ValueError("Training densities must be finite and positive")
-    density = float(densities[0] if len(densities) == 1 else density_rng.choice(densities))
+    density = float(
+        densities[0] if len(densities) == 1 else density_rng.choice(densities)
+    )
     if env.unwrapped.config["vehicles_density"] != density:
         env.unwrapped.configure({"vehicles_density": density})
     observation, info = env.reset(seed=seed)

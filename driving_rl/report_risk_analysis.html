@@ -1,8 +1,162 @@
 <!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Risk-aware driving · controls and calibration</title>
+<!-- Appearance only: these CSS rules arrange the page and do not run RL. -->
 <style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0d1423;color:#e9eef7;font:16px/1.65 system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:48px 28px}h1{font-size:clamp(30px,4vw,48px);line-height:1.14;max-width:990px;letter-spacing:-.025em}.eyebrow{color:#62dbbf;letter-spacing:.12em;font-size:12px;font-weight:750}.intro,small,footer{color:#acbad0}.intro{max-width:980px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:28px 0}.card{background:#172439;padding:20px;border-radius:12px}.number{font-size:31px;font-weight:750;color:#8be3cf}.caption{color:#acbad0;font-size:13px}.notice{padding:18px 22px;background:#172439;border-left:3px solid #62dbbf;border-radius:6px}.warning{border-color:#e7b36b}section{margin-top:44px}.figure{width:100%;border-radius:12px;background:white}h2{font-size:25px;letter-spacing:-.015em}.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;padding:12px;border-bottom:1px solid #283348;white-space:nowrap}th{color:#8ddfcd}tr.highlight{background:#13332f}select{font:inherit;padding:8px 12px;border:1px solid #4a5b74;background:#172439;border-radius:7px;color:#e9eef7}label{margin-right:12px}a{color:#8ddfcd}.slider{padding:22px;background:#172439;border-radius:12px}input[type=range]{width:min(100%,600px);display:block;accent-color:#62dbbf;margin:20px 0}.metric{display:inline-block;margin-right:24px;font-weight:650}.metric span{color:#8be3cf}article{margin-top:20px}article img{width:100%;border-radius:8px}h3{font-size:16px}footer{font-size:13px;margin-top:40px}code{color:#b2eadb}@media(max-width:650px){.cards{grid-template-columns:1fr}main{padding:28px 16px}}
+:root {
+    color-scheme:dark
+}
+* {
+    box-sizing:border-box
+}
+body {
+    margin:0;
+    background:#0d1423;
+    color:#e9eef7;
+    font:16px/1.65 system-ui,sans-serif
+}
+main {
+    max-width:1200px;
+    margin:auto;
+    padding:48px 28px
+}
+h1 {
+    font-size:clamp(30px,4vw,48px);
+    line-height:1.14;
+    max-width:990px;
+    letter-spacing:-.025em
+}
+.eyebrow {
+    color:#62dbbf;
+    letter-spacing:.12em;
+    font-size:12px;
+    font-weight:750
+}
+.intro,small,footer {
+    color:#acbad0
+}
+.intro {
+    max-width:980px
+}
+.cards {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin:28px 0
+}
+.card {
+    background:#172439;
+    padding:20px;
+    border-radius:12px
+}
+.number {
+    font-size:31px;
+    font-weight:750;
+    color:#8be3cf
+}
+.caption {
+    color:#acbad0;
+    font-size:13px
+}
+.notice {
+    padding:18px 22px;
+    background:#172439;
+    border-left:3px solid #62dbbf;
+    border-radius:6px
+}
+.warning {
+    border-color:#e7b36b
+}
+section {
+    margin-top:44px
+}
+.figure {
+    width:100%;
+    border-radius:12px;
+    background:white
+}
+h2 {
+    font-size:25px;
+    letter-spacing:-.015em
+}
+.scroll {
+    overflow-x:auto
+}
+table {
+    border-collapse:collapse;
+    width:100%;
+    font-size:14px
+}
+td,th {
+    text-align:left;
+    padding:12px;
+    border-bottom:1px solid #283348;
+    white-space:nowrap
+}
+th {
+    color:#8ddfcd
+}
+tr.highlight {
+    background:#13332f
+}
+select {
+    font:inherit;
+    padding:8px 12px;
+    border:1px solid #4a5b74;
+    background:#172439;
+    border-radius:7px;
+    color:#e9eef7
+}
+label {
+    margin-right:12px
+}
+a {
+    color:#8ddfcd
+}
+.slider {
+    padding:22px;
+    background:#172439;
+    border-radius:12px
+}
+input[type=range] {
+    width:min(100%,600px);
+    display:block;
+    accent-color:#62dbbf;
+    margin:20px 0
+}
+.metric {
+    display:inline-block;
+    margin-right:24px;
+    font-weight:650
+}
+.metric span {
+    color:#8be3cf
+}
+article {
+    margin-top:20px
+}
+article img {
+    width:100%;
+    border-radius:8px
+}
+h3 {
+    font-size:16px
+}
+footer {
+    font-size:13px;
+    margin-top:40px
+}
+code {
+    color:#b2eadb
+}
+@media(max-width:650px) {
+    .cards {
+        grid-template-columns:1fr
+    }
+    main {
+        padding:28px 16px
+    }
+}
 </style>
 <main>
 <div class="eyebrow">DEEP REINFORCEMENT LEARNING / DEVELOPMENT EXPERIMENT</div>
@@ -37,12 +191,62 @@
 <footer>The lower-tail selector is a deployment heuristic without global CVaR optimality or safety guarantees. Finite data, three training seeds, partially observed inputs, reward design and simplified simulator dynamics limit every conclusion. Development seeds were inspected; scenario seeds 20000 onward remain reserved.</footer>
 </main>
 <script>
-const data=__PAYLOAD__;
-const policyNames={mean:'QR-DQN mean',tail25:'QR-DQN lower 25%',governed:'Same QR-DQN + governor'};
-function addRow(body,values,highlight=false){const row=document.createElement('tr');if(highlight)row.className='highlight';for(const value of values){const cell=document.createElement('td');cell.textContent=value;row.appendChild(cell)}body.appendChild(row)}
-function update(){const density=Number(document.getElementById('density').value);const body=document.getElementById('policies');body.replaceChildren();for(const [name,rows] of Object.entries(data.groups)){const r=rows.find(x=>x.density===density);addRow(body,[name,(100*r.crash_rate).toFixed(1)+'%',r.crash_rate_seed_range.map(x=>(100*x).toFixed(1)+'%').join('–'),r.mean_speed_m_s.toFixed(2),r.mean_distance_m.toFixed(0),r.mean_duration_s.toFixed(1)],name==='QR-DQN lower 25%')}
-const seeds=document.getElementById('seed-deltas');seeds.replaceChildren();const cautious=data.groups['QR-DQN lower 25%'].find(x=>x.density===density);const governed=data.groups['Same QR-DQN + governor'].find(x=>x.density===density);for(const left of cautious.per_seed){const right=governed.per_seed.find(x=>x.training_seed===left.training_seed);addRow(seeds,[left.training_seed,(100*left.crash_rate).toFixed(1)+'%',(100*right.crash_rate).toFixed(1)+'%',((left.crash_rate-right.crash_rate)*100).toFixed(1),left.mean_speed_m_s.toFixed(2),right.mean_speed_m_s.toFixed(2),(left.mean_speed_m_s-right.mean_speed_m_s).toFixed(2)])}
-const frontier=data.frontier[Number(document.getElementById('alpha').value)];const point=frontier.summary.find(x=>x.density===density);document.getElementById('alpha-value').textContent=frontier.alpha;document.getElementById('risk-crashes').textContent=(100*point.crash_rate).toFixed(1)+'%';document.getElementById('risk-speed').textContent=point.mean_speed_m_s.toFixed(2)+' m/s';document.getElementById('risk-density').textContent=density.toFixed(1);
-const calibration=document.getElementById('calibration');calibration.replaceChildren();const failures=document.getElementById('failures');failures.replaceChildren();for(const [policy,name] of Object.entries(policyNames)){const r=data.calibration[policy].find(x=>x.density===density);addRow(calibration,[name,r.mean_prediction_bias_bounds.map(x=>x.toFixed(3)).join(' to '),(100*r.censored_fraction).toFixed(1)+'%',(100*r.quantile_crossing_fraction).toFixed(1)+'%']);const f=data.failures[policy].find(x=>x.density===density);const percent=x=>x===null?'—':(100*x).toFixed(1)+'%';addRow(failures,[name,f.crashes+' / '+f.episodes,f.early_crashes_within_3_seconds,percent(f.recent_lateral_request_given_crash),percent(f.recent_lane_transition_given_crash)])}}
-document.getElementById('density').addEventListener('change',update);document.getElementById('alpha').addEventListener('input',update);update();
+// This data is filled in by the Python report builder; it is not live training.
+
+const data = __PAYLOAD__;
+const policyNames = {
+    mean: 'QR-DQN mean',
+    tail25: 'QR-DQN lower 25%',
+    governed: 'Same QR-DQN + governor'
+};
+// Build one table row from a list of values.
+function addRow(body, values, highlight = false) {
+    const row = document.createElement('tr');
+    if (highlight) row.className = 'highlight';
+    for (const value of values) {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        row.appendChild(cell)
+    }
+    body.appendChild(row)
+}
+// Redraw the tables and risk readout when the chosen density or slider changes.
+function update() {
+    const density = Number(document.getElementById('density').value);
+    const body = document.getElementById('policies');
+    body.replaceChildren();
+    for (const [name, rows] of Object.entries(data.groups)) {
+        const r = rows.find(x => x.density === density);
+        addRow(body, [name, (100 * r.crash_rate).toFixed(1) + '%', r.crash_rate_seed_range.map(x => (100 * x).toFixed(1) + '%').join('–'), r.mean_speed_m_s.toFixed(2), r.mean_distance_m.toFixed(0), r.mean_duration_s.toFixed(1)], name === 'QR-DQN lower 25%')
+    }
+    const seeds = document.getElementById('seed-deltas');
+    seeds.replaceChildren();
+    const cautious = data.groups['QR-DQN lower 25%'].find(x => x.density === density);
+    const governed = data.groups['Same QR-DQN + governor'].find(x => x.density === density);
+    for (const left of cautious.per_seed) {
+        const right = governed.per_seed.find(x => x.training_seed === left.training_seed);
+        addRow(seeds, [left.training_seed, (100 * left.crash_rate).toFixed(1) + '%', (100 * right.crash_rate).toFixed(1) + '%', ((left.crash_rate - right.crash_rate) * 100).toFixed(1), left.mean_speed_m_s.toFixed(2), right.mean_speed_m_s.toFixed(2), (left.mean_speed_m_s - right.mean_speed_m_s).toFixed(2)])
+    }
+    const frontier = data.frontier[Number(document.getElementById('alpha').value)];
+    const point = frontier.summary.find(x => x.density === density);
+    document.getElementById('alpha-value').textContent = frontier.alpha;
+    document.getElementById('risk-crashes').textContent = (100 * point.crash_rate).toFixed(1) + '%';
+    document.getElementById('risk-speed').textContent = point.mean_speed_m_s.toFixed(2) + ' m/s';
+    document.getElementById('risk-density').textContent = density.toFixed(1);
+    const calibration = document.getElementById('calibration');
+    calibration.replaceChildren();
+    const failures = document.getElementById('failures');
+    failures.replaceChildren();
+    for (const [policy, name] of Object.entries(policyNames)) {
+        const r = data.calibration[policy].find(x => x.density === density);
+        addRow(calibration, [name, r.mean_prediction_bias_bounds.map(x => x.toFixed(3)).join(' to '), (100 * r.censored_fraction).toFixed(1) + '%', (100 * r.quantile_crossing_fraction).toFixed(1) + '%']);
+        const f = data.failures[policy].find(x => x.density === density);
+        const percent = x => x === null ? '—' : (100 * x).toFixed(1) + '%';
+        addRow(failures, [name, f.crashes + ' / ' + f.episodes, f.early_crashes_within_3_seconds, percent(f.recent_lateral_request_given_crash), percent(f.recent_lane_transition_given_crash)])
+    }
+}
+// Register page controls, then show the first view.
+document.getElementById('density').addEventListener('change', update);
+document.getElementById('alpha').addEventListener('input', update);
+update();
 </script></html>

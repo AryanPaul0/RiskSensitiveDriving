@@ -1,0 +1,153 @@
+{
+  "status": "Locked before confirmation evaluations",
+  "training_steps": 40000,
+  "training_seeds": [
+    0,
+    1,
+    2
+  ],
+  "training_densities": [
+    1.0,
+    1.5,
+    2.0
+  ],
+  "scenario_seed_start": 20000,
+  "episodes_per_density": 100,
+  "densities": [
+    1.0,
+    1.5,
+    2.0,
+    2.5
+  ],
+  "policies": {
+    "qr_tail": {
+      "algorithm": "qrdqn",
+      "alpha": 0.25,
+      "speed_cap_m_s": null
+    },
+    "dqn_governed": {
+      "algorithm": "dqn",
+      "alpha": 1.0,
+      "speed_cap_m_s": 25.0
+    },
+    "qr_governed": {
+      "algorithm": "qrdqn",
+      "alpha": 1.0,
+      "speed_cap_m_s": 25.0
+    },
+    "dqn_mean": {
+      "algorithm": "dqn",
+      "alpha": 1.0,
+      "speed_cap_m_s": null
+    },
+    "qr_mean": {
+      "algorithm": "qrdqn",
+      "alpha": 1.0,
+      "speed_cap_m_s": null
+    }
+  },
+  "primary": {
+    "left": "qr_tail",
+    "right": "dqn_governed",
+    "density": 1.0,
+    "metric": "crashed",
+    "direction": "Lower collision fraction is better",
+    "estimand": "Expected paired collision difference over fresh scenarios, averaged over the three fixed trained-model pairs.",
+    "interval": "Two-sided percentile 95% scenario-cluster bootstrap; 10000 replicates; RNG seed 20261111. Resample scenario IDs while retaining all fixed models and policy pairing.",
+    "decision_rule": "Evidence of fewer collisions for the locked QR-tail policy if the upper conditional confidence endpoint is strictly below zero. Report speed/distance regardless of collision result. Do not claim speed-independent or real-road safety benefit."
+  },
+  "secondary": "Other policies, traffic densities, seed variation and crossed bootstrap intervals are descriptive/exploratory; no family-wise inference claimed.",
+  "generalization_limit": "Primary interval conditions on this selected set of trained models, architecture, rewards and governor caps; it does not cover new training runs or remove speed/action-rule differences.",
+  "no_tuning": "No retraining, checkpoint selection, alpha adjustment or governor adjustment using these results. Further tuned models need a new untouched scenario block.",
+  "replays": "Training seed 0, first reserved scenario 20000 at density 1, for QR tail and both governed controls; fixed before outcomes.",
+  "checkpoint_hashes": {
+    "qr_tail": {
+      "0": {
+        "path": "results/density_coverage/qrdqn_seed0/final.pt",
+        "sha256": "f5079fc235770454d6db581a0e75aca1b4d56c9ee52ddb85d340792f8861d639"
+      },
+      "1": {
+        "path": "results/density_coverage/qrdqn_seed1/final.pt",
+        "sha256": "1f0e908f05151560e1e3ff6147b8660fba372780080ba02b5299fbf2d56de1c3"
+      },
+      "2": {
+        "path": "results/density_coverage/qrdqn_seed2/final.pt",
+        "sha256": "db0ac1360dcaab600486a0bba05a47aec5767eb6a6edb306a4c018c113196507"
+      }
+    },
+    "dqn_governed": {
+      "0": {
+        "path": "results/baseline_controls/dqn_seed0/final.pt",
+        "sha256": "15ee1d329c413a77c964224a937f1e44ed00458324068d822cb8fe231a029a4c"
+      },
+      "1": {
+        "path": "results/baseline_controls/dqn_seed1/final.pt",
+        "sha256": "8850ca961e2aa9c08f8d68bd57f92ab3bb63fbc5b3ece0ff2ae5313c1d7c0ae0"
+      },
+      "2": {
+        "path": "results/baseline_controls/dqn_seed2/final.pt",
+        "sha256": "d51cdc3ea728d16b2eb1dae19f35730d3a31730569083031debc91db25ca193d"
+      }
+    },
+    "qr_governed": {
+      "0": {
+        "path": "results/density_coverage/qrdqn_seed0/final.pt",
+        "sha256": "f5079fc235770454d6db581a0e75aca1b4d56c9ee52ddb85d340792f8861d639"
+      },
+      "1": {
+        "path": "results/density_coverage/qrdqn_seed1/final.pt",
+        "sha256": "1f0e908f05151560e1e3ff6147b8660fba372780080ba02b5299fbf2d56de1c3"
+      },
+      "2": {
+        "path": "results/density_coverage/qrdqn_seed2/final.pt",
+        "sha256": "db0ac1360dcaab600486a0bba05a47aec5767eb6a6edb306a4c018c113196507"
+      }
+    },
+    "dqn_mean": {
+      "0": {
+        "path": "results/baseline_controls/dqn_seed0/final.pt",
+        "sha256": "15ee1d329c413a77c964224a937f1e44ed00458324068d822cb8fe231a029a4c"
+      },
+      "1": {
+        "path": "results/baseline_controls/dqn_seed1/final.pt",
+        "sha256": "8850ca961e2aa9c08f8d68bd57f92ab3bb63fbc5b3ece0ff2ae5313c1d7c0ae0"
+      },
+      "2": {
+        "path": "results/baseline_controls/dqn_seed2/final.pt",
+        "sha256": "d51cdc3ea728d16b2eb1dae19f35730d3a31730569083031debc91db25ca193d"
+      }
+    },
+    "qr_mean": {
+      "0": {
+        "path": "results/density_coverage/qrdqn_seed0/final.pt",
+        "sha256": "f5079fc235770454d6db581a0e75aca1b4d56c9ee52ddb85d340792f8861d639"
+      },
+      "1": {
+        "path": "results/density_coverage/qrdqn_seed1/final.pt",
+        "sha256": "1f0e908f05151560e1e3ff6147b8660fba372780080ba02b5299fbf2d56de1c3"
+      },
+      "2": {
+        "path": "results/density_coverage/qrdqn_seed2/final.pt",
+        "sha256": "db0ac1360dcaab600486a0bba05a47aec5767eb6a6edb306a4c018c113196507"
+      }
+    }
+  },
+  "source_hashes": {
+    "driving_rl/__init__.py": "1689c50964fa46771f9f89404720c8817bd98a0c21f9ea6692a9fac33544e673",
+    "driving_rl/agents.py": "c1fb517ecf616aef68b98ac851df0baf74139f1ff73c9c2e197fd8d48ca38dea",
+    "driving_rl/analysis.py": "95fd066095bea136de2bbee75066d8f5b3d92a263ccea8fa8706aa1da2af5a62",
+    "driving_rl/baseline_controls_report.py": "74cd6046111610028ead02e1bab63dd3bbec3510bdddee8b7500823b0afe0fce",
+    "driving_rl/calibration.py": "a2b39654767c0013344223bcc22cdbf2ef33152440807c48a8e3d0e60fe0d259",
+    "driving_rl/cli.py": "bd10c0755c9791ccfffdcc14d8034a064f0c44e073fb5ad44b9083bc9027c025",
+    "driving_rl/controls_report.py": "61876df9d3f9a14c98b2ccdba7e8c3efba13751da191a0724addc43cb85700ea",
+    "driving_rl/density_coverage_report.py": "aa83c1a18902abfe947350fb643e1309248ba16d07e6feabc3984f7d18f5005c",
+    "driving_rl/diagnostics.py": "5bdf9de304f93599c6cae708b5cb0e1f8adeed38971c94bd7f4151a760b4af35",
+    "driving_rl/envs.py": "ad1cfe63e22ec2dbe41a8465912bc4bb9f8ef0806d88ddbe61f395b4e936061c",
+    "driving_rl/experiment.py": "f4129396f6bda0bc695fe43e15410fb22aecd72a8a700302091ae11055315af0",
+    "driving_rl/metrics.py": "52bf5329bc71e997fcaa9494789fffed20eae04435717ebb9c11531c29379ba2",
+    "driving_rl/plots.py": "bf7156844034a92cbb3dcf417c678cc30a7c68613d7aacebd7340ade71c475fc",
+    "driving_rl/risk_analysis_analysis.py": "5f5967f6595c31af78036d7c2df9e0f042c14f72b32cb10add040c7ddf7199fe",
+    "driving_rl/risk_analysis_report.py": "fb28157b7303fac6cff20b1f715d4fc6f108fab1e71dbcea8e662297c9c2c190",
+    "driving_rl/training_budget_report.py": "1672316bb88e028dcde36d73b8157664dd8019276560fbf5ad9f93090b9ffd98"
+  }
+}

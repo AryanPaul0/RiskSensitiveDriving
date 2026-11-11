@@ -1,0 +1,106 @@
+{
+  "budgets": [
+    40000,
+    100000
+  ],
+  "model_hashes": {
+    "40000": {
+      "qr_tail": {
+        "0": "f5079fc235770454d6db581a0e75aca1b4d56c9ee52ddb85d340792f8861d639",
+        "1": "1f0e908f05151560e1e3ff6147b8660fba372780080ba02b5299fbf2d56de1c3",
+        "2": "db0ac1360dcaab600486a0bba05a47aec5767eb6a6edb306a4c018c113196507"
+      },
+      "dqn_governed": {
+        "0": "15ee1d329c413a77c964224a937f1e44ed00458324068d822cb8fe231a029a4c",
+        "1": "8850ca961e2aa9c08f8d68bd57f92ab3bb63fbc5b3ece0ff2ae5313c1d7c0ae0",
+        "2": "d51cdc3ea728d16b2eb1dae19f35730d3a31730569083031debc91db25ca193d"
+      },
+      "qr_governed": {
+        "0": "f5079fc235770454d6db581a0e75aca1b4d56c9ee52ddb85d340792f8861d639",
+        "1": "1f0e908f05151560e1e3ff6147b8660fba372780080ba02b5299fbf2d56de1c3",
+        "2": "db0ac1360dcaab600486a0bba05a47aec5767eb6a6edb306a4c018c113196507"
+      },
+      "dqn_mean": {
+        "0": "15ee1d329c413a77c964224a937f1e44ed00458324068d822cb8fe231a029a4c",
+        "1": "8850ca961e2aa9c08f8d68bd57f92ab3bb63fbc5b3ece0ff2ae5313c1d7c0ae0",
+        "2": "d51cdc3ea728d16b2eb1dae19f35730d3a31730569083031debc91db25ca193d"
+      },
+      "qr_mean": {
+        "0": "f5079fc235770454d6db581a0e75aca1b4d56c9ee52ddb85d340792f8861d639",
+        "1": "1f0e908f05151560e1e3ff6147b8660fba372780080ba02b5299fbf2d56de1c3",
+        "2": "db0ac1360dcaab600486a0bba05a47aec5767eb6a6edb306a4c018c113196507"
+      }
+    },
+    "100000": {
+      "qr_tail": {
+        "0": "363ad3670f09433d32e8c48904845665abeb8862d558e4d567b8b5bf813e112c",
+        "1": "9a3df7fd57d0e4f5fcb634b41f539bc816a2d70afbbaf910cc5d7e6af7c4cf56",
+        "2": "2d4fb377a2b528dd378cedf64e8155dc6f5d88526aa423c4e3062bbfaffd55f6"
+      },
+      "dqn_governed": {
+        "0": "9255428ccdf3bbe5edf2ad8846728769a573350cd9ad0c0b5019ebd4618abdac",
+        "1": "c4677cbc33eb3d98d136bf75b867029bf6ca22beadc35fab120c739dbb6bff69",
+        "2": "37bd9120e73c7a0ac3a6a46f05f8c789a7cb9df2d61b0878d971285feb9ec221"
+      },
+      "qr_governed": {
+        "0": "363ad3670f09433d32e8c48904845665abeb8862d558e4d567b8b5bf813e112c",
+        "1": "9a3df7fd57d0e4f5fcb634b41f539bc816a2d70afbbaf910cc5d7e6af7c4cf56",
+        "2": "2d4fb377a2b528dd378cedf64e8155dc6f5d88526aa423c4e3062bbfaffd55f6"
+      },
+      "dqn_mean": {
+        "0": "9255428ccdf3bbe5edf2ad8846728769a573350cd9ad0c0b5019ebd4618abdac",
+        "1": "c4677cbc33eb3d98d136bf75b867029bf6ca22beadc35fab120c739dbb6bff69",
+        "2": "37bd9120e73c7a0ac3a6a46f05f8c789a7cb9df2d61b0878d971285feb9ec221"
+      },
+      "qr_mean": {
+        "0": "363ad3670f09433d32e8c48904845665abeb8862d558e4d567b8b5bf813e112c",
+        "1": "9a3df7fd57d0e4f5fcb634b41f539bc816a2d70afbbaf910cc5d7e6af7c4cf56",
+        "2": "2d4fb377a2b528dd378cedf64e8155dc6f5d88526aa423c4e3062bbfaffd55f6"
+      }
+    }
+  },
+  "scenario_seed_start": 20100,
+  "episodes_per_density": 100,
+  "densities": [
+    1.0,
+    1.5,
+    2.0,
+    2.5
+  ],
+  "policies": {
+    "qr_tail": [
+      "qrdqn",
+      0.25,
+      null
+    ],
+    "dqn_governed": [
+      "dqn",
+      1.0,
+      25.0
+    ],
+    "qr_governed": [
+      "qrdqn",
+      1.0,
+      25.0
+    ],
+    "dqn_mean": [
+      "dqn",
+      1.0,
+      null
+    ],
+    "qr_mean": [
+      "qrdqn",
+      1.0,
+      null
+    ]
+  },
+  "primary": "100K QR lower quarter minus 100K DQN with the frozen 25 m/s governor, density 1, collision fraction.",
+  "primary_rule": "Conditional scenario-bootstrap 95% interval must have upper endpoint below zero; report speed regardless. No tuning.",
+  "secondary": "Budget effects pair the SAME new scenarios. Other policies/densities and three-seed crossed intervals are exploratory.",
+  "scope": "Primary inference conditions on selected networks. Equal aggregate speed is not guaranteed. No new-training or real-road safety claim.",
+  "consumed_prior_confirmation": [
+    20000,
+    20099
+  ],
+  "future_untouched_seeds_begin": 20200
+}

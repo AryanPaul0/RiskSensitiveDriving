@@ -1,0 +1,39 @@
+{
+  "budgets": [
+    40000,
+    100000
+  ],
+  "policies": {
+    "dqn_mean": [
+      "dqn",
+      1.0
+    ],
+    "qr_mean": [
+      "qrdqn",
+      1.0
+    ],
+    "qr_tail": [
+      "qrdqn",
+      0.25
+    ]
+  },
+  "development_seeds": [
+    19000,
+    19059
+  ],
+  "densities": [
+    1.0,
+    1.5,
+    2.0,
+    2.5
+  ],
+  "training_seeds": [
+    0,
+    1,
+    2
+  ],
+  "tuning": false,
+  "purpose": "Descriptive prediction diagnostics, not confirmation or a replacement primary test.",
+  "return_bounds": "A terminal return is exact. Successful 30-step recordings retain bounded unknown continuation.",
+  "interpretation": "Predictions concern the initial chosen action. Policies can choose different actions and induce different outcomes. QR-tail continuation differs from mean-greedy training."
+}
