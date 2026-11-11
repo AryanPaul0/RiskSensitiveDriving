@@ -46,10 +46,13 @@ def lock_design():
     """Fix settings and model fingerprints before reading new outcomes."""
     OUTPUT.mkdir(parents=True, exist_ok=True)
     models = {}
+    # Each budget gets its own results. Keep 40K and 100K separate until the paired comparison.
     for budget in [40000, 100000]:
         models[str(budget)] = {}
+        # A policy is a decision rule. Several rules can share the very same QR-DQN network.
         for policy in POLICIES:
             models[str(budget)][policy] = {}
+            # A training seed identifies one independently trained model, not a new traffic scenario.
             for seed in range(3):
                 path = model_path(budget, policy, seed)
                 summary = read(path.parent / "summary.json")
@@ -70,9 +73,10 @@ def lock_design():
         "consumed_prior_confirmation": [20000, 20099],
         "future_untouched_seeds_begin": 20200,
     }
-    # JSON saves tuples as lists, so normalize before comparing a rerun.
+    # JSON turns tuples into lists. Normalize that detail before checking a recorded design.
     design = json.loads(json.dumps(design))
     path = OUTPUT / "design.json"
+    # A saved filename is not enough: the checks below verify the contents belong to this experiment.
     if path.exists():
         if read(path) != design:
             raise ValueError("The recorded study cannot be silently changed")
@@ -95,6 +99,7 @@ def evaluate(job):
     path = model_path(budget, policy, seed)
     algorithm, alpha, cap = POLICIES[policy]
     output = OUTPUT / f"eval_{budget}_{policy}_seed{seed}.json"
+    # Do not overwrite an experiment. First check whether its saved settings match this request.
     if output.exists():
         data = read(output)
         saved = data["provenance"]
@@ -109,8 +114,15 @@ def evaluate(job):
         expected = (fingerprint(path), alpha, cap, budget, 20100, 100)
         if actual != expected or len(data["episodes"]) != 400:
             raise ValueError(f"Mismatched evaluation: {output}")
-        cases = {(r["density"], r["seed"]) for r in data["episodes"]}
-        expected_cases = {(d, s) for d in DENSITIES for s in range(20100, 20200)}
+        # A set keeps each density/scenario pair once, even if a row was duplicated.
+        cases = set()
+        for episode in data["episodes"]:
+            cases.add((episode["density"], episode["seed"]))
+        expected_cases = set()
+        for density in DENSITIES:
+            for scenario in range(20100, 20200):
+                expected_cases.add((density, scenario))
+        # We need every requested density/scenario pair, not just the right total number of rows.
         if cases != expected_cases:
             raise ValueError("Missing or duplicated scenarios")
     else:
@@ -135,9 +147,11 @@ def evaluate(job):
             "--out",
             str(output),
         ]
+        # The governor is an optional action override. Its threshold is not a guaranteed physical speed limit.
         if cap is not None:
             command.extend(["--speed-cap", str(cap)])
         with output.with_suffix(".log").open("w") as log:
+            # Run the requested Python command and stop on failure. This is evaluation, not a training call.
             subprocess.run(
                 command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True
             )
@@ -145,6 +159,7 @@ def evaluate(job):
 
 
 def main():
+    """Read the Terminal options and coordinate the workflow. The learning algorithm is not implemented here."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--report-only", action="store_true")
@@ -154,11 +169,16 @@ def main():
     lock_design()
     if not args.report_only:
         jobs = []
+        # Each budget gets its own results. Keep 40K and 100K separate until the paired comparison.
         for budget in [100000, 40000]:
+            # A policy is a decision rule. Several rules can share the very same QR-DQN network.
             for policy in POLICIES:
+                # A training seed identifies one independently trained model, not a new traffic scenario.
                 for seed in range(3):
                     jobs.append((budget, policy, seed))
+        # This only schedules independent jobs. Each actual experiment runs in a separate Python process.
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+            # Wait for all requested jobs, and let errors surface instead of quietly ignoring failed experiments.
             list(pool.map(evaluate, jobs))
     from driving_rl.long_training_report import report
 

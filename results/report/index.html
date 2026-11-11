@@ -5736,10 +5736,12 @@ const actions = ['Lane left', 'Maintain target speed', 'Lane right', 'Faster tar
 const colors = ['#2474bb', '#9170b6', '#16836f', '#d36b21', '#c53b48'];
 let timer = null;
 
+// A small shortcut for finding a page control by its ID. The IDs match the HTML above.
 function element(id) {
     return document.getElementById(id);
 }
 
+// The ordinary classroom mean: add the values, then divide by how many there are.
 function average(numbers) {
     let total = 0;
     for (const value of numbers) {
@@ -5748,10 +5750,13 @@ function average(numbers) {
     return total / numbers.length;
 }
 
+// alpha tells us what fraction to average: .25 uses the lowest 8 of 32 QR outputs.
+// This explores one recorded state; it does not predict a new driving video.
 function actionScores(predictions, alpha) {
     // Copy before sorting: exploring a score must not alter the saved outputs.
     const scores = [];
     for (const outputs of predictions) {
+        // Sort a copy numerically. JavaScript's default text sorting would be wrong here.
         const ordered = outputs.slice().sort(function(a, b) {
             return a - b;
         });
@@ -5761,6 +5766,7 @@ function actionScores(predictions, alpha) {
     return scores;
 }
 
+// Keep the index of the largest score. Ties keep the first action, matching the learner.
 function bestAction(scores) {
     let best = 0;
     for (let action = 1; action < scores.length; action += 1) {
@@ -5771,6 +5777,7 @@ function bestAction(scores) {
     return best;
 }
 
+// Build one table row, one cell at a time. textContent displays values as text, not HTML.
 function addRow(body, values) {
     const row = document.createElement('tr');
     for (const value of values) {
@@ -5783,19 +5790,36 @@ function addRow(body, values) {
 }
 
 function chosenRecording(policy) {
-    return recordings.find(function(record) {
-        return record.budget === Number(element('budget').value) &&
-            record.training_seed === Number(element('model').value) &&
-            record.density === Number(element('density').value) &&
-            record.scenario === Number(element('scenario').value) && record.policy === policy;
-    });
+    // Read the controls once, then look for the matching saved recording.
+    // These controls choose saved data; they never launch training.
+    const budget = Number(element('budget').value);
+    const modelSeed = Number(element('model').value);
+    const density = Number(element('density').value);
+    const scenario = Number(element('scenario').value);
+    for (const record of recordings) {
+        if (record.budget === budget && record.training_seed === modelSeed &&
+            record.density === density && record.scenario === scenario && record.policy === policy) {
+            return record;
+        }
+    }
 }
 
+function findDensityResult(rows, density) {
+    // A summary has one row per density. Find that row with an ordinary loop.
+    for (const row of rows) {
+        if (row.density === density) {
+            return row;
+        }
+    }
+}
+
+// One policy may finish earlier. Hold its last frame instead of inventing later states.
 function frameAt(record, time) {
     // Hold the terminal frame if this recording ends before its comparison.
     return record.states[Math.min(time, record.states.length - 1)];
 }
 
+// Show the picture and measurements from this policy's own saved trajectory.
 function showRecording(side, record, time) {
     const state = frameAt(record, time);
     element(side + '-name').textContent = names[record.policy];
@@ -5805,13 +5829,18 @@ function showRecording(side, record, time) {
         message += ' · ended';
     } else {
         message += ' · ' + actions[state.action];
-        message += state.gap_m === null ? ' · no car directly ahead' : ' · approximate front gap ' + state.gap_m.toFixed(1) + ' m';
+        if (state.gap_m === null) {
+            message += ' · no car directly ahead';
+        } else {
+            message += ' · approximate front gap ' + state.gap_m.toFixed(1) + ' m';
+        }
     }
     element(side + '-state').textContent = message;
     const duration = record.states.length - 1;
     element(side + '-outcome').textContent = 'Recorded outcome: ' + (record.crashed ? 'collision' : 'time cutoff, no collision recorded') + ' after ' + duration + ' s. This is one example.';
 }
 
+// Draw one colored line per action. The vertical values are predicted returns, not crash chances.
 function drawQuantiles(predictions) {
     const canvas = element('quantiles');
     const context = canvas.getContext('2d');
@@ -5822,9 +5851,16 @@ function drawQuantiles(predictions) {
         return;
     }
     element('curve-note').textContent = 'Raw QR output heads; assigned quantile fraction on the horizontal axis and predicted discounted return on the vertical axis. Lower-tail scoring sorts these values; this graph does not hide crossings.';
-    const all = predictions.flat();
-    let low = Math.min(...all);
-    let high = Math.max(...all);
+    // Find the graph's value range one action at a time. Starting with an
+    // actual prediction works even when every return estimate is negative.
+    let low = predictions[0][0];
+    let high = predictions[0][0];
+    for (const actionPredictions of predictions) {
+        for (const value of actionPredictions) {
+            low = Math.min(low, value);
+            high = Math.max(high, value);
+        }
+    }
     if (high - low < 0.01) {
         high = low + 0.01;
     }
@@ -5866,6 +5902,7 @@ function drawQuantiles(predictions) {
     }
 }
 
+// Read-only explanation of one saved decision: green is actual, blue is hypothetical.
 function showDecision(record, time) {
     const state = frameAt(record, time);
     const body = element('scores');
@@ -5885,7 +5922,10 @@ function showDecision(record, time) {
     }
     message += ' Immediate reward after this action: ' + state.reward_after_action.toFixed(3) + '.';
     element('decision-status').textContent = message;
-    const alpha = scalar ? 1 : Number(element('alpha').value);
+    let alpha = 1;
+    if (!scalar) {
+        alpha = Number(element('alpha').value);
+    }
     const means = actionScores(state.predictions, 1);
     const scores = actionScores(state.predictions, alpha);
     const preview = bestAction(scores);
@@ -5899,13 +5939,17 @@ function showDecision(record, time) {
         }
     }
     for (let slot = 0; slot < state.observation.length; slot += 1) {
-        addRow(observation, [slot, ...state.observation[slot].map(function(value) {
-            return value.toFixed(3);
-        })]);
+        // The first cell identifies the slot; the next five are its inputs.
+        const cells = [slot];
+        for (const value of state.observation[slot]) {
+            cells.push(value.toFixed(3));
+        }
+        addRow(observation, cells);
     }
     drawQuantiles(state.predictions);
 }
 
+// Refresh the pictures and numbers together so controls cannot show mismatched recordings.
 function update() {
     const left = chosenRecording(element('left-policy').value);
     const right = chosenRecording(element('right-policy').value);
@@ -5919,12 +5963,14 @@ function update() {
     showDecision(left, time);
 }
 
+// Cancel the playback timer while we inspect a decision or change recordings.
 function stop() {
     clearInterval(timer);
     timer = null;
     element('play').textContent = 'Play';
 }
 
+// Playing moves through saved pictures once per second. It does not rerun the simulator.
 function startOrStop() {
     if (timer !== null) {
         stop();
@@ -5970,12 +6016,8 @@ element('time').addEventListener('input', function() {
 element('play').addEventListener('click', startOrStop);
 const normal = evidence.groups['100000'];
 element('normal-result').textContent = (100 * normal.qr_tail[0].crash_rate).toFixed(1) + '% vs ' + (100 * normal.dqn_governed[0].crash_rate).toFixed(1) + '% collisions';
-const oldDense = evidence.groups['40000'].qr_tail.find(function(row) {
-    return row.density === 2;
-});
-const newDense = normal.qr_tail.find(function(row) {
-    return row.density === 2;
-});
+const oldDense = findDensityResult(evidence.groups['40000'].qr_tail, 2);
+const newDense = findDensityResult(normal.qr_tail, 2);
 element('dense-result').textContent = (100 * oldDense.crash_rate).toFixed(1) + '% → ' + (100 * newDense.crash_rate).toFixed(1) + '% collisions';
 update();
 </script>

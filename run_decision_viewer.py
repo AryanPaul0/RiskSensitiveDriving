@@ -69,11 +69,13 @@ def record_episode(agent, policy, density, scenario):
     rewards = []
     try:
         while True:
+            # We are asking the saved network for predictions. No learning or weight update happens here.
             with torch.no_grad():
                 inputs = torch.as_tensor(flatten(observation)).unsqueeze(0)
                 predictions = agent.online(inputs)
                 proposed = int(action_scores(predictions, alpha).argmax().item())
             action = proposed
+            # The governor is an optional action override. Its threshold is not a guaranteed physical speed limit.
             if cap is not None:
                 action = govern_action(env, observation, proposed, cap)
             state = {
@@ -133,18 +135,23 @@ def main():
         raise ValueError("The recorded example grid must not silently change")
     save_json(design_path, design)
     records = []
+    # Each budget gets its own results. Keep 40K and 100K separate until the paired comparison.
     for budget in design["budgets"]:
         for training_seed in design["training_seeds"]:
+            # A policy is a decision rule. Several rules can share the very same QR-DQN network.
             for policy in POLICIES:
                 checkpoint = model_path(budget, policy, training_seed)
                 model_hash = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
                 agent, _ = load_agent(checkpoint)
+                # Traffic density changes vehicle spacing. It does not add more network inputs.
                 for density in design["densities"]:
+                    # A scenario seed fixes the starting traffic. Reuse the same IDs for fair policy comparisons.
                     for scenario in design["scenario_seeds"]:
                         key = (
                             f"{budget}_{training_seed}_{policy}_{density:g}_{scenario}"
                         )
                         path = OUTPUT / (key + ".json")
+                        # A saved filename is not enough: the checks below verify the contents belong to this experiment.
                         if path.exists():
                             record = json.loads(path.read_text())
                             if (
@@ -188,6 +195,7 @@ def main():
         .read_text()
         .replace("<", "\\u003c")
     )
+    # The long string below is page layout, not reinforcement learning. Later lines insert the measured numbers.
     page = template.replace("__RECORDINGS__", payload).replace("__EVIDENCE__", evidence)
     (viewer / "index.html").write_text(page)
     print(f"Viewer saved with {len(records)} development recordings.", flush=True)

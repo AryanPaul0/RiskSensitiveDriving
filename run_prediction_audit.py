@@ -48,6 +48,7 @@ def model_path(budget, policy, seed):
 
 
 def fingerprint(path):
+    """Make a file fingerprint, like an exact-content ID. We use it to catch accidental model changes."""
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
@@ -65,6 +66,7 @@ def settings(budget, policy, seed):
 
 
 def record_path(budget, policy, seed):
+    """Choose a separate output filename for this budget, policy and training seed."""
     return OUTPUT / f"audit_{budget}_{policy}_seed{seed}.json"
 
 
@@ -75,16 +77,21 @@ def collect(budget, policy, seed):
     gamma = saved["config"]["gamma"]
     alpha = POLICIES[policy][1]
     rows = []
+    # Traffic density changes vehicle spacing. It does not add more network inputs.
     for density in DENSITIES:
         env = make_env(density=density)
         try:
+            # A scenario seed fixes the starting traffic. Reuse the same IDs for fair policy comparisons.
             for scenario in range(19000, 19060):
                 observation, _ = env.reset(seed=scenario)
                 inputs = torch.as_tensor(flatten(observation)).unsqueeze(0)
+                # We are asking the saved network for predictions. No learning or weight update happens here.
                 with torch.no_grad():
                     outputs = agent.online(inputs)
+                    # Choose using the stated rule before observing what happens next.
                     first_action = int(action_scores(outputs, alpha).argmax().item())
                 values = outputs[0, first_action].tolist()
+                # This is the mean future-return estimate for the selected action, not the next reward or a crash probability.
                 prediction = float(outputs[0, first_action].mean().item())
                 # A scalar DQN output is NOT a median or a set of quantiles.
                 quantiles = values if agent.algorithm == "qrdqn" else None
@@ -104,6 +111,7 @@ def collect(budget, policy, seed):
                     if terminal or cutoff:
                         break
                     action = agent.act(flatten(observation), alpha)
+                # A crash makes the return exact. A recording cutoff leaves a bounded unknown future.
                 low, high = discounted_return_bounds(rewards, gamma, terminal)
                 rows.append(
                     {
@@ -133,13 +141,19 @@ def run_collection(job):
     """Separate processes keep random generators independent between jobs."""
     budget, policy, seed = job
     path = record_path(budget, policy, seed)
+    # A saved filename is not enough: the checks below verify the contents belong to this experiment.
     if path.exists():
         data = read(path)
         if data["provenance"] != settings(budget, policy, seed):
             raise ValueError("Cached prediction checks belong to another model")
-        cases = {(r["density"], r["seed"]) for r in data["episodes"]}
+        # A set keeps each density/scenario pair once, even if a row was duplicated.
+        cases = set()
+        for episode in data["episodes"]:
+            cases.add((episode["density"], episode["seed"]))
         expected = set()
+        # Traffic density changes vehicle spacing. It does not add more network inputs.
         for density in DENSITIES:
+            # A scenario seed fixes the starting traffic. Reuse the same IDs for fair policy comparisons.
             for scenario in range(19000, 19060):
                 expected.add((density, scenario))
         if len(data["episodes"]) != 240 or cases != expected:
@@ -154,6 +168,7 @@ def run_collection(job):
             str(seed),
         ]
         with path.with_suffix(".log").open("w") as log:
+            # Run the requested Python command and stop on failure. This is evaluation, not a training call.
             subprocess.run(
                 command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True
             )
@@ -161,6 +176,7 @@ def run_collection(job):
 
 
 def main():
+    """Read the Terminal options and coordinate the workflow. The learning algorithm is not implemented here."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--collect", nargs=3, metavar=("BUDGET", "POLICY", "SEED"))
@@ -190,6 +206,7 @@ def main():
         "return_bounds": "A terminal return is exact. Successful 30-step recordings retain bounded unknown continuation.",
         "interpretation": "Predictions concern the initial chosen action. Policies can choose different actions and induce different outcomes. QR-tail continuation differs from mean-greedy training.",
     }
+    # JSON turns tuples into lists. Normalize that detail before checking a recorded design.
     design = json.loads(json.dumps(design))
     design_path = OUTPUT / "design.json"
     if design_path.exists() and read(design_path) != design:
@@ -198,11 +215,16 @@ def main():
         save_json(design_path, design)
     if not args.report_only:
         jobs = []
+        # Each budget gets its own results. Keep 40K and 100K separate until the paired comparison.
         for budget in [40000, 100000]:
+            # A policy is a decision rule. Several rules can share the very same QR-DQN network.
             for policy in POLICIES:
+                # A training seed identifies one independently trained model, not a new traffic scenario.
                 for seed in range(3):
                     jobs.append((budget, policy, seed))
+        # This only schedules independent jobs. Each actual experiment runs in a separate Python process.
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+            # Wait for all requested jobs, and let errors surface instead of quietly ignoring failed experiments.
             list(pool.map(run_collection, jobs))
     from driving_rl.prediction_audit_report import report
 
