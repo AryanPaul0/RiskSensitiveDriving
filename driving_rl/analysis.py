@@ -179,3 +179,13 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def choose_speed_matched_control(candidates, target_speed):
+    """Use speed closeness only; tie-break by lower cap, never collision rate."""
+    if not candidates or not np.isfinite(target_speed) or target_speed <= 0:
+        raise ValueError('Require candidates and a finite positive target speed')
+    if any(not np.isfinite(r['speed_m_s']) or not np.isfinite(r['cap_m_s'])
+           or r['cap_m_s'] <= 0 for r in candidates):
+        raise ValueError('Require finite speeds and positive finite caps')
+    return min(candidates, key=lambda r:(abs(r['speed_m_s']-target_speed),r['cap_m_s']))

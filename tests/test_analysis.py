@@ -50,3 +50,22 @@ def test_baseline_selection_uses_only_speed_and_predeclared_tie_rule():
                   {"collision_penalty": -4, "speed_m_s": 24., "crash_rate": 1.}]
     assert choose_speed_targeted_baseline(candidates, 23.)["collision_penalty"] == -4
     assert choose_speed_targeted_baseline(candidates, 22.1)["collision_penalty"] == -8
+
+
+def test_speed_matching_never_uses_collision_rate():
+    from driving_rl.analysis import choose_speed_matched_control
+    candidates=[{'cap_m_s':23.,'speed_m_s':22.5,'crash_rate':1.},
+                {'cap_m_s':22.,'speed_m_s':21.,'crash_rate':0.}]
+    assert choose_speed_matched_control(candidates,22.5) is candidates[0]
+
+
+def test_speed_matching_ties_prefer_lower_cap():
+    from driving_rl.analysis import choose_speed_matched_control
+    candidates=[{'cap_m_s':24.,'speed_m_s':23.}, {'cap_m_s':22.,'speed_m_s':21.}]
+    assert choose_speed_matched_control(candidates,22.)['cap_m_s']==22.
+
+
+def test_speed_matching_rejects_missing_and_nonfinite_values():
+    from driving_rl.analysis import choose_speed_matched_control
+    with pytest.raises(ValueError):choose_speed_matched_control([],22.)
+    with pytest.raises(ValueError):choose_speed_matched_control([{'cap_m_s':23.,'speed_m_s':float('nan')}],22.)

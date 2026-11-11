@@ -1,0 +1,46 @@
+{
+  "training_steps": 40000,
+  "training_seeds": [
+    0,
+    1,
+    2
+  ],
+  "training_densities": [
+    1.0,
+    1.5,
+    2.0
+  ],
+  "algorithm": "dqn",
+  "epsilon_decay_steps": 12000,
+  "comparison": "DQN and QR-DQN with equal interaction budgets, identical configured episode-density mixtures, rewards, network hidden sizes and optimizer settings; actual policy-dependent experience differs.",
+  "primary_scenarios": {
+    "seed_start": 10000,
+    "episodes": 30,
+    "densities": [
+      1.0,
+      1.5,
+      2.0
+    ]
+  },
+  "transfer_scenarios": {
+    "seed_start": 16000,
+    "episodes": 30,
+    "densities": [
+      1.25,
+      2.5
+    ]
+  },
+  "speed_control": {
+    "caps_m_s": [
+      21.0,
+      22.0,
+      23.0,
+      24.0,
+      25.0
+    ],
+    "selection": "Independently for mixed DQN and QR mean, choose smallest absolute speed difference from mixed QR lower-quarter at seed 0, density 1; ties prefer lower cap. Collision rates are not selection inputs. Freeze before seeds 1/2.",
+    "primary_comparison": "Mixed QR lower-quarter versus selected DQN governor and same-network QR governor. Report residual speeds and exploratory intervals conditional on selection."
+  },
+  "no_additional_alpha_or_reward_tuning": true,
+  "confirmation_scenarios_used": false
+}
